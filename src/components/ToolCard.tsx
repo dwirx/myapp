@@ -57,7 +57,7 @@ export function ToolCard({ tool }: ToolCardProps) {
         {/* Body */}
         <div className="tool-card-body">
           <h2 className="tool-card-name">{tool.name}</h2>
-          <p className="tool-card-desc">{tool.description}</p>
+          {tool.description && <p className="tool-card-desc">{tool.description}</p>}
         </div>
 
         {/* Footer */}
@@ -128,9 +128,9 @@ export function ToolCard({ tool }: ToolCardProps) {
           font-weight: 700;
           padding: 3px 7px;
           border-radius: 4px;
-          background: oklch(0.72 0.18 55 / 0.15);
-          color: oklch(0.72 0.18 55);
-          border: 1px solid oklch(0.72 0.18 55 / 0.35);
+          background: oklch(from var(--accent) l c h / 0.12);
+          color: var(--accent);
+          border: 1px solid oklch(from var(--accent) l c h / 0.35);
           letter-spacing: 0.08em;
           animation: pulse-new 2s ease-in-out infinite;
         }

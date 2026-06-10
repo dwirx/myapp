@@ -135,7 +135,7 @@ function generateAutoRegistry() {
     const inferred = {
       id: entry.id,
       name: toTitle(entry.id),
-      description: `Auto-detected ${entry.type.toUpperCase()} tool. Add to tools.index.ts for full metadata.`,
+      description: "",
       type: entry.type,
       path: entry.path,
       category: inferCategory(entry.id, entry.type),

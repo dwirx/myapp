@@ -48,7 +48,7 @@ export function ToolPage() {
           .fullscreen-shell {
             position: fixed;
             inset: 0;
-            background: oklch(0.10 0 0);
+            background: var(--bg);
             z-index: var(--z-modal);
             display: flex;
             flex-direction: column;
@@ -58,7 +58,7 @@ export function ToolPage() {
             top: 12px;
             right: 16px;
             z-index: var(--z-toast);
-            background: oklch(0.18 0.005 145 / 0.9);
+            background: oklch(from var(--surface-2) l c h / 0.9);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             color: var(--ink-2);
@@ -131,16 +131,18 @@ export function ToolPage() {
       </nav>
 
       {/* Tool description bar */}
-      <div className="toolpage-desc-bar">
-        <p className="toolpage-desc">{tool.description}</p>
-        {tool.tags && (
-          <div className="toolpage-tags">
-            {tool.tags.map((t) => (
-              <span key={t} className="toolpage-tag">#{t}</span>
-            ))}
-          </div>
-        )}
-      </div>
+      {(tool.description || (tool.tags && tool.tags.length > 0)) && (
+        <div className="toolpage-desc-bar">
+          {tool.description && <p className="toolpage-desc">{tool.description}</p>}
+          {tool.tags && tool.tags.length > 0 && (
+            <div className="toolpage-tags">
+              {tool.tags.map((t) => (
+                <span key={t} className="toolpage-tag">#{t}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tool render area */}
       <div className="toolpage-viewer">
@@ -209,11 +211,11 @@ export function ToolPage() {
           font-weight: 600;
           padding: 3px 8px;
           border-radius: 4px;
-          background: oklch(0.65 0.15 145 / 0.12);
+          background: oklch(from var(--primary) l c h / 0.12);
           color: var(--primary);
         }
         .nav-badge[data-type="html"] {
-          background: oklch(0.72 0.18 55 / 0.12);
+          background: oklch(from var(--accent) l c h / 0.12);
           color: var(--accent);
         }
         .nav-btn {
@@ -230,12 +232,12 @@ export function ToolPage() {
         }
         .nav-btn:hover { border-color: var(--primary); color: var(--primary); }
         .nav-btn-primary {
-          background: oklch(0.65 0.15 145 / 0.12);
-          border-color: oklch(0.65 0.15 145 / 0.4);
+          background: oklch(from var(--primary) l c h / 0.12);
+          border-color: oklch(from var(--primary) l c h / 0.4);
           color: var(--primary);
         }
         .nav-btn-primary:hover {
-          background: oklch(0.65 0.15 145 / 0.20);
+          background: oklch(from var(--primary) l c h / 0.20);
           border-color: var(--primary);
           color: var(--primary);
         }

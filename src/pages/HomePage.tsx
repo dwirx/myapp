@@ -216,7 +216,7 @@ export function HomePage() {
           font-size: 1.8rem;
           color: var(--primary);
           line-height: 1;
-          filter: drop-shadow(0 0 12px oklch(0.65 0.15 145 / 0.5));
+          filter: drop-shadow(0 0 12px oklch(from var(--primary) l c h / 0.35));
         }
         .logo-text {
           font-family: 'JetBrains Mono', monospace;
@@ -266,7 +266,7 @@ export function HomePage() {
           gap: 6px;
         }
         .scan-badge.scanning {
-          background: oklch(0.18 0.005 145);
+          background: var(--surface-2);
           border: 1px solid var(--border);
           color: var(--muted);
         }
@@ -279,9 +279,9 @@ export function HomePage() {
         }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
         .scan-badge.has-new {
-          background: oklch(0.72 0.18 55 / 0.12);
-          border: 1px solid oklch(0.72 0.18 55 / 0.35);
-          color: oklch(0.72 0.18 55);
+          background: oklch(from var(--accent) l c h / 0.12);
+          border: 1px solid oklch(from var(--accent) l c h / 0.35);
+          color: var(--accent);
         }
 
         /* Toolbar */
@@ -313,7 +313,7 @@ export function HomePage() {
         }
         .search-input:focus {
           border-color: var(--primary);
-          box-shadow: 0 0 0 3px oklch(0.65 0.15 145 / 0.15);
+          box-shadow: 0 0 0 3px oklch(from var(--primary) l c h / 0.15);
         }
         .search-input::placeholder { color: var(--muted); }
         .search-input::-webkit-search-cancel-button { display: none; }
@@ -414,20 +414,20 @@ export function HomePage() {
         }
         .filter-chip:hover { border-color: var(--primary); color: var(--ink); }
         .filter-chip.active {
-          background: oklch(0.65 0.15 145 / 0.12);
+          background: oklch(from var(--primary) l c h / 0.12);
           border-color: var(--primary);
           color: var(--primary);
           font-weight: 600;
         }
         .filter-chip-new {
-          border-color: oklch(0.72 0.18 55 / 0.4);
-          color: oklch(0.72 0.18 55);
-          background: oklch(0.72 0.18 55 / 0.06);
+          border-color: oklch(from var(--accent) l c h / 0.4);
+          color: var(--accent);
+          background: oklch(from var(--accent) l c h / 0.06);
         }
         .filter-chip-new:hover, .filter-chip-new.active {
-          background: oklch(0.72 0.18 55 / 0.15);
-          border-color: oklch(0.72 0.18 55);
-          color: oklch(0.72 0.18 55);
+          background: oklch(from var(--accent) l c h / 0.15);
+          border-color: var(--accent);
+          color: var(--accent);
         }
 
         /* Results */

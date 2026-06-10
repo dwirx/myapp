@@ -104,7 +104,7 @@ export const tools: EnrichedTool[] = [
   {
     "id": "pelangan-wifi",
     "name": "Pelangan Wifi",
-    "description": "Auto-detected HTML tool. Add to tools.index.ts for full metadata.",
+    "description": "",
     "type": "html",
     "path": "html/pelangan-wifi",
     "category": "Utility",
@@ -119,7 +119,7 @@ export const tools: EnrichedTool[] = [
   {
     "id": "javasandi",
     "name": "Javasandi",
-    "description": "Auto-detected HTML tool. Add to tools.index.ts for full metadata.",
+    "description": "",
     "type": "html",
     "path": "html/javasandi",
     "category": "Utility",
@@ -134,7 +134,7 @@ export const tools: EnrichedTool[] = [
   {
     "id": "javascript",
     "name": "Javascript",
-    "description": "Auto-detected HTML tool. Add to tools.index.ts for full metadata.",
+    "description": "",
     "type": "html",
     "path": "html/javascript",
     "category": "Utility",
@@ -149,7 +149,7 @@ export const tools: EnrichedTool[] = [
   {
     "id": "paste_image",
     "name": "Paste Image",
-    "description": "Auto-detected REACT tool. Add to tools.index.ts for full metadata.",
+    "description": "",
     "type": "react",
     "path": "react/paste_image",
     "category": "Utility",
@@ -164,7 +164,7 @@ export const tools: EnrichedTool[] = [
   {
     "id": "Pelangan-wifi",
     "name": "Pelangan Wifi",
-    "description": "Auto-detected REACT tool. Add to tools.index.ts for full metadata.",
+    "description": "",
     "type": "react",
     "path": "react/Pelangan-wifi",
     "category": "Utility",

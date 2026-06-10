@@ -53,7 +53,7 @@ function HtmlToolViewer({ tool, fullscreen }: { tool: Tool; fullscreen: boolean 
         minHeight: fullscreen ? "100vh" : "0",
         border: "none",
         display: "block",
-        background: "oklch(0.10 0 0)",
+        background: "var(--bg)",
       }}
     />
   );
