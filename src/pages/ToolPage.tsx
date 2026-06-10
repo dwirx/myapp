@@ -109,14 +109,14 @@ export function ToolPage() {
             }}
             title="Open in new tab"
           >
-            ↗ New tab
+            <span>↗</span> <span className="nav-btn-text">New tab</span>
           </button>
           <button
             className="nav-btn nav-btn-primary"
             onClick={() => setFullscreen(true)}
             title="Open in fullscreen"
           >
-            ⤢ Fullscreen
+            <span>⤢</span> <span className="nav-btn-text">Fullscreen</span>
           </button>
           {/* Theme Toggle */}
           <button
@@ -274,6 +274,36 @@ export function ToolPage() {
           display: flex;
           flex-direction: column;
           overflow: hidden;
+        }
+
+        /* ── Responsive & Mobile Adjustments ── */
+        @media (max-width: 640px) {
+          .toolpage-nav {
+            padding: 8px 12px;
+            gap: 6px;
+          }
+          .nav-tool-name {
+            max-width: 100px;
+          }
+          .nav-badge[data-cat] {
+            display: none;
+          }
+          .nav-btn {
+            padding: 6px 8px;
+          }
+          .nav-btn-text {
+            display: none;
+          }
+          .toolpage-desc-bar {
+            padding: 8px 12px;
+            gap: 8px;
+          }
+          .toolpage-desc {
+            font-size: 0.78rem;
+          }
+          .toolpage-tags {
+            width: 100%;
+          }
         }
       `}</style>
     </div>

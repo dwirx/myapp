@@ -198,6 +198,19 @@ export function ToolCard({ tool }: ToolCardProps) {
           color: var(--cat);
           transform: translateX(3px);
         }
+
+        @media (max-width: 640px) {
+          .tool-card-inner {
+            padding: 16px;
+            gap: 12px;
+          }
+          .tool-card-name {
+            font-size: 0.95rem;
+          }
+          .tool-card-desc {
+            font-size: 0.78rem;
+          }
+        }
       `}</style>
     </Link>
   );

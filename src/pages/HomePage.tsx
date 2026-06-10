@@ -467,6 +467,63 @@ export function HomePage() {
           padding: 1px 5px;
           color: var(--primary);
         }
+
+        /* ── Responsive & Mobile Adjustments ── */
+        @media (max-width: 640px) {
+          .home-shell {
+            padding: 28px 16px 64px;
+            gap: 20px;
+          }
+          .home-logo-row {
+            gap: 10px;
+          }
+          .home-tagline {
+            font-size: 0.82rem;
+          }
+          .toolbar {
+            gap: 12px;
+          }
+          .toolbar-filters {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+          }
+          .type-filters {
+            width: 100%;
+            display: flex;
+          }
+          .type-filter-btn {
+            flex: 1;
+            text-align: center;
+            padding: 8px 10px;
+          }
+          .sort-wrap {
+            width: 100%;
+            justify-content: space-between;
+            padding: 8px 12px;
+          }
+          .filter-chips {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px 16px;
+            margin: 0 -16px;
+            gap: 6px;
+            scrollbar-width: none;
+          }
+          .filter-chips::-webkit-scrollbar {
+            display: none;
+          }
+          .filter-chip {
+            flex-shrink: 0;
+            padding: 6px 14px;
+          }
+          .tools-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+        }
       `}</style>
     </div>
   );

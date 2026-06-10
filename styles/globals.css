@@ -32,18 +32,18 @@
 }
 
 html[data-theme="light"] {
-  --bg:        oklch(0.98 0.000 0);
-  --surface:   oklch(0.95 0.005 145);
-  --surface-2: oklch(0.91 0.005 145);
-  --border:    oklch(0.86 0.005 145);
-  --border-2:  oklch(0.79 0.006 145);
-  --primary:   oklch(0.55 0.13 145);
-  --primary-hi: oklch(0.48 0.12 145);
-  --accent:    oklch(0.60 0.15 55);
-  --ink:       oklch(0.12 0.005 145);
-  --ink-2:     oklch(0.25 0.008 145);
-  --muted:     oklch(0.48 0.008 145);
-  --danger:    oklch(0.50 0.18 25);
+  --bg:        oklch(0.99 0.002 145);    /* Soft warm white with hint of green, reduces glare */
+  --surface:   oklch(0.96 0.003 145);    /* Clean soft card panels */
+  --surface-2: oklch(0.92 0.005 145);    /* Hover states for interactive surfaces */
+  --border:    oklch(0.88 0.006 145);    /* Subtle delimiters */
+  --border-2:  oklch(0.80 0.008 145);    /* Clear borders and active lines */
+  --primary:   oklch(0.44 0.11 145);     /* Deep forest green for links/primary text, safe contrast */
+  --primary-hi: oklch(0.38 0.10 145);    /* Hover deep green */
+  --accent:    oklch(0.52 0.13 55);      /* Rich dark amber for HTML label differentiation */
+  --ink:       oklch(0.18 0.010 145);    /* Dark charcoal body text, excellent readability */
+  --ink-2:     oklch(0.28 0.012 145);    /* Secondary section headers */
+  --muted:     oklch(0.42 0.010 145);    /* Captions/tags, hits 4.5:1+ contrast on body */
+  --danger:    oklch(0.52 0.16 25);      /* Muted red for errors */
 }
 
 /* ── Reset & Base ── */
