@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { EnrichedTool } from "../hooks/useAutoTools";
+import { isToolRecent } from "../hooks/useAutoTools";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Developer: "oklch(0.65 0.15 145)",
@@ -17,6 +18,7 @@ interface ToolCardProps {
 export function ToolCard({ tool }: ToolCardProps) {
   const catColor = CATEGORY_COLORS[tool.category] ?? "oklch(0.65 0.12 200)";
   const catBg    = `oklch(from ${catColor} l c h / 0.12)`;
+  const showNewBadge = tool.autoDetected && isToolRecent(tool.date);
 
   /** URL untuk open in new tab — HTML: langsung ke file, React: ke /tool/:id */
   const newTabUrl = tool.type === "html"
@@ -40,7 +42,7 @@ export function ToolCard({ tool }: ToolCardProps) {
           <span className="tool-cat-badge" style={{ background: catBg, color: "var(--cat)" }}>
             {tool.category}
           </span>
-          {tool.autoDetected && (
+          {showNewBadge && (
             <span className="tool-new-badge">NEW</span>
           )}
           {/* Open in new tab — top-right corner */}

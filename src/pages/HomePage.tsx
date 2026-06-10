@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { categories } from "../tools/tools.index";
-import { useAutoTools } from "../hooks/useAutoTools";
+import { useAutoTools, isToolRecent } from "../hooks/useAutoTools";
 import { ToolCard } from "../components/ToolCard";
 import { useTheme } from "../hooks/useTheme";
 
@@ -168,7 +168,7 @@ export function HomePage() {
       {sorted.length > 0 ? (
         <div className="tools-grid">
           {sorted
-            .filter((t) => activeCategory !== "__new__" || t.autoDetected)
+            .filter((t) => activeCategory !== "__new__" || (t.autoDetected && isToolRecent(t.date)))
             .map((tool) => (
               <ToolCard key={tool.id} tool={tool} />
             ))}
