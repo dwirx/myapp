@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Picker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: oklch(0.10 0.000 0);
+      color: oklch(0.92 0.005 145);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .swatch-wrap {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .swatch {
+      width: 80px;
+      height: 80px;
+      border-radius: 14px;
+      border: 2px solid oklch(0.22 0.005 145);
+      flex-shrink: 0;
+    }
+    .color-input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .color-native {
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: none;
+      padding: 2px;
+    }
+    .hint { font-size: 0.68rem; color: oklch(0.50 0.008 145); }
+    .formats {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .format-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .format-label {
+      width: 56px;
+      font-size: 0.7rem;
+      color: oklch(0.56 0.008 145);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+    .format-value {
+      flex: 1;
+      background: oklch(0.14 0.005 145);
+      border: 1px solid oklch(0.20 0.005 145);
+      border-radius: 8px;
+      color: oklch(0.92 0.005 145);
+      font-family: inherit;
+      font-size: 0.82rem;
+      padding: 8px 12px;
+      outline: none;
+    }
+    .format-value:focus { border-color: oklch(0.65 0.15 145); }
+    .copy-btn {
+      background: oklch(0.18 0.005 145);
+      border: 1px solid oklch(0.25 0.005 145);
+      border-radius: 6px;
+      color: oklch(0.92 0.005 145);
+      font-family: inherit;
+      font-size: 0.72rem;
+      padding: 6px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: oklch(0.22 0.005 145); }
+    .copy-btn.copied { color: oklch(0.65 0.15 145); border-color: oklch(0.65 0.15 145); }
+    .section-title {
+      font-size: 0.68rem;
+      color: oklch(0.56 0.008 145);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: -8px;
+    }
+    .palette-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .palette-swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .palette-swatch:hover { transform: scale(1.15); border-color: oklch(0.65 0.15 145); }
+  </style>
+</head>
+<body>
+  <div class="swatch-wrap">
+    <div class="swatch" id="swatch"></div>
+    <div class="color-input-wrap">
+      <input type="color" class="color-native" id="color-native" value="#22c55e" />
+      <span class="hint">Click to pick</span>
+    </div>
+  </div>
+
+  <div class="formats" id="formats">
+    <div class="section-title">Formats</div>
+  </div>
+
+  <div>
+    <div class="section-title" style="margin-bottom:10px">Quick Palette</div>
+    <div class="palette-row" id="palette"></div>
+  </div>
+
+  <script>
+    const PRESETS = [
+      '#22c55e','#6366f1','#ec4899','#f59e0b','#06b6d4',
+      '#ef4444','#8b5cf6','#10b981','#f97316','#0ea5e9',
+    ];
+
+    let current = { r: 34, g: 197, b: 94 };
+
+    function hexToRgb(hex) {
+      const r = parseInt(hex.slice(1,3), 16);
+      const g = parseInt(hex.slice(3,5), 16);
+      const b = parseInt(hex.slice(5,7), 16);
+      return { r, g, b };
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0;
+      const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100),
+      };
+    }
+
+    function rgbToOklch(r, g, b) {
+      // approximate conversion via sRGB→OKLab→OKLCH
+      const toLinear = c => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      const rl = toLinear(r / 255), gl = toLinear(g / 255), bl = toLinear(b / 255);
+      const l_ = Math.cbrt(0.4122214708*rl + 0.5363325363*gl + 0.0514459929*bl);
+      const m_ = Math.cbrt(0.2119034982*rl + 0.6806995451*gl + 0.1073969566*bl);
+      const s_ = Math.cbrt(0.0883024619*rl + 0.2817188376*gl + 0.6299787005*bl);
+      const L = 0.2104542553*l_ + 0.7936177850*m_ - 0.0040720468*s_;
+      const a = 1.9779984951*l_ - 2.4285922050*m_ + 0.4505937099*s_;
+      const bb = 0.0259040371*l_ + 0.7827717662*m_ - 0.8086757660*s_;
+      const C = Math.sqrt(a*a + bb*bb);
+      const H = (Math.atan2(bb, a) * 180 / Math.PI + 360) % 360;
+      return {
+        l: Math.round(L * 1000) / 1000,
+        c: Math.round(C * 1000) / 1000,
+        h: Math.round(H * 10) / 10,
+      };
+    }
+
+    function toHex(r, g, b) {
+      return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+    }
+
+    const formatsEl = document.getElementById('formats');
+    const swatchEl = document.getElementById('swatch');
+
+    const rows = {};
+    ['HEX', 'RGB', 'HSL', 'OKLCH'].forEach(f => {
+      const row = document.createElement('div');
+      row.className = 'format-row';
+      const label = document.createElement('div');
+      label.className = 'format-label';
+      label.textContent = f;
+      const input = document.createElement('input');
+      input.className = 'format-value';
+      input.readOnly = true;
+      const btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = 'Copy';
+      btn.addEventListener('click', () => {
+        navigator.clipboard.writeText(input.value);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+      });
+      row.append(label, input, btn);
+      formatsEl.appendChild(row);
+      rows[f] = input;
+    });
+
+    function update(r, g, b) {
+      current = { r, g, b };
+      const hex = toHex(r, g, b);
+      const hsl = rgbToHsl(r, g, b);
+      const oklch = rgbToOklch(r, g, b);
+      swatchEl.style.background = hex;
+      document.getElementById('color-native').value = hex;
+      rows['HEX'].value = hex;
+      rows['RGB'].value = `rgb(${r}, ${g}, ${b})`;
+      rows['HSL'].value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+      rows['OKLCH'].value = `oklch(${oklch.l} ${oklch.c} ${oklch.h})`;
+    }
+
+    document.getElementById('color-native').addEventListener('input', e => {
+      const { r, g, b } = hexToRgb(e.target.value);
+      update(r, g, b);
+    });
+
+    // palette
+    const paletteEl = document.getElementById('palette');
+    PRESETS.forEach(hex => {
+      const sw = document.createElement('div');
+      sw.className = 'palette-swatch';
+      sw.style.background = hex;
+      sw.title = hex;
+      sw.addEventListener('click', () => {
+        const { r, g, b } = hexToRgb(hex);
+        update(r, g, b);
+      });
+      paletteEl.appendChild(sw);
+    });
+
+    update(34, 197, 94);
+  </script>
+</body>
+</html>

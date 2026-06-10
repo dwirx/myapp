@@ -1,0 +1,74 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Toolsx Design Tokens ── */
+:root {
+  --bg:        oklch(0.10 0.000 0);
+  --surface:   oklch(0.14 0.005 145);
+  --surface-2: oklch(0.18 0.005 145);
+  --border:    oklch(0.22 0.005 145);
+  --border-2:  oklch(0.28 0.006 145);
+  --primary:   oklch(0.65 0.15 145);
+  --primary-hi: oklch(0.70 0.16 145);
+  --accent:    oklch(0.72 0.18 55);
+  --ink:       oklch(0.92 0.005 145);
+  --ink-2:     oklch(0.75 0.008 145);
+  --muted:     oklch(0.56 0.008 145);
+  --danger:    oklch(0.62 0.20 25);
+
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 14px;
+
+  /* z-scale */
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-modal-bg: 300;
+  --z-modal:    400;
+  --z-toast:    500;
+  --z-tooltip:  600;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, textarea, select { font-family: inherit; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── Selection ── */
+::selection { background: oklch(0.65 0.15 145 / 0.30); }
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ── Focus ring ── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

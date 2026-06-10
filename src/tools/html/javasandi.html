@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandi Wana Wulung V5.0 (Stable Core)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #020617; /* Slate 950 */
+            --panel-color: #0f172a; /* Slate 900 */
+            --accent-gold: #f59e0b; /* Amber 500 */
+            --accent-glow: rgba(245, 158, 11, 0.15);
+            --text-main: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            background-image: 
+                linear-gradient(rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.98)),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            overflow-x: hidden;
+        }
+
+        .aksara {
+            font-family: 'Noto Sans Javanese', sans-serif;
+            line-height: 2.2;
+        }
+        
+        .cyber-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .cyber-input {
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .cyber-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .file-drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .file-drop-zone.active {
+            border-color: var(--accent-gold);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #fff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(217, 119, 6, 0.5);
+        }
+        .btn-action:disabled {
+            filter: grayscale(100%);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .tab-btn.active {
+            background: rgba(30, 41, 59, 0.8);
+            color: white;
+            border-bottom: 2px solid var(--accent-gold);
+        }
+
+        /* Loading Stripe Animation */
+        .progress-striped {
+            background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+            background-size: 1rem 1rem;
+            animation: progress-bar-stripes 1s linear infinite;
+        }
+        @keyframes progress-bar-stripes {
+            0% { background-position: 1rem 0; }
+            100% { background-position: 0 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-6 px-4">
+
+    <!-- Header -->
+    <header class="text-center mb-8 relative z-10 w-full max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold tracking-widest uppercase mb-3">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            System V5.0 (Stable Core)
+        </div>
+        <h1 class="text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight">
+            Sandi Wana <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Wulung</span>
+        </h1>
+        <p class="text-slate-400 text-sm">Enkripsi Teks (Jawa) & File Aman (Binary Stream)</p>
+    </header>
+
+    <main class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-4 space-y-4">
+            
+            <!-- Context Switcher -->
+            <div class="cyber-panel rounded-xl flex overflow-hidden p-1">
+                <button onclick="setContext('text')" id="ctxText" class="tab-btn active flex-1 py-3 text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors rounded-lg">
+                    Teks
+                </button>
+                <button onclick="setContext('file')" id="ctxFile" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors rounded-lg">
+                    File
+                </button>
+            </div>
+
+            <!-- Key Input -->
+            <div class="cyber-panel p-5 rounded-xl">
+                <label class="block text-xs font-bold text-amber-500 uppercase tracking-widest mb-2">
+                    Password / Kunci
+                </label>
+                <div class="relative">
+                    <input type="password" id="secretKey" 
+                        class="cyber-input w-full p-3 pl-10 rounded-lg font-mono text-sm" 
+                        placeholder="Rahasia123" oninput="checkKeyStrength()">
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                </div>
+                <div id="keyStrength" class="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div id="keyBar" class="h-full bg-red-500 w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Operation Mode -->
+            <div class="cyber-panel p-1.5 rounded-xl flex bg-slate-900/40">
+                <button onclick="setMode('encrypt')" id="btnEnc" class="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all shadow-lg bg-amber-500 text-white">
+                    ENKRIPSI
+                </button>
+                <button onclick="setMode('decrypt')" id="btnDec" class="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">
+                    DEKRIPSI
+                </button>
+            </div>
+
+            <!-- Status Info -->
+            <div class="cyber-panel p-4 rounded-xl text-[10px] text-slate-400 font-mono space-y-2">
+                <div class="flex justify-between">
+                    <span>STATUS:</span>
+                    <span id="sysStatus" class="text-emerald-400">READY</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>MODE:</span>
+                    <span id="sysMode" class="text-white">ENCRYPTION</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>ENGINE:</span>
+                    <span class="text-amber-500">V5.0 HYBRID-STREAM</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workspace -->
+        <div class="lg:col-span-8">
+            
+            <!-- TEXT INTERFACE -->
+            <div id="uiText" class="flex flex-col gap-4 h-full">
+                <div class="flex-1 relative">
+                    <label class="text-xs font-bold text-slate-300 uppercase mb-2 block">Input</label>
+                    <textarea id="textInput" class="cyber-input w-full h-32 rounded-xl p-4 text-sm font-mono resize-none" placeholder="Masukkan teks..."></textarea>
+                </div>
+                
+                <button onclick="processText()" class="btn-action w-full py-3 rounded-xl shadow-lg text-sm tracking-widest">
+                    PROSES TEKS
+                </button>
+
+                <div class="flex-1 relative">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-xs font-bold text-amber-500 uppercase">Output</label>
+                        <button onclick="copyText()" class="text-[10px] bg-slate-800 px-2 rounded text-white hover:bg-slate-700">COPY</button>
+                    </div>
+                    <textarea id="textOutput" readonly class="cyber-input w-full h-40 rounded-xl p-4 text-xl aksara resize-none bg-slate-900/50" placeholder="Hasil..."></textarea>
+                </div>
+            </div>
+
+            <!-- FILE INTERFACE -->
+            <div id="uiFile" class="hidden flex flex-col gap-4 h-full">
+                
+                <div id="dropZone" class="file-drop-zone cyber-panel rounded-2xl p-8 flex flex-col items-center justify-center text-center min-h-[240px] cursor-pointer" onclick="document.getElementById('fileUpload').click()">
+                    <input type="file" id="fileUpload" class="hidden" onchange="handleFileSelect(this)">
+                    
+                    <!-- Empty State -->
+                    <div id="emptyFileState">
+                        <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-500">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Pilih File Apapun</h3>
+                        <p class="text-xs text-slate-400 mt-1">Klik atau Drag & Drop (Gambar, PDF, Video, dll)</p>
+                    </div>
+
+                    <!-- Selected State -->
+                    <div id="selectedFileState" class="hidden w-full max-w-md">
+                        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex items-center gap-4 text-left">
+                            <div class="bg-amber-500/20 p-3 rounded-lg text-amber-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p id="fileName" class="text-sm font-bold text-white truncate">filename.ext</p>
+                                <p id="fileSize" class="text-[10px] text-slate-400">0 KB</p>
+                            </div>
+                            <button onclick="resetFile(event)" class="text-slate-500 hover:text-red-400 p-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div id="progressArea" class="hidden">
+                    <div class="flex justify-between text-[10px] text-slate-400 mb-1 font-mono">
+                        <span id="progressText">Processing...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700">
+                        <div id="progressBar" class="h-full bg-amber-500 progress-striped w-0 transition-all duration-100"></div>
+                    </div>
+                </div>
+
+                <button id="btnFileProcess" onclick="processFile()" class="btn-action w-full py-4 rounded-xl shadow-lg text-base tracking-widest disabled:opacity-50" disabled>
+                    JALANKAN SISTEM
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 translate-y-24 opacity-0 transition-all duration-300 z-50">
+        <div class="bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl border border-slate-700 flex items-center gap-3">
+            <span id="toastIcon" class="text-lg">ℹ️</span>
+            <span id="toastMsg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. CORE LOGIC (TEXT) ---
+        const LATIN_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,?!:;-()[]{}@#$%&*_+=/|~<>";
+        const JAVA_CHARS = ["\uA98F", "\uA990", "\uA991", "\uA992", "\uA993", "\uA994", "\uA995", "\uA996", "\uA997", "\uA998", "\uA999", "\uA99A", "\uA99B", "\uA99C", "\uA99D", "\uA99E", "\uA99F", "\uA9A0", "\uA9A1", "\uA9A2", "\uA9A3", "\uA9A4", "\uA9A5", "\uA9A6", "\uA9A7", "\uA9A8", "\uA9A9", "\uA9AA", "\uA9AB", "\uA9AC", "\uA9AD", "\uA9AE", "\uA9AF", "\uA9B0", "\uA9B1", "\uA9B2", "\uA984", "\uA985", "\uA986", "\uA987", "\uA988", "\uA989", "\uA98A", "\uA98B", "\uA98C", "\uA98D", "\uA98E", "\uA9B4", "\uA9B5", "\uA9B6", "\uA9B7", "\uA9B8", "\uA9B9", "\uA9BA", "\uA9BB", "\uA9BC", "\uA9BD", "\uA9BE", "\uA9BF", "\uA9D0", "\uA9D1", "\uA9D2", "\uA9D3", "\uA9D4", "\uA9D5", "\uA9D6", "\uA9D7", "\uA9D8", "\uA9D9", "\uA980", "\uA981", "\uA982", "\uA983", "\uA9C0", "\uA9C1", "\uA9C2", "\uA9C3", "\uA9C4", "\uA9C5", "\uA9C6", "\uA9C7", "\uA9C8", "\uA9C9", "\uA9CA", "\uA9CB", "\uA9CC", "\uA9CD", "\uA9CF", "\uA9DE", "\uA9DF"].slice(0, 90);
+        
+        // Static S-Box (0-89)
+        const SBOX_TEXT = [52,23,8,71,14,88,32,65,41,5,82,19,47,76,2,60,35,12,79,28,85,56,17,44,73,22,67,39,10,81,54,25,1,62,37,78,49,16,84,59,30,6,69,42,13,87,51,26,75,46,21,58,89,34,63,4,72,33,11,80,43,68,20,55,29,0,77,48,15,83,61,36,9,70,53,24,7,86,31,66,40,18,74,45,3,64,27,50,38,57];
+        const INV_SBOX_TEXT = new Array(90).fill(0).map((_, i) => SBOX_TEXT.indexOf(i));
+
+        // PRNG
+        const mulberry32 = (a) => () => {
+            let t = a += 0x6D2B79F5;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+        const simpleHash = (str) => {
+            let hash = 0;
+            for(let i=0; i<str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i) | 0;
+            return Math.abs(hash);
+        };
+
+        const WulungText = {
+            encrypt: (text, pass) => {
+                let salt = Array.from({length:4}, () => Math.floor(Math.random()*90));
+                let seed = simpleHash(pass) + salt.reduce((a,b)=>a+b,0);
+                let rng = mulberry32(seed);
+                let prev = salt.reduce((a,b)=>a+b,0)%90;
+                let res = [...salt];
+
+                for(let char of text) {
+                    if(char === '\n') char = ' ';
+                    let idx = LATIN_CHARS.indexOf(char);
+                    if(idx === -1) continue;
+                    
+                    let key = Math.floor(rng()*90);
+                    let s1 = (idx + key) % 90;
+                    let s2 = SBOX_TEXT[s1];
+                    let c = (s2 + prev) % 90;
+                    res.push(c);
+                    prev = c;
+                }
+                res.push(res.reduce((a,b)=>a+b,0)%90); // Checksum
+                return res.map(i => JAVA_CHARS[i]).join("");
+            },
+            decrypt: (text, pass) => {
+                let idxs = [...text].map(c => JAVA_CHARS.indexOf(c)).filter(i => i !== -1);
+                if(idxs.length < 6) throw "Data terlalu pendek";
+                
+                let check = idxs.pop();
+                if(check !== idxs.reduce((a,b)=>a+b,0)%90) throw "Integritas data rusak!";
+                
+                let salt = idxs.splice(0,4);
+                let seed = simpleHash(pass) + salt.reduce((a,b)=>a+b,0);
+                let rng = mulberry32(seed);
+                let prev = salt.reduce((a,b)=>a+b,0)%90;
+                let res = "";
+
+                for(let c of idxs) {
+                    let key = Math.floor(rng()*90);
+                    let s2 = (c - prev + 90) % 90;
+                    let s1 = INV_SBOX_TEXT[s2];
+                    let p = (s1 - key + 90) % 90;
+                    res += LATIN_CHARS[p];
+                    prev = c;
+                }
+                return res;
+            }
+        };
+
+        // --- 2. CORE LOGIC (FILE - NON BLOCKING) ---
+        class WulungFile {
+            static generateParams(pass, salt) {
+                const seed = simpleHash(pass) + salt.reduce((a,b)=>a+b,0);
+                const rng = mulberry32(seed);
+                
+                // Gen SBOX
+                let box = new Uint8Array(256).map((_,i)=>i);
+                for(let i=255; i>0; i--) {
+                    let j = Math.floor(rng()*(i+1));
+                    [box[i], box[j]] = [box[j], box[i]];
+                }
+                let inv = new Uint8Array(256);
+                box.forEach((v,i) => inv[v]=i);
+                
+                return { rng, box, inv };
+            }
+
+            // ENCRYPT FILE (CHUNKING)
+            static async encryptFile(file, pass, onProgress) {
+                const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+                const magic = new TextEncoder().encode("WANA"); // Header
+                const salt = new Uint8Array(16);
+                crypto.getRandomValues(salt);
+                
+                const { rng, box } = this.generateParams(pass, salt);
+                
+                // Filename
+                const nameBytes = new TextEncoder().encode(file.name);
+                if(nameBytes.length > 255) throw "Nama file terlalu panjang";
+                
+                // Verify Token (To check password correctness later)
+                const verifyToken = new TextEncoder().encode("WULUNG_OK"); // 9 bytes
+                
+                // Calculate total size
+                // Structure: MAGIC(4) + SALT(16) + NAMELEN(1) + NAME(N) + VERIFY(9) + DATA(...)
+                const totalOutputSize = 4 + 16 + 1 + nameBytes.length + 9 + file.size;
+                const finalBuffer = new Uint8Array(totalOutputSize);
+                
+                // Write Header
+                let offset = 0;
+                finalBuffer.set(magic, offset); offset += 4;
+                finalBuffer.set(salt, offset); offset += 16;
+                finalBuffer[offset] = nameBytes.length; offset += 1;
+                finalBuffer.set(nameBytes, offset); offset += nameBytes.length;
+
+                // Prepare Enc Loop
+                let prevBlock = salt[0];
+                let inputOffset = 0;
+                
+                // 1. Encrypt Verify Token first
+                for(let i=0; i<verifyToken.length; i++) {
+                    let byte = verifyToken[i];
+                    let rKey = Math.floor(rng()*256);
+                    let step1 = (byte + rKey) % 256;
+                    let step2 = box[step1];
+                    let cByte = step2 ^ prevBlock;
+                    finalBuffer[offset] = cByte;
+                    prevBlock = cByte;
+                    offset++;
+                }
+
+                // 2. Encrypt File Content (Chunked)
+                const reader = new FileReader();
+                let currentChunk = 0;
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+                return new Promise((resolve, reject) => {
+                    function readNextChunk() {
+                        const start = currentChunk * CHUNK_SIZE;
+                        const end = Math.min(start + CHUNK_SIZE, file.size);
+                        const blob = file.slice(start, end);
+                        reader.readAsArrayBuffer(blob);
+                    }
+
+                    reader.onload = (e) => {
+                        const chunk = new Uint8Array(e.target.result);
+                        
+                        for(let i=0; i<chunk.length; i++) {
+                            let byte = chunk[i];
+                            let rKey = Math.floor(rng()*256);
+                            let step1 = (byte + rKey) % 256;
+                            let step2 = box[step1];
+                            let cByte = step2 ^ prevBlock;
+                            finalBuffer[offset++] = cByte;
+                            prevBlock = cByte;
+                        }
+
+                        currentChunk++;
+                        onProgress((currentChunk / totalChunks) * 100);
+
+                        if (currentChunk < totalChunks) {
+                            // Non-blocking trick
+                            setTimeout(readNextChunk, 0);
+                        } else {
+                            resolve({ data: finalBuffer, filename: file.name + ".wana" });
+                        }
+                    };
+                    
+                    reader.onerror = () => reject("Gagal membaca file");
+                    readNextChunk();
+                });
+            }
+
+            // DECRYPT FILE (CHUNKING)
+            static async decryptFile(file, pass, onProgress) {
+                const CHUNK_SIZE = 1024 * 1024;
+                
+                // Read Header First (approx first 300 bytes is enough to get metadata)
+                const headerBlob = file.slice(0, 300);
+                const headerBuffer = await new Response(headerBlob).arrayBuffer();
+                const headerView = new Uint8Array(headerBuffer);
+                
+                // 1. Validate Magic
+                const magic = new TextDecoder().decode(headerView.slice(0,4));
+                if(magic !== "WANA") throw "Format file tidak valid (.wana)";
+                
+                let ptr = 4;
+                const salt = headerView.slice(ptr, ptr+16); ptr+=16;
+                const nameLen = headerView[ptr]; ptr+=1;
+                const nameBytes = headerView.slice(ptr, ptr+nameLen); ptr+=nameLen;
+                const originalName = new TextDecoder().decode(nameBytes);
+                
+                // Data starts here
+                const dataStartOffset = ptr;
+                
+                // Init Crypto
+                const { rng, inv } = this.generateParams(pass, salt);
+                let prevBlock = salt[0];
+                
+                // Total size of encrypted payload (VerifyToken + RealData)
+                const payloadSize = file.size - dataStartOffset;
+                const finalBuffer = new Uint8Array(payloadSize - 9); // Remove verify token length
+                
+                let outputPtr = 0;
+                let isVerified = false;
+                let verifyBuffer = []; // To store decrypted verify token
+
+                // Read Payload in Chunks
+                const reader = new FileReader();
+                let currentPos = dataStartOffset;
+                let totalBytesToRead = file.size - dataStartOffset;
+                let bytesRead = 0;
+
+                return new Promise((resolve, reject) => {
+                    function readNextChunk() {
+                        const end = Math.min(currentPos + CHUNK_SIZE, file.size);
+                        const blob = file.slice(currentPos, end);
+                        reader.readAsArrayBuffer(blob);
+                    }
+
+                    reader.onload = (e) => {
+                        const chunk = new Uint8Array(e.target.result);
+                        
+                        for(let i=0; i<chunk.length; i++) {
+                            let cByte = chunk[i];
+                            let rKey = Math.floor(rng()*256);
+                            
+                            // Decrypt
+                            let step2 = cByte ^ prevBlock;
+                            let step1 = inv[step2];
+                            let pByte = (step1 - rKey) % 256;
+                            if(pByte < 0) pByte += 256;
+                            
+                            prevBlock = cByte;
+
+                            // Handle Verification (First 9 bytes)
+                            if (bytesRead < 9) {
+                                verifyBuffer.push(pByte);
+                                if(verifyBuffer.length === 9) {
+                                    const check = new TextDecoder().decode(new Uint8Array(verifyBuffer));
+                                    if(check !== "WULUNG_OK") {
+                                        reject("Password Salah! Enkripsi tidak cocok.");
+                                        return;
+                                    }
+                                    isVerified = true;
+                                }
+                            } else {
+                                // Real data
+                                finalBuffer[outputPtr++] = pByte;
+                            }
+                            bytesRead++;
+                        }
+
+                        currentPos += chunk.length;
+                        onProgress(((currentPos - dataStartOffset) / totalBytesToRead) * 100);
+
+                        if (currentPos < file.size) {
+                            setTimeout(readNextChunk, 0);
+                        } else {
+                            if(!isVerified) reject("File rusak atau password salah.");
+                            else resolve({ data: finalBuffer, filename: originalName });
+                        }
+                    };
+                    
+                    reader.onerror = () => reject("Error membaca file source");
+                    readNextChunk();
+                });
+            }
+        }
+
+        // --- 3. UI HANDLERS ---
+        let context = 'text';
+        let mode = 'encrypt';
+        let selectedFile = null;
+
+        function setContext(ctx) {
+            context = ctx;
+            document.getElementById('ctxText').className = `tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors ${ctx === 'text' ? 'active' : 'text-slate-400'}`;
+            document.getElementById('ctxFile').className = `tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors ${ctx === 'file' ? 'active' : 'text-slate-400'}`;
+            
+            document.getElementById('uiText').className = ctx === 'text' ? 'flex flex-col gap-4 h-full' : 'hidden';
+            document.getElementById('uiFile').className = ctx === 'file' ? 'flex flex-col gap-4 h-full' : 'hidden';
+            updateUI();
+        }
+
+        function setMode(m) {
+            mode = m;
+            const btnEnc = document.getElementById('btnEnc');
+            const btnDec = document.getElementById('btnDec');
+            
+            if(m === 'encrypt') {
+                btnEnc.className = "flex-1 py-2.5 rounded-lg text-xs font-bold transition-all shadow-lg bg-amber-500 text-white";
+                btnDec.className = "flex-1 py-2.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+                document.getElementById('sysMode').textContent = "ENCRYPTION";
+            } else {
+                btnEnc.className = "flex-1 py-2.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+                btnDec.className = "flex-1 py-2.5 rounded-lg text-xs font-bold transition-all shadow-lg bg-emerald-600 text-white";
+                document.getElementById('sysMode').textContent = "DECRYPTION";
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            // Text UI Updates
+            const tIn = document.getElementById('textInput');
+            const tOut = document.getElementById('textOutput');
+            
+            if (mode === 'encrypt') {
+                tIn.placeholder = "Tulis pesan rahasia...";
+                tOut.classList.add('aksara');
+                tOut.classList.remove('font-mono', 'text-sm');
+                tOut.classList.add('text-xl');
+            } else {
+                tIn.placeholder = "Tempel teks Aksara Jawa...";
+                tOut.classList.remove('aksara', 'text-xl');
+                tOut.classList.add('font-mono', 'text-sm');
+            }
+            
+            // File Button Label
+            const btnFile = document.getElementById('btnFileProcess');
+            btnFile.textContent = mode === 'encrypt' ? "ENKRIPSI FILE" : "DEKRIPSI FILE";
+            btnFile.className = `btn-action w-full py-4 rounded-xl shadow-lg text-base tracking-widest disabled:opacity-50 ${mode === 'decrypt' ? '!bg-emerald-600' : ''}`;
+        }
+
+        // --- Text Process ---
+        function processText() {
+            const key = document.getElementById('secretKey').value;
+            const txt = document.getElementById('textInput').value;
+            
+            if(!key) return showToast("⚠️ Masukkan Password!", "error");
+            if(!txt) return showToast("⚠️ Input kosong!", "error");
+
+            try {
+                const res = mode === 'encrypt' 
+                    ? WulungText.encrypt(txt, key) 
+                    : WulungText.decrypt(txt, key);
+                document.getElementById('textOutput').value = res;
+                showToast("Berhasil!", "success");
+            } catch(e) {
+                showToast(e, "error");
+            }
+        }
+
+        // --- File Process ---
+        function handleFileSelect(input) {
+            if(input.files.length) {
+                selectedFile = input.files[0];
+                document.getElementById('emptyFileState').classList.add('hidden');
+                document.getElementById('selectedFileState').classList.remove('hidden');
+                document.getElementById('fileName').textContent = selectedFile.name;
+                
+                let size = selectedFile.size / 1024;
+                let unit = "KB";
+                if(size > 1024) { size /= 1024; unit = "MB"; }
+                document.getElementById('fileSize').textContent = size.toFixed(2) + " " + unit;
+                
+                document.getElementById('btnFileProcess').disabled = false;
+                
+                // Auto detect mode
+                if(selectedFile.name.endsWith('.wana')) setMode('decrypt');
+            }
+        }
+
+        function resetFile(e) {
+            e.stopPropagation();
+            selectedFile = null;
+            document.getElementById('fileUpload').value = "";
+            document.getElementById('emptyFileState').classList.remove('hidden');
+            document.getElementById('selectedFileState').classList.add('hidden');
+            document.getElementById('progressArea').classList.add('hidden');
+            document.getElementById('btnFileProcess').disabled = true;
+        }
+
+        async function processFile() {
+            const key = document.getElementById('secretKey').value;
+            if(!key) return showToast("⚠️ Masukkan Password!", "error");
+            if(!selectedFile) return;
+
+            const btn = document.getElementById('btnFileProcess');
+            const pArea = document.getElementById('progressArea');
+            const pBar = document.getElementById('progressBar');
+            const pText = document.getElementById('progressPercent');
+
+            btn.disabled = true;
+            pArea.classList.remove('hidden');
+            
+            try {
+                const result = await (mode === 'encrypt' 
+                    ? WulungFile.encryptFile(selectedFile, key, (pct) => {
+                        pBar.style.width = pct + "%";
+                        pText.textContent = Math.floor(pct) + "%";
+                      })
+                    : WulungFile.decryptFile(selectedFile, key, (pct) => {
+                        pBar.style.width = pct + "%";
+                        pText.textContent = Math.floor(pct) + "%";
+                      })
+                );
+
+                // Download
+                const blob = new Blob([result.data], {type: "application/octet-stream"});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = result.filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showToast("File selesai diproses!", "success");
+                resetFile({stopPropagation:()=>{}});
+
+            } catch(e) {
+                showToast("❌ " + e, "error");
+                pBar.style.width = "0%";
+                pBar.classList.remove('bg-amber-500');
+                pBar.classList.add('bg-red-500');
+                btn.disabled = false;
+            }
+        }
+
+        // --- Helpers ---
+        function checkKeyStrength() {
+            const val = document.getElementById('secretKey').value;
+            const bar = document.getElementById('keyBar');
+            let str = 0;
+            if(val.length > 4) str += 30;
+            if(val.length > 8) str += 30;
+            if(/[0-9]/.test(val)) str += 20;
+            if(/[^a-zA-Z0-9]/.test(val)) str += 20;
+            
+            bar.style.width = str + "%";
+            bar.className = `h-full transition-all duration-300 ${str < 50 ? 'bg-red-500' : (str < 80 ? 'bg-amber-500' : 'bg-emerald-500')}`;
+        }
+
+        function copyText() {
+            document.getElementById('textOutput').select();
+            document.execCommand('copy');
+            showToast("Teks disalin", "success");
+        }
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            const i = document.getElementById('toastIcon');
+            const m = document.getElementById('toastMsg');
+            
+            m.textContent = msg;
+            i.textContent = type === 'error' ? '⚠️' : '✅';
+            t.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 opacity-100 transition-all duration-300 z-50`;
+            t.firstElementChild.className = `${type === 'error' ? 'bg-red-900/90 border-red-500' : 'bg-emerald-900/90 border-emerald-500'} text-white px-6 py-3 rounded-full shadow-2xl border flex items-center gap-3`;
+            
+            setTimeout(() => {
+                t.className = "fixed bottom-10 left-1/2 transform -translate-x-1/2 translate-y-24 opacity-0 transition-all duration-300 z-50";
+            }, 3000);
+        }
+
+        // Drag & Drop
+        const dz = document.getElementById('dropZone');
+        dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('active'); });
+        dz.addEventListener('dragleave', (e) => { e.preventDefault(); dz.classList.remove('active'); });
+        dz.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dz.classList.remove('active');
+            handleFileSelect({files: e.dataTransfer.files});
+        });
+
+    </script>
+</body>
+</html>
+

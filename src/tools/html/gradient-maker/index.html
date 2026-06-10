@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gradient Maker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: oklch(0.10 0.000 0);
+      color: oklch(0.92 0.005 145);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .preview {
+      height: 240px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .controls {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    label {
+      font-size: 0.72rem;
+      color: oklch(0.56 0.008 145);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    select, input[type="range"] {
+      background: oklch(0.14 0.005 145);
+      border: 1px solid oklch(0.22 0.005 145);
+      border-radius: 6px;
+      color: oklch(0.92 0.005 145);
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      outline: none;
+    }
+    select:focus { border-color: oklch(0.65 0.15 145); }
+    input[type="range"] { padding: 0; width: 120px; accent-color: oklch(0.65 0.15 145); }
+    input[type="color"] {
+      width: 40px;
+      height: 30px;
+      border: 2px solid oklch(0.22 0.005 145);
+      border-radius: 6px;
+      cursor: pointer;
+      background: none;
+      padding: 2px;
+    }
+    .stops {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stop-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stop-pos {
+      width: 60px;
+      background: oklch(0.14 0.005 145);
+      border: 1px solid oklch(0.22 0.005 145);
+      border-radius: 6px;
+      color: oklch(0.92 0.005 145);
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 5px 8px;
+      outline: none;
+    }
+    .remove-btn {
+      background: none;
+      border: 1px solid oklch(0.30 0.05 25);
+      border-radius: 4px;
+      color: oklch(0.60 0.10 25);
+      font-size: 0.75rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-family: inherit;
+    }
+    .add-btn {
+      background: oklch(0.18 0.005 145);
+      border: 1px solid oklch(0.25 0.005 145);
+      border-radius: 6px;
+      color: oklch(0.92 0.005 145);
+      font-family: inherit;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+      cursor: pointer;
+      align-self: flex-start;
+    }
+    .add-btn:hover { background: oklch(0.22 0.005 145); }
+    .code-block {
+      background: oklch(0.14 0.005 145);
+      border: 1px solid oklch(0.20 0.005 145);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .code-text {
+      font-size: 0.82rem;
+      color: oklch(0.72 0.18 55);
+      word-break: break-all;
+      flex: 1;
+    }
+    .copy-btn {
+      background: oklch(0.65 0.15 145);
+      color: oklch(0.10 0.000 0);
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .copy-btn:hover { background: oklch(0.70 0.16 145); }
+    .section-title {
+      font-size: 0.68rem;
+      color: oklch(0.56 0.008 145);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="preview" id="preview"></div>
+  <div class="controls">
+    <div class="row">
+      <label>
+        Type
+        <select id="type">
+          <option value="linear">Linear</option>
+          <option value="radial">Radial</option>
+          <option value="conic">Conic</option>
+        </select>
+      </label>
+      <label id="angle-wrap">
+        Angle
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="range" id="angle" min="0" max="360" value="135" />
+          <span id="angle-val">135°</span>
+        </div>
+      </label>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:10px">Color Stops</div>
+      <div class="stops" id="stops"></div>
+      <button class="add-btn" id="add-stop" style="margin-top:8px">+ Add stop</button>
+    </div>
+
+    <div class="code-block">
+      <code class="code-text" id="code-text"></code>
+      <button class="copy-btn" id="copy-btn">Copy</button>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      type: 'linear',
+      angle: 135,
+      stops: [
+        { color: '#22c55e', pos: 0 },
+        { color: '#6366f1', pos: 50 },
+        { color: '#ec4899', pos: 100 },
+      ],
+    };
+
+    const preview = document.getElementById('preview');
+    const codeText = document.getElementById('code-text');
+    const copyBtn = document.getElementById('copy-btn');
+    const stopsEl = document.getElementById('stops');
+    const angleWrap = document.getElementById('angle-wrap');
+
+    function gradient() {
+      const sorted = [...state.stops].sort((a, b) => a.pos - b.pos);
+      const stops = sorted.map(s => `${s.color} ${s.pos}%`).join(', ');
+      if (state.type === 'linear') return `linear-gradient(${state.angle}deg, ${stops})`;
+      if (state.type === 'radial') return `radial-gradient(circle, ${stops})`;
+      return `conic-gradient(from ${state.angle}deg, ${stops})`;
+    }
+
+    function update() {
+      const g = gradient();
+      preview.style.background = g;
+      codeText.textContent = `background: ${g};`;
+    }
+
+    function renderStops() {
+      stopsEl.innerHTML = '';
+      state.stops.forEach((stop, i) => {
+        const row = document.createElement('div');
+        row.className = 'stop-row';
+        row.innerHTML = `
+          <input type="color" value="${stop.color}" data-i="${i}" class="stop-color" />
+          <input type="number" class="stop-pos" value="${stop.pos}" min="0" max="100" data-i="${i}" /> %
+          ${state.stops.length > 2 ? `<button class="remove-btn" data-i="${i}">✕</button>` : ''}
+        `;
+        stopsEl.appendChild(row);
+      });
+
+      document.querySelectorAll('.stop-color').forEach(el =>
+        el.addEventListener('input', e => {
+          state.stops[+e.target.dataset.i].color = e.target.value;
+          update();
+        })
+      );
+      document.querySelectorAll('.stop-pos').forEach(el =>
+        el.addEventListener('input', e => {
+          state.stops[+e.target.dataset.i].pos = +e.target.value;
+          update();
+        })
+      );
+      document.querySelectorAll('.remove-btn').forEach(el =>
+        el.addEventListener('click', e => {
+          state.stops.splice(+e.target.dataset.i, 1);
+          renderStops();
+          update();
+        })
+      );
+    }
+
+    document.getElementById('type').addEventListener('change', e => {
+      state.type = e.target.value;
+      angleWrap.style.display = state.type === 'radial' ? 'none' : '';
+      update();
+    });
+
+    const angleInput = document.getElementById('angle');
+    const angleVal = document.getElementById('angle-val');
+    angleInput.addEventListener('input', e => {
+      state.angle = +e.target.value;
+      angleVal.textContent = `${state.angle}°`;
+      update();
+    });
+
+    document.getElementById('add-stop').addEventListener('click', () => {
+      state.stops.push({ color: '#ffffff', pos: 75 });
+      renderStops();
+      update();
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(codeText.textContent);
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+    });
+
+    renderStops();
+    update();
+  </script>
+</body>
+</html>
