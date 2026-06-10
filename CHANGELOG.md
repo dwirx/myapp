@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-11
+
+### Added
+- Menambahkan fitur penggantian tema Dark/Light mode di seluruh aplikasi dengan persistensi di *localStorage*.
+- Menambahkan filter tipe alat (All, React, HTML) pada toolbar halaman utama.
+- Menambahkan fitur pengurutan alat (*sorting*) berdasarkan waktu (Terbaru/Terlama) dan nama (A-Z/Z-A).
+- Memperluas registry alat otomatis dengan metadata jalur file (*filePath*) dan stempel waktu modifikasi (*mtime*) untuk mendukung pengurutan berbasis tanggal.
+
+### Changed
+- Memperbarui UI `ToolCard` agar menggunakan warna tema yang dinamis (menggunakan `var(--cat)`) dan badge yang lebih bersih.
+- Mengatur ulang tata letak toolbar di `HomePage` dengan desain yang lebih terstruktur (toolbar-filters).
+- Menambahkan tombol toggle tema pada header halaman utama dan navigasi `ToolPage`.
+
 ## [0.2.0] - 2026-06-11
 
 ### Added
