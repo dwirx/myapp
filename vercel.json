@@ -4,42 +4,39 @@
   "installCommand": "bun install",
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/tools/scan",
-      "destination": "/api/tools/scan.json"
+      "src": "/api/tools/scan",
+      "dest": "/api/tools/scan.json",
+      "headers": {
+        "Cache-Control": "no-store"
+      }
     },
     {
-      "source": "/src/tools/html/:path*",
-      "destination": "/tools/html/:path*"
+      "src": "/src/tools/html/(.*)",
+      "dest": "/tools/html/$1"
     },
     {
-      "source": "/tool/:path*",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(favicon.svg|favicon.ico|favicon-192.png|favicon-512.png|apple-touch-icon.png|og-image.png)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400"
-        }
-      ]
+      "src": "/service-worker.js",
+      "dest": "/service-worker.js",
+      "headers": {
+        "Cache-Control": "no-cache",
+        "Service-Worker-Allowed": "/"
+      }
     },
     {
-      "source": "/service-worker.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache"
-        },
-        {
-          "key": "Service-Worker-Allowed",
-          "value": "/"
-        }
-      ]
+      "src": "/(favicon.svg|favicon.ico|favicon-192.png|favicon-512.png|apple-touch-icon.png|og-image.png)",
+      "dest": "/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
     }
   ]
 }

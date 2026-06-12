@@ -103,6 +103,24 @@ export const tools: EnrichedTool[] = [
     "date": 1781117547433.1296
   },
   {
+    "id": "numbr-app (2)",
+    "name": "Numbr",
+    "description": "Auto-detected HTML utility tool for numbr app 2.",
+    "category": "Utility",
+    "tags": [
+      "html",
+      "numbr",
+      "app",
+      "2",
+      "utility"
+    ],
+    "type": "html",
+    "path": "html/numbr-app (2)",
+    "autoDetected": true,
+    "filePath": "html/numbr-app (2).html",
+    "date": 1781290999229.6338
+  },
+  {
     "id": "textarea",
     "name": "Textarea",
     "description": "A minimalist Markdown editor that lives in your browser. The editing surface itself renders Markdown — no preview pane. Notes are stored locally (IndexedDB) and shareable via the URL.",
