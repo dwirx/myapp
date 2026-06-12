@@ -111,10 +111,47 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 .icon-btn:active{transform:scale(.9)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .cal-dow{text-align:center;font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;padding:6px 0;font-weight:600}
-.cal-cell{aspect-ratio:1;display:grid;place-items:center;border-radius:10px;font-family:var(--font-mono);font-size:.95rem;color:var(--text);transition:background .2s,transform .12s}
-.cal-cell.muted{color:var(--text-dim);opacity:.4}
+.weton-today{font-size:.8rem;color:var(--text-dim);text-align:center;margin:-4px 0 16px;font-family:var(--font-mono)}
+.cal-cell{aspect-ratio:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-radius:10px;font-family:var(--font-mono);font-size:.9rem;color:var(--text);cursor:pointer;transition:background .2s,transform .12s}
+.cal-cell:not(.muted):active{transform:scale(.92)}
+.cal-cell .cal-pas{font-family:var(--font-sans);font-size:.5rem;line-height:1;opacity:.6;letter-spacing:.02em;font-weight:500}
+.cal-cell.muted{color:var(--text-dim);opacity:.4;cursor:default}
 .cal-cell.today{background:var(--accent);color:#fff;font-weight:700;box-shadow:var(--shadow)}
+.cal-cell.today .cal-pas{opacity:.85}
 .cal-cell.wknd:not(.today):not(.muted){color:var(--accent)}
+.cal-cell.holiday:not(.today){color:var(--danger);font-weight:700}
+.cal-cell.cuti:not(.today):not(.holiday){color:var(--warn);font-weight:700}
+.cal-cell.holiday::after,.cal-cell.cuti:not(.holiday)::after{content:'';position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%}
+.cal-cell.holiday::after{background:var(--danger)}
+.cal-cell.cuti:not(.holiday)::after{background:var(--warn)}
+.cal-cell.islam::before,.cal-cell.kristen::before,.cal-cell.jawa::before{content:'';position:absolute;top:5px;left:5px;width:5px;height:5px;border-radius:50%}
+.cal-cell.islam::before{background:var(--ok)}
+.cal-cell.kristen::before{background:#3b82f6}
+.cal-cell.jawa::before{background:#a855f7}
+.cal-cell.today.holiday::after,.cal-cell.today.cuti::after{background:#fff}
+.cal-cell.today.islam::before,.cal-cell.today.kristen::before,.cal-cell.today.jawa::before{background:#fff}
+.cal-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px;font-size:.74rem;color:var(--text-dim)}
+.cal-legend .lg{display:flex;align-items:center;gap:6px}
+.cal-legend .dot{width:9px;height:9px;border-radius:50%}
+.holi-list{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+.holi-item{display:flex;gap:10px;align-items:center;font-size:.86rem;padding:9px 11px;border-radius:11px;background:var(--surface-2);border-left:3px solid var(--danger)}
+.holi-item.cuti{border-left-color:var(--warn)}
+.holi-item .hd{font-family:var(--font-mono);font-weight:700;min-width:30px;text-align:center;color:var(--danger)}
+.holi-item.cuti .hd{color:var(--warn)}
+.holi-item .hn{flex:1;line-height:1.3}
+.holi-item.islam{border-left-color:var(--ok)}
+.holi-item.islam .hd{color:var(--ok)}
+.holi-item.kristen{border-left-color:#3b82f6}
+.holi-item.kristen .hd{color:#3b82f6}
+.holi-item.jawa{border-left-color:#a855f7}
+.holi-item.jawa .hd{color:#a855f7}
+.holi-item .tag{font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;padding:3px 7px;border-radius:6px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.holi-item .tag.libur{background:rgba(229,72,77,.15);color:var(--danger)}
+.holi-item .tag.cuti{background:rgba(245,158,11,.15);color:var(--warn)}
+.holi-item .tag.islam{background:rgba(46,158,91,.15);color:var(--ok)}
+.holi-item .tag.kristen{background:rgba(59,130,246,.15);color:#3b82f6}
+.holi-item .tag.jawa{background:rgba(168,85,247,.15);color:#a855f7}
+.holi-empty{text-align:center;color:var(--text-dim);font-size:.82rem;margin-top:14px;padding:10px}
 .cal-today-btn{margin-top:16px;width:100%}
 /* Calculator (revamped) */
 .calc-screen{background:linear-gradient(180deg,var(--surface-2),var(--surface-3));border:1px solid var(--border);border-radius:18px;padding:22px 20px;text-align:right;margin-bottom:16px;min-height:110px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
@@ -202,6 +239,7 @@ nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mi
   <!-- KALENDER -->
   <section class="panel card" id="panel-cal">
     <div class="panel-title">◰ Kalender</div>
+    <div class="weton-today" id="wetonToday"></div>
     <div class="cal-head">
       <div class="cal-title" id="calTitle">—</div>
       <div class="cal-nav">
@@ -211,6 +249,14 @@ nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mi
     </div>
     <div class="cal-grid" id="calDow"></div>
     <div class="cal-grid" id="calGrid" style="margin-top:6px"></div>
+    <div class="cal-legend">
+      <span class="lg"><span class="dot" style="background:var(--danger)"></span>Libur Nasional</span>
+      <span class="lg"><span class="dot" style="background:var(--warn)"></span>Cuti Bersama</span>
+      <span class="lg"><span class="dot" style="background:var(--ok)"></span>Hari Besar Islam</span>
+      <span class="lg"><span class="dot" style="background:#3b82f6"></span>Hari Besar Kristen</span>
+      <span class="lg"><span class="dot" style="background:#a855f7"></span>Hari Jawa</span>
+    </div>
+    <div class="holi-list" id="holiList"></div>
     <button class="btn cal-today-btn" id="calToday">Hari Ini</button>
   </section>
 
@@ -351,15 +397,47 @@ function loop(){const now=performance.now();for(const s of stopwatches)if(s.runn
 requestAnimationFrame(loop);
 
 /* ===== KALENDER ===== */
+/* Hari libur nasional Indonesia (sumber: SKB 3 Menteri / ANTARA / Bank Indonesia) */
+const HOLI={
+'2025-01-01':'Tahun Baru Masehi','2025-01-27':'Isra Mikraj Nabi Muhammad SAW','2025-01-29':'Tahun Baru Imlek 2576 Kongzili','2025-03-29':'Hari Suci Nyepi (Tahun Baru Saka 1947)','2025-03-31':'Idulfitri 1446 H','2025-04-01':'Idulfitri 1446 H','2025-04-18':'Wafat Isa Almasih','2025-04-20':'Hari Paskah','2025-05-01':'Hari Buruh Internasional','2025-05-12':'Hari Raya Waisak 2569 BE','2025-05-29':'Kenaikan Isa Almasih','2025-06-01':'Hari Lahir Pancasila','2025-06-06':'Iduladha 1446 H','2025-06-27':'Tahun Baru Islam 1447 H','2025-08-17':'Hari Kemerdekaan RI','2025-09-05':'Maulid Nabi Muhammad SAW','2025-12-25':'Hari Raya Natal',
+'2026-01-01':'Tahun Baru Masehi','2026-01-16':'Isra Mikraj Nabi Muhammad SAW','2026-02-17':'Tahun Baru Imlek 2577 Kongzili','2026-03-19':'Hari Suci Nyepi (Tahun Baru Saka 1948)','2026-03-21':'Idulfitri 1447 H','2026-03-22':'Idulfitri 1447 H','2026-04-03':'Wafat Isa Almasih','2026-04-05':'Hari Paskah','2026-05-01':'Hari Buruh Internasional','2026-05-14':'Kenaikan Isa Almasih','2026-05-27':'Iduladha 1447 H','2026-05-31':'Hari Raya Waisak 2570 BE','2026-06-01':'Hari Lahir Pancasila','2026-06-16':'Tahun Baru Islam 1448 H','2026-08-17':'Hari Kemerdekaan RI','2026-08-25':'Maulid Nabi Muhammad SAW','2026-12-25':'Hari Raya Natal'
+};
+const CUTI={
+'2025-01-28':'Cuti Bersama Tahun Baru Imlek','2025-03-28':'Cuti Bersama Idulfitri','2025-04-02':'Cuti Bersama Idulfitri','2025-04-03':'Cuti Bersama Idulfitri','2025-04-04':'Cuti Bersama Idulfitri','2025-04-07':'Cuti Bersama Idulfitri','2025-05-13':'Cuti Bersama Hari Raya Waisak','2025-05-30':'Cuti Bersama Kenaikan Isa Almasih','2025-06-09':'Cuti Bersama Iduladha','2025-08-18':'Cuti Bersama Hari Kemerdekaan',
+'2026-02-16':'Cuti Bersama Tahun Baru Imlek','2026-03-18':'Cuti Bersama Nyepi','2026-03-20':'Cuti Bersama Idulfitri','2026-03-23':'Cuti Bersama Idulfitri','2026-03-24':'Cuti Bersama Idulfitri','2026-05-15':'Cuti Bersama Kenaikan Isa Almasih','2026-05-28':'Cuti Bersama Iduladha','2026-12-24':'Cuti Bersama Natal'
+};
+/* Penanggalan Jawa (pasaran) - anchor: 17 Agustus 1945 = Legi */
+const PASARAN=['Legi','Pahing','Pon','Wage','Kliwon'];
+function pasaran(y,m,d){const anchor=Date.UTC(1945,7,17);const cur=Date.UTC(y,m,d);let diff=Math.round((cur-anchor)/86400000)%5;if(diff<0)diff+=5;return PASARAN[diff];}
+/* Hari besar Islam, Kristen & Jawa (pelengkap, non-libur) */
+const EXTRA={
+'2025-03-01':[{n:'Awal Puasa Ramadan 1446 H',k:'islam'}],
+'2025-03-05':[{n:'Rabu Abu',k:'kristen'}],
+'2025-03-17':[{n:'Nuzulul Quran',k:'islam'}],
+'2025-04-13':[{n:'Minggu Palma',k:'kristen'}],
+'2025-04-17':[{n:'Kamis Putih',k:'kristen'}],
+'2025-06-08':[{n:'Hari Raya Pentakosta',k:'kristen'}],
+'2025-06-27':[{n:'1 Suro - Tahun Baru Jawa',k:'jawa'}],
+'2026-02-18':[{n:'Awal Puasa Ramadan 1447 H',k:'islam'},{n:'Rabu Abu',k:'kristen'}],
+'2026-03-06':[{n:'Nuzulul Quran',k:'islam'}],
+'2026-03-29':[{n:'Minggu Palma',k:'kristen'}],
+'2026-04-02':[{n:'Kamis Putih',k:'kristen'}],
+'2026-05-24':[{n:'Hari Raya Pentakosta',k:'kristen'}],
+'2026-06-16':[{n:'1 Suro - Tahun Baru Jawa',k:'jawa'}]
+};
+const CATMETA={libur:'Libur',cuti:'Cuti',islam:'Islam',kristen:'Kristen',jawa:'Jawa'};
+function hk(y,m,d){return y+'-'+pad(m+1)+'-'+pad(d);}
 let calY,calM;const todayD=new Date();
 function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();}
 initCal();
 $('#calDow').innerHTML=DAY3.map(d=>'<div class="cal-dow">'+d+'</div>').join('');
-function renderCal(){$('#calTitle').textContent=MONTHS[calM]+' '+calY;const first=new Date(calY,calM,1).getDay();const days=new Date(calY,calM+1,0).getDate();const prevDays=new Date(calY,calM,0).getDate();let html='';for(let i=first-1;i>=0;i--)html+='<div class="cal-cell muted">'+(prevDays-i)+'</div>';for(let d=1;d<=days;d++){const dow=new Date(calY,calM,d).getDay();const isToday=d===todayD.getDate()&&calM===todayD.getMonth()&&calY===todayD.getFullYear();let cls='cal-cell';if(isToday)cls+=' today';if(dow===0||dow===6)cls+=' wknd';html+='<div class="'+cls+'">'+d+'</div>';}const used=first+days;const trail=(7-used%7)%7;for(let i=1;i<=trail;i++)html+='<div class="cal-cell muted">'+i+'</div>';$('#calGrid').innerHTML=html;}
+function renderHoli(list){const wrap=$('#holiList');if(!list.length){wrap.innerHTML='<div class="holi-empty">Tidak ada hari libur atau hari besar bulan ini</div>';return;}wrap.innerHTML=list.map(h=>'<div class="holi-item '+h.k+'"><span class="hd">'+pad(h.d)+'</span><span class="hn">'+h.n+'</span><span class="tag '+h.k+'">'+CATMETA[h.k]+'</span></div>').join('');}
+function renderCal(){$('#calTitle').textContent=MONTHS[calM]+' '+calY;const first=new Date(calY,calM,1).getDay();const days=new Date(calY,calM+1,0).getDate();const prevDays=new Date(calY,calM,0).getDate();let html='';for(let i=first-1;i>=0;i--)html+='<div class="cal-cell muted">'+(prevDays-i)+'</div>';const monthHoli=[];for(let d=1;d<=days;d++){const key=hk(calY,calM,d);const dow=new Date(calY,calM,d).getDay();const isToday=d===todayD.getDate()&&calM===todayD.getMonth()&&calY===todayD.getFullYear();const hol=HOLI[key];const cut=CUTI[key];const exs=EXTRA[key]||[];let cls='cal-cell';if(isToday)cls+=' today';if(dow===0||dow===6)cls+=' wknd';if(hol)cls+=' holiday';else if(cut)cls+=' cuti';for(const e of exs)cls+=' '+e.k;const names=[];if(hol)names.push(hol);if(cut)names.push(cut);for(const e of exs)names.push(e.n);const tip=names.join(' • ');html+='<div class="'+cls+'" data-d="'+d+'"'+(tip?' title="'+tip+'"':'')+'><span>'+d+'</span><span class="cal-pas">'+pasaran(calY,calM,d)+'</span></div>';if(hol)monthHoli.push({d:d,n:hol,k:'libur'});if(cut)monthHoli.push({d:d,n:cut,k:'cuti'});for(const e of exs)monthHoli.push({d:d,n:e.n,k:e.k});}const used=first+days;const trail=(7-used%7)%7;for(let i=1;i<=trail;i++)html+='<div class="cal-cell muted">'+i+'</div>';$('#calGrid').innerHTML=html;renderHoli(monthHoli);$('#calGrid .cal-cell:not(.muted)').forEach(c=>c.addEventListener('click',()=>{const d=+c.dataset.d;const key=hk(calY,calM,d);const wet=DAYS[new Date(calY,calM,d).getDay()]+' '+pasaran(calY,calM,d);const ns=[];if(HOLI[key])ns.push(HOLI[key]);if(CUTI[key])ns.push(CUTI[key]);for(const e of (EXTRA[key]||[]))ns.push(e.n);toast(wet+' • '+d+' '+MONTHS[calM]+(ns.length?' — '+ns.join(', '):''),'📅');}));}
 $('#calPrev').addEventListener('click',()=>{calM--;if(calM<0){calM=11;calY--}renderCal();});
 $('#calNext').addEventListener('click',()=>{calM++;if(calM>11){calM=0;calY++}renderCal();});
 $('#calToday').addEventListener('click',()=>{initCal();renderCal();toast('Kembali ke hari ini','◰');});
 renderCal();
+$('#wetonToday').textContent='Hari ini: '+DAYS[todayD.getDay()]+' '+pasaran(todayD.getFullYear(),todayD.getMonth(),todayD.getDate())+', '+todayD.getDate()+' '+MONTHS[todayD.getMonth()]+' '+todayD.getFullYear();
 
 /* ===== KALKULATOR ===== */
 let cExpr='',cResult='0',cJustEval=false;
