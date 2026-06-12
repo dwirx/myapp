@@ -162,6 +162,21 @@ export const tools: EnrichedTool[] = [
     "date": 1781118450889.0264
   },
   {
+    "id": "toolsbox",
+    "name": "Toolsbox",
+    "description": "",
+    "type": "html",
+    "path": "html/toolsbox",
+    "category": "Utility",
+    "tags": [
+      "html",
+      "toolsbox"
+    ],
+    "autoDetected": true,
+    "filePath": "html/toolsbox.html",
+    "date": 1781289371793.3896
+  },
+  {
     "id": "paste_image",
     "name": "Paste Image",
     "description": "",
