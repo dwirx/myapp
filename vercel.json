@@ -1,0 +1,32 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "bun install",
+  "buildCommand": "bun run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/tools/scan",
+      "destination": "/api/tools/scan.json"
+    },
+    {
+      "source": "/src/tools/html/:path*",
+      "destination": "/tools/html/:path*"
+    },
+    {
+      "source": "/tool/:path*",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(favicon.svg|favicon.ico|favicon-192.png|favicon-512.png|apple-touch-icon.png|og-image.png)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ]
+}

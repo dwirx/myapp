@@ -5,6 +5,15 @@ import index from "./index.html";
 import { tools as registeredTools } from "./tools/tools.index";
 
 const TOOLS_DIR = join(import.meta.dir, "tools");
+const ROOT_STATIC_ASSETS: Record<string, { path: string; type: string }> = {
+  "/favicon.svg": { path: join(import.meta.dir, "brand", "favicon.svg"), type: "image/svg+xml; charset=utf-8" },
+  "/favicon.ico": { path: join(import.meta.dir, "brand", "favicon.ico"), type: "image/x-icon" },
+  "/favicon-192.png": { path: join(import.meta.dir, "brand", "favicon-192.png"), type: "image/png" },
+  "/favicon-512.png": { path: join(import.meta.dir, "brand", "favicon-512.png"), type: "image/png" },
+  "/apple-touch-icon.png": { path: join(import.meta.dir, "brand", "apple-touch-icon.png"), type: "image/png" },
+  "/og-image.png": { path: join(import.meta.dir, "brand", "og-image.png"), type: "image/png" },
+  "/site.webmanifest": { path: join(import.meta.dir, "site.webmanifest"), type: "application/manifest+json; charset=utf-8" },
+};
 
 /** Scan src/tools/html/ dan src/tools/react/ — return daftar semua tool yang ditemukan */
 function scanTools() {
@@ -185,6 +194,22 @@ generateAutoRegistry();
 
 const server = serve({
   routes: {
+    ...Object.fromEntries(
+      Object.entries(ROOT_STATIC_ASSETS).map(([route, asset]) => [
+        route,
+        async () => {
+          const file = Bun.file(asset.path);
+          if (!(await file.exists())) return new Response("Not found", { status: 404 });
+          return new Response(file, {
+            headers: {
+              "Content-Type": asset.type,
+              "Cache-Control": "public, max-age=86400",
+            },
+          });
+        },
+      ]),
+    ),
+
     // ── API: scan tools directory ─────────────────────────────────────────
     "/api/tools/scan": {
       GET() {
