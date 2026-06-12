@@ -25,7 +25,7 @@ export const tools: EnrichedTool[] = [
       "validate"
     ],
     "filePath": "react/json-formatter/index.tsx",
-    "date": 1781117480014.8323
+    "date": 1781119393000
   },
   {
     "id": "word-counter",
@@ -40,7 +40,7 @@ export const tools: EnrichedTool[] = [
       "reading"
     ],
     "filePath": "react/word-counter/index.tsx",
-    "date": 1781117494223.3523
+    "date": 1781119393000
   },
   {
     "id": "gradient-maker",
@@ -55,7 +55,7 @@ export const tools: EnrichedTool[] = [
       "color"
     ],
     "filePath": "html/gradient-maker/index.html",
-    "date": 1781117579366.2617
+    "date": 1781119393000
   },
   {
     "id": "base64",
@@ -70,7 +70,7 @@ export const tools: EnrichedTool[] = [
       "base64"
     ],
     "filePath": "react/base64/index.tsx",
-    "date": 1781117519776.1885
+    "date": 1781119393000
   },
   {
     "id": "color-picker",
@@ -85,7 +85,7 @@ export const tools: EnrichedTool[] = [
       "oklch"
     ],
     "filePath": "html/color-picker/index.html",
-    "date": 1781117615555.541
+    "date": 1781119393000
   },
   {
     "id": "markdown-preview",
@@ -100,7 +100,7 @@ export const tools: EnrichedTool[] = [
       "md"
     ],
     "filePath": "react/markdown-preview/index.tsx",
-    "date": 1781117547433.1296
+    "date": 1781119393000
   },
   {
     "id": "numbr-app (2)",
@@ -118,7 +118,7 @@ export const tools: EnrichedTool[] = [
     "path": "html/numbr-app (2)",
     "autoDetected": true,
     "filePath": "html/numbr-app (2).html",
-    "date": 1781290999229.6338
+    "date": 1781290920000
   },
   {
     "id": "textarea",
@@ -136,7 +136,7 @@ export const tools: EnrichedTool[] = [
     "path": "html/textarea",
     "autoDetected": true,
     "filePath": "html/textarea.html",
-    "date": 1781254228825.6033
+    "date": 1781255380000
   },
   {
     "id": "pelangan-wifi",
@@ -153,7 +153,25 @@ export const tools: EnrichedTool[] = [
     "path": "html/pelangan-wifi",
     "autoDetected": true,
     "filePath": "html/pelangan-wifi/index.html",
-    "date": 1781119020969.1487
+    "date": 1781119393000
+  },
+  {
+    "id": "openeditor",
+    "name": "Quill Pad",
+    "description": "Auto-detected HTML utility tool for openeditor.",
+    "category": "Utility",
+    "tags": [
+      "html",
+      "openeditor",
+      "quill",
+      "pad",
+      "utility"
+    ],
+    "type": "html",
+    "path": "html/openeditor",
+    "autoDetected": true,
+    "filePath": "html/openeditor.html",
+    "date": 1781295840000
   },
   {
     "id": "javasandi",
@@ -171,7 +189,7 @@ export const tools: EnrichedTool[] = [
     "path": "html/javasandi",
     "autoDetected": true,
     "filePath": "html/javasandi.html",
-    "date": 1781118326188.6184
+    "date": 1781119393000
   },
   {
     "id": "javascript",
@@ -189,7 +207,7 @@ export const tools: EnrichedTool[] = [
     "path": "html/javascript",
     "autoDetected": true,
     "filePath": "html/javascript/index.html",
-    "date": 1781118450889.0264
+    "date": 1781119393000
   },
   {
     "id": "toolsbox",
@@ -207,7 +225,7 @@ export const tools: EnrichedTool[] = [
     "path": "html/toolsbox",
     "autoDetected": true,
     "filePath": "html/toolsbox.html",
-    "date": 1781289371793.3896
+    "date": 1781294199000
   },
   {
     "id": "paste_image",
@@ -225,7 +243,7 @@ export const tools: EnrichedTool[] = [
     "path": "react/paste_image",
     "autoDetected": true,
     "filePath": "react/paste_image.tsx",
-    "date": 1781119243369.0012
+    "date": 1781119393000
   },
   {
     "id": "Pelangan-wifi",
@@ -243,7 +261,7 @@ export const tools: EnrichedTool[] = [
     "path": "react/Pelangan-wifi",
     "autoDetected": true,
     "filePath": "react/Pelangan-wifi.tsx",
-    "date": 1781119165710.2588
+    "date": 1781119393000
   }
 ];
 

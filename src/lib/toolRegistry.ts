@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
-import { join } from "path";
+import { execFileSync } from "child_process";
+import { join, relative, resolve } from "path";
 import { inferToolMetadata, resolveToolIndexFile } from "./toolMetadata";
 import { tools as registeredTools, type Tool, type ToolType } from "../tools/tools.index";
 
@@ -14,6 +15,11 @@ export interface EnrichedTool extends Tool {
   autoDetected?: boolean;
   filePath?: string;
   date?: number;
+}
+
+interface ToolDateReaders {
+  readGitTimestamp?: (toolsDir: string, filePath: string) => number | null;
+  readMtime?: (toolsDir: string, filePath: string) => number;
 }
 
 export function scanTools(toolsDir: string) {
@@ -85,7 +91,7 @@ export function generateAutoRegistry(toolsDir: string) {
   for (const tool of registeredTools) {
     const match = scanned.find((candidate) => candidate.id === tool.id && candidate.type === tool.type);
     const filePath = match ? match.filePath : tool.type === "html" ? `html/${tool.id}/index.html` : `react/${tool.id}/index.tsx`;
-    const date = getMtime(toolsDir, filePath);
+    const date = resolveToolDate(toolsDir, filePath);
 
     allTools.push({
       ...tool,
@@ -110,7 +116,7 @@ export function generateAutoRegistry(toolsDir: string) {
       path: entry.path,
       autoDetected: true,
       filePath: entry.filePath,
-      date: getMtime(toolsDir, entry.filePath),
+      date: resolveToolDate(toolsDir, entry.filePath),
     };
 
     allTools.push(inferred);
@@ -144,7 +150,29 @@ ${reactComponentsLines.join("\n")}
   return allTools;
 }
 
-function getMtime(toolsDir: string, filePath: string) {
+export function resolveToolDate(toolsDir: string, filePath: string, readers: ToolDateReaders = {}) {
+  const gitTimestamp = (readers.readGitTimestamp ?? readGitTimestamp)(toolsDir, filePath);
+  if (gitTimestamp) return gitTimestamp * 1000;
+  return (readers.readMtime ?? readMtime)(toolsDir, filePath);
+}
+
+function readGitTimestamp(toolsDir: string, filePath: string) {
+  try {
+    const projectRoot = resolve(toolsDir, "../..");
+    const absolutePath = join(toolsDir, filePath);
+    const repoPath = relative(projectRoot, absolutePath);
+    const output = execFileSync("git", ["-C", projectRoot, "log", "-1", "--format=%ct", "--", repoPath], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    const timestamp = Number(output);
+    return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
+  } catch {
+    return null;
+  }
+}
+
+function readMtime(toolsDir: string, filePath: string) {
   try {
     return statSync(join(toolsDir, filePath)).mtimeMs;
   } catch {
