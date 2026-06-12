@@ -205,7 +205,7 @@ export function HomePage() {
           section: "Tools",
           detail: tool.description || `${tool.type.toUpperCase()} · ${tool.category}`,
           keywords: [tool.id, tool.category, tool.type, ...(tool.tags ?? [])],
-          run: () => navigate(`/tool/${tool.id}`),
+          run: () => navigate(`/tool/${encodeURIComponent(tool.id)}`),
         },
         {
           id: `share-${tool.id}`,

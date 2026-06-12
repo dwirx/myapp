@@ -1,9 +1,10 @@
 import tailwind from "bun-plugin-tailwind";
 import { copyFile, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { tools as scannedTools } from "./src/tools/auto-registry";
+import { generateAutoRegistry } from "./src/lib/toolRegistry";
 
 const outdir = path.join(process.cwd(), "dist");
+const scannedTools = generateAutoRegistry(path.join(process.cwd(), "src", "tools"));
 await rm(outdir, { recursive: true, force: true });
 
 const entrypoints = [...new Bun.Glob("src/**/*.html").scanSync()];

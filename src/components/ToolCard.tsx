@@ -121,7 +121,7 @@ export function ToolCard({
           </div>
         </div>
 
-        <Link to={`/tool/${tool.id}`} className="tool-card-link">
+        <Link to={`/tool/${encodeURIComponent(tool.id)}`} className="tool-card-link">
           <div className="tool-card-body">
             <h2 className="tool-card-name">{tool.name}</h2>
             {tool.description ? (

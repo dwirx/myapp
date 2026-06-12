@@ -51,6 +51,7 @@ html[data-theme="light"] {
 
 html {
   color-scheme: dark;
+  width: 100%;
 }
 html[data-theme="light"] {
   color-scheme: light;
@@ -65,6 +66,11 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
+}
+
+#root {
+  width: 100%;
+  min-width: 0;
 }
 
 html[data-theme="light"] body {
@@ -124,6 +130,7 @@ input, textarea, select { font-family: inherit; }
 
 /* ── Home shell ── */
 .home-shell {
+  width: min(100%, 1100px);
   max-width: 1100px;
   margin: 0 auto;
   padding: 48px 24px 80px;
@@ -230,6 +237,7 @@ button.scan-badge {
 }
 
 .toolbar {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -466,6 +474,7 @@ button.scan-badge {
 }
 
 .tools-grid {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 12px;
@@ -533,6 +542,7 @@ button.scan-badge {
 
 /* ── Tool cards ── */
 .tool-card {
+  width: 100%;
   min-height: 184px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1332,62 +1342,112 @@ html[data-theme="light"] .html-tool-frame {
 
 @media (max-width: 640px) {
   .home-shell {
-    padding: 28px 16px 64px;
-    gap: 20px;
+    width: 100%;
+    max-width: none;
+    padding: 18px max(12px, env(safe-area-inset-left)) 56px max(12px, env(safe-area-inset-right));
+    gap: 16px;
   }
 
   .home-logo-row {
-    gap: 10px;
+    align-items: flex-start;
+    gap: 8px;
+    flex-wrap: nowrap;
   }
 
   .home-actions {
-    width: 100%;
-    justify-content: flex-start;
-    margin-left: 0;
+    justify-content: flex-end;
+    margin-left: auto;
+    gap: 6px;
   }
 
   .logo-section {
+    flex: 1;
     min-width: 0;
     flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .home-logo {
+    min-width: 0;
+  }
+
+  .logo-text {
+    font-size: 1.32rem;
+    letter-spacing: -0.025em;
+  }
+
+  .logo-mark {
+    width: 24px;
+    height: 24px;
+  }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+  }
+
+  .scan-badge {
+    min-height: 24px;
+    padding: 3px 8px;
+    font-size: 0.66rem;
   }
 
   .home-tagline {
-    font-size: 0.82rem;
+    max-width: 31ch;
+    font-size: 0.8rem;
+    line-height: 1.45;
   }
 
   .toolbar {
-    gap: 12px;
+    gap: 10px;
+  }
+
+  .search-input {
+    min-height: 46px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    padding-block: 10px;
   }
 
   .toolbar-filters {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 10px;
   }
 
   .type-filters {
     width: 100%;
+    border-radius: 12px;
+    padding: 4px;
   }
 
   .type-filter-btn {
     flex: 1;
     text-align: center;
+    min-height: 36px;
     padding: 8px 10px;
+    border-radius: 9px;
   }
 
   .sort-wrap {
     width: 100%;
+    min-height: 44px;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: 8px 14px;
+    border-radius: 12px;
   }
 
   .filter-chips {
+    width: 100%;
+    max-width: 100%;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 4px 16px;
-    margin: 0 -16px;
+    padding: 4px 0 6px;
+    margin: 0;
     scrollbar-width: none;
+    scroll-padding-inline: 12px;
   }
 
   .filter-chips::-webkit-scrollbar {
@@ -1396,29 +1456,58 @@ html[data-theme="light"] .html-tool-frame {
 
   .filter-chip {
     flex-shrink: 0;
-    padding: 6px 14px;
+    min-height: 34px;
+    padding: 6px 13px;
   }
 
   .tools-grid {
+    width: 100%;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 9px;
   }
 
   .tool-card {
-    min-height: 168px;
+    min-height: 152px;
+    border-radius: 12px;
   }
 
   .tool-card-inner {
-    padding: 16px;
-    gap: 12px;
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .tool-card-top {
+    gap: 5px;
+  }
+
+  .tool-type-badge,
+  .tool-cat-badge,
+  .tool-new-badge,
+  .tool-pin-badge {
+    font-size: 0.6rem;
+    padding: 2px 7px;
+  }
+
+  .tool-action-btn {
+    width: 30px;
+    height: 30px;
   }
 
   .tool-card-name {
-    font-size: 0.95rem;
+    font-size: 0.96rem;
   }
 
   .tool-card-desc {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .tool-card-footer {
+    align-items: flex-end;
+  }
+
+  .tool-tag {
+    max-width: 108px;
   }
 
   .toolpage-nav {

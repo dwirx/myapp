@@ -147,7 +147,7 @@ export function ToolPage() {
         section: "Tools",
         detail: candidate.description || `${candidate.type.toUpperCase()} · ${candidate.category}`,
         keywords: [candidate.id, candidate.category, candidate.type, ...(candidate.tags ?? [])],
-        run: () => navigate(`/tool/${candidate.id}`),
+        run: () => navigate(`/tool/${encodeURIComponent(candidate.id)}`),
       });
     }
 
