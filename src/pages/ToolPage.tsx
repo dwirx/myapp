@@ -1,18 +1,44 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, ExternalLink, Maximize2, Moon, Sun, X } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Command, ExternalLink, Maximize2, Moon, Share2, Sun, X } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { CommandPalette } from "../components/CommandPalette";
 import { ToolViewer } from "../components/ToolViewer";
 import { useAutoTools } from "../hooks/useAutoTools";
 import { useTheme } from "../hooks/useTheme";
+import { useToolPreferences } from "../hooks/useToolPreferences";
+import type { CommandItem } from "../lib/commandPalette";
+import { buildToolShareData, sharePayload, type SharePayload } from "../lib/share";
+
+function legacyCopyText(text: string) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.inset = "0 auto auto -9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    return document.execCommand("copy");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
 
 export function ToolPage() {
   const { id } = useParams<{ id: string }>();
   const { allTools } = useAutoTools();
+  const navigate = useNavigate();
   const [fullscreen, setFullscreen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [shareStatus, setShareStatus] = useState("");
+  const shareStatusTimer = useRef<number | null>(null);
   const { theme, toggleTheme } = useTheme();
+  const toolPreferences = useToolPreferences();
   const tool = allTools.find((candidate) => candidate.id === id);
 
   useEffect(() => {
+    if (commandOpen) return;
     if (!fullscreen) return;
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -21,7 +47,112 @@ export function ToolPage() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [fullscreen]);
+  }, [commandOpen, fullscreen]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setCommandOpen((open) => !open);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const runShare = useCallback(async (payload: SharePayload) => {
+    if (shareStatusTimer.current) {
+      window.clearTimeout(shareStatusTimer.current);
+      shareStatusTimer.current = null;
+    }
+
+    try {
+      const result = await sharePayload(payload, navigator, navigator.clipboard ?? {}, legacyCopyText);
+      setShareStatus(result === "shared" ? "Shared" : "Link copied");
+    } catch {
+      setShareStatus("Share unavailable");
+    }
+
+    shareStatusTimer.current = window.setTimeout(() => {
+      setShareStatus("");
+      shareStatusTimer.current = null;
+    }, 2200);
+  }, []);
+
+  const shareTool = useCallback(() => {
+    if (!tool) return;
+    void runShare(buildToolShareData(tool, window.location.href));
+  }, [runShare, tool]);
+
+  const commandItems = useMemo<CommandItem[]>(() => {
+    const items: CommandItem[] = [
+      {
+        id: "back-gallery",
+        label: "Back to gallery",
+        section: "Navigation",
+        keywords: ["home", "tools"],
+        run: () => navigate("/"),
+      },
+      {
+        id: "toggle-theme",
+        label: theme === "dark" ? "Switch to light mode" : "Switch to dark mode",
+        section: "Actions",
+        keywords: ["theme", "light", "dark"],
+        run: toggleTheme,
+      },
+    ];
+
+    if (tool) {
+      const isBookmarked = toolPreferences.isBookmarked(tool.id);
+      const isPinned = toolPreferences.isPinned(tool.id);
+      items.push(
+        {
+          id: "share-current-tool",
+          label: `Share ${tool.name}`,
+          section: "Share",
+          detail: "Copy or share tool URL",
+          keywords: ["copy", "url", ...(tool.tags ?? [])],
+          run: shareTool,
+        },
+        {
+          id: "fullscreen-current-tool",
+          label: "Open fullscreen",
+          section: "Actions",
+          keywords: ["focus", "viewer"],
+          run: () => setFullscreen(true),
+        },
+        {
+          id: "bookmark-current-tool",
+          label: `${isBookmarked ? "Remove bookmark" : "Bookmark"} ${tool.name}`,
+          section: "Bookmarks",
+          keywords: ["saved", ...(tool.tags ?? [])],
+          run: () => toolPreferences.toggleBookmark(tool.id),
+        },
+        {
+          id: "pin-current-tool",
+          label: `${isPinned ? "Unpin" : "Pin"} ${tool.name}`,
+          section: "Pinned",
+          keywords: ["favorite", ...(tool.tags ?? [])],
+          run: () => toolPreferences.togglePin(tool.id),
+        },
+      );
+    }
+
+    for (const candidate of allTools) {
+      if (candidate.id === tool?.id) continue;
+      items.push({
+        id: `open-${candidate.id}`,
+        label: `Open ${candidate.name}`,
+        section: "Tools",
+        detail: candidate.description || `${candidate.type.toUpperCase()} · ${candidate.category}`,
+        keywords: [candidate.id, candidate.category, candidate.type, ...(candidate.tags ?? [])],
+        run: () => navigate(`/tool/${candidate.id}`),
+      });
+    }
+
+    return items;
+  }, [allTools, navigate, shareTool, theme, toggleTheme, tool, toolPreferences]);
 
   if (!tool) {
     return (
@@ -89,6 +220,29 @@ export function ToolPage() {
             {tool.type === "react" ? "React" : "HTML"}
           </span>
           <span className="nav-badge nav-badge-category">{tool.category}</span>
+          {shareStatus && (
+            <span className="share-status share-status-nav" role="status">
+              {shareStatus}
+            </span>
+          )}
+          <button
+            type="button"
+            className="nav-btn nav-btn-icon"
+            onClick={() => setCommandOpen(true)}
+            title="Open command palette"
+            aria-label="Open command palette"
+          >
+            <Command size={14} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="nav-btn nav-btn-icon"
+            onClick={shareTool}
+            title="Share tool"
+            aria-label="Share tool"
+          >
+            <Share2 size={14} aria-hidden="true" />
+          </button>
           <button
             type="button"
             className="nav-btn"
@@ -124,6 +278,7 @@ export function ToolPage() {
       <div className="toolpage-viewer">
         <ToolViewer tool={tool} />
       </div>
+      <CommandPalette open={commandOpen} items={commandItems} onClose={() => setCommandOpen(false)} />
     </div>
   );
 }

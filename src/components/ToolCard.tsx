@@ -1,5 +1,5 @@
 import type { CSSProperties, MouseEvent } from "react";
-import { ArrowRight, Bookmark, ExternalLink, Pin } from "lucide-react";
+import { ArrowRight, Bookmark, ExternalLink, Pin, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { EnrichedTool } from "../hooks/useAutoTools";
 import { isToolRecent } from "../hooks/useAutoTools";
@@ -19,9 +19,17 @@ interface ToolCardProps {
   pinned?: boolean;
   onToggleBookmark?: (id: string) => void;
   onTogglePin?: (id: string) => void;
+  onShareTool?: (id: string) => void;
 }
 
-export function ToolCard({ tool, bookmarked = false, pinned = false, onToggleBookmark, onTogglePin }: ToolCardProps) {
+export function ToolCard({
+  tool,
+  bookmarked = false,
+  pinned = false,
+  onToggleBookmark,
+  onTogglePin,
+  onShareTool,
+}: ToolCardProps) {
   const catColor = CATEGORY_COLORS[tool.category] ?? "oklch(0.65 0.12 200)";
   const catBg = `oklch(from ${catColor} l c h / 0.12)`;
   const showNewBadge = tool.autoDetected && isToolRecent(tool.date);
@@ -48,6 +56,12 @@ export function ToolCard({ tool, bookmarked = false, pinned = false, onToggleBoo
     event.preventDefault();
     event.stopPropagation();
     onTogglePin?.(tool.id);
+  }
+
+  function handleShare(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    onShareTool?.(tool.id);
   }
 
   return (
@@ -85,6 +99,15 @@ export function ToolCard({ tool, bookmarked = false, pinned = false, onToggleBoo
               aria-pressed={pinned}
             >
               <Pin size={14} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className="tool-action-btn"
+              onClick={handleShare}
+              title="Share tool"
+              aria-label={`Share ${tool.name}`}
+            >
+              <Share2 size={14} aria-hidden="true" />
             </button>
             <button
               type="button"

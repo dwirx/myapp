@@ -146,6 +146,13 @@ input, textarea, select { font-family: inherit; }
   flex-wrap: wrap;
 }
 
+.home-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
 .logo-section,
 .home-logo {
   display: flex;
@@ -430,12 +437,32 @@ button.scan-badge {
 
 .results-meta {
   margin-top: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .results-count {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.72rem;
   color: var(--muted);
+}
+
+.share-status {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.68rem;
+  color: var(--primary);
+  background: oklch(from var(--primary) l c h / 0.10);
+  border: 1px solid oklch(from var(--primary) l c h / 0.28);
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.share-status-nav {
+  flex-shrink: 0;
 }
 
 .tools-grid {
@@ -1004,6 +1031,140 @@ button.scan-badge {
   100% { background-position: -100% 0; }
 }
 
+/* ── Command palette ── */
+.command-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: min(12vh, 96px) 18px 18px;
+  background: oklch(0 0 0 / 0.48);
+}
+
+.command-panel {
+  width: min(620px, 100%);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 8px oklch(0 0 0 / 0.32);
+}
+
+.command-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.command-search input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  font-size: 0.94rem;
+}
+
+.command-search input::placeholder {
+  color: var(--muted);
+}
+
+.command-close {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  padding: 0;
+}
+
+.command-close:hover {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+.command-list {
+  max-height: min(56vh, 460px);
+  overflow: auto;
+  padding: 6px;
+}
+
+.command-item {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--ink);
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.command-item:hover,
+.command-item.active {
+  background: var(--surface-2);
+  border-color: oklch(from var(--primary) l c h / 0.34);
+}
+
+.command-item-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.command-item-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-item-detail {
+  font-size: 0.75rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-item-section {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.64rem;
+  color: var(--primary);
+  background: oklch(from var(--primary) l c h / 0.10);
+  border: 1px solid oklch(from var(--primary) l c h / 0.26);
+  border-radius: 999px;
+  padding: 3px 7px;
+}
+
+.command-empty {
+  min-height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
 /* ── Light theme polish ── */
 html[data-theme="light"] .home-shell {
   color: var(--ink);
@@ -1139,6 +1300,21 @@ html[data-theme="light"] .toolpage-nav {
   border-bottom-color: var(--border);
 }
 
+html[data-theme="light"] .command-backdrop {
+  background: oklch(0.20 0.015 150 / 0.28);
+}
+
+html[data-theme="light"] .command-panel {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: 0 4px 8px oklch(0.32 0.025 150 / 0.12);
+}
+
+html[data-theme="light"] .command-item:hover,
+html[data-theme="light"] .command-item.active {
+  background: var(--surface-2);
+}
+
 html[data-theme="light"] .tool-viewer,
 html[data-theme="light"] .html-tool-frame {
   background: var(--bg);
@@ -1162,6 +1338,12 @@ html[data-theme="light"] .html-tool-frame {
 
   .home-logo-row {
     gap: 10px;
+  }
+
+  .home-actions {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
   }
 
   .logo-section {
@@ -1257,11 +1439,29 @@ html[data-theme="light"] .html-tool-frame {
     display: none;
   }
 
+  .share-status-nav {
+    display: none;
+  }
+
   .nav-btn {
     padding: 6px 8px;
   }
 
   .nav-btn-text {
     display: none;
+  }
+
+  .command-backdrop {
+    padding: 18px 12px;
+  }
+
+  .command-list {
+    max-height: 72vh;
+  }
+
+  .command-item {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
   }
 }

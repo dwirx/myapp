@@ -32,6 +32,7 @@ const staticAssets = [
   ["src/brand/apple-touch-icon.png", "apple-touch-icon.png"],
   ["src/brand/og-image.png", "og-image.png"],
   ["src/site.webmanifest", "site.webmanifest"],
+  ["src/service-worker.js", "service-worker.js"],
 ] as const;
 
 await mkdir(outdir, { recursive: true });

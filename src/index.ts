@@ -13,6 +13,7 @@ const ROOT_STATIC_ASSETS: Record<string, { path: string; type: string }> = {
   "/apple-touch-icon.png": { path: join(import.meta.dir, "brand", "apple-touch-icon.png"), type: "image/png" },
   "/og-image.png": { path: join(import.meta.dir, "brand", "og-image.png"), type: "image/png" },
   "/site.webmanifest": { path: join(import.meta.dir, "site.webmanifest"), type: "application/manifest+json; charset=utf-8" },
+  "/service-worker.js": { path: join(import.meta.dir, "service-worker.js"), type: "text/javascript; charset=utf-8" },
 };
 
 /** Scan src/tools/html/ dan src/tools/react/ — return daftar semua tool yang ditemukan */
@@ -203,7 +204,8 @@ const server = serve({
           return new Response(file, {
             headers: {
               "Content-Type": asset.type,
-              "Cache-Control": "public, max-age=86400",
+              "Cache-Control": route === "/service-worker.js" ? "no-cache" : "public, max-age=86400",
+              ...(route === "/service-worker.js" ? { "Service-Worker-Allowed": "/" } : {}),
             },
           });
         },
