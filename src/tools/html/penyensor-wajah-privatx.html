@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light dark" />
+<title>Penyensor Wajah Privat</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel-2:#1f242e; --line:#2a313d;
+    --text:#eef1f6; --muted:#a3adbe; --accent:#4f8cff; --accent-2:#3a6fd6;
+    --ok:#39c07a; --warn:#f0a93a; --err:#ef5b6b; --focus:#9cc2ff;
+    --radius:12px; --radius-sm:8px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f6fa; --panel:#ffffff; --panel-2:#f0f3f8; --line:#dde3ec;
+      --text:#161b22; --muted:#5a6679; --focus:#1f4fb0; }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',Roboto,Helvetica,Arial,system-ui,sans-serif;
+    background:var(--bg); color:var(--text); font-size:16px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent)}
+  button{font-family:inherit; font-size:15px; cursor:pointer}
+  :focus-visible{outline:3px solid var(--focus); outline-offset:2px; border-radius:6px}
+  .wrap{max-width:1180px; margin:0 auto; padding:20px 16px 64px}
+  header.top{display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:6px 0 14px}
+  .brand{display:flex; align-items:center; gap:12px; flex:1 1 280px; min-width:0}
+  .logo{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#7c5cff);
+    display:grid;place-items:center;flex:none}
+  .logo svg{width:24px;height:24px}
+  .brand h1{font-size:19px; margin:0; line-height:1.15}
+  .brand p{margin:2px 0 0; font-size:13px; color:var(--muted)}
+  .status-chip{display:inline-flex; align-items:center; gap:8px; padding:7px 13px;
+    background:var(--panel); border:1px solid var(--line); border-radius:999px; font-size:13px; font-weight:600}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--warn);flex:none}
+  .dot.ready{background:var(--ok)} .dot.err{background:var(--err)}
+  .dot.busy{background:var(--accent); animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  .privacy-banner{display:flex; align-items:flex-start; gap:12px; background:var(--panel);
+    border:1px solid var(--line); border-left:4px solid var(--ok);
+    border-radius:var(--radius); padding:13px 16px; margin:0 0 18px}
+  .privacy-banner svg{flex:none;width:22px;height:22px;margin-top:1px;color:var(--ok)}
+  .privacy-banner p{margin:0;font-size:14px}
+  .privacy-banner strong{display:block;margin-bottom:2px}
+
+  .grid{display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start}
+  @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px}
+  .panel h2{font-size:15px; margin:0 0 14px; letter-spacing:.2px; text-transform:uppercase; color:var(--muted)}
+
+  /* Controls */
+  .field{margin-bottom:16px}
+  .field > label{display:block; font-size:13px; font-weight:600; margin-bottom:7px}
+  .seg{display:flex; background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:4px; gap:4px}
+  .seg button{flex:1; border:none; background:transparent; color:var(--muted); padding:9px 8px;
+    border-radius:6px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:7px}
+  .seg button[aria-pressed="true"]{background:var(--accent); color:#fff}
+  .seg button svg{width:16px;height:16px}
+  .row{display:flex; align-items:center; gap:10px}
+  input[type=range]{width:100%; accent-color:var(--accent)}
+  input[type=color]{width:46px;height:34px;border:1px solid var(--line);border-radius:7px;background:var(--panel-2);padding:2px;cursor:pointer}
+  select, .num{background:var(--panel-2); color:var(--text); border:1px solid var(--line);
+    border-radius:7px; padding:8px 10px; font-size:14px; width:100%}
+  .help{font-size:12px;color:var(--muted);margin:6px 0 0}
+  .switch{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px}
+  .switch input{width:18px;height:18px;accent-color:var(--accent)}
+  .val{font-variant-numeric:tabular-nums;font-weight:600;min-width:42px;text-align:right;color:var(--muted)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);
+    background:var(--panel-2); color:var(--text); border-radius:var(--radius-sm); padding:11px 14px; font-weight:600; width:100%}
+  .btn svg{width:17px;height:17px}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  .btn.primary:hover{background:var(--accent-2)}
+  .btn.danger{color:var(--err); border-color:transparent; background:transparent}
+  .btn.danger:hover{background:rgba(239,91,107,.12); border-color:var(--err)}
+  .btn:disabled{opacity:.45; cursor:not-allowed}
+  .btn-stack > * + *{margin-top:10px}
+
+  /* Dropzone */
+  .dropzone{border:2px dashed var(--line); border-radius:var(--radius); padding:34px 18px; text-align:center;
+    background:var(--panel-2); transition:.15s; cursor:pointer}
+  .dropzone.drag{border-color:var(--accent); background:rgba(79,140,255,.08)}
+  .dropzone svg{width:40px;height:40px;color:var(--muted);margin-bottom:8px}
+  .dropzone h3{margin:0 0 4px;font-size:16px}
+  .dropzone p{margin:0;color:var(--muted);font-size:13px}
+  .dz-btn{margin-top:14px;display:inline-flex}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  .toolbar .count{font-weight:700;font-size:15px}
+  .toolbar .spacer{flex:1}
+  .progress-wrap{margin-bottom:14px}
+  .progress-head{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:6px}
+  .progress-head .pct{font-variant-numeric:tabular-nums;color:var(--text)}
+  .progress{height:9px;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#7c5cff);transition:width .3s ease}
+  .progress.indet > i{width:35% !important;animation:indet 1.1s ease-in-out infinite}
+  @keyframes indet{0%{margin-left:-35%}100%{margin-left:100%}}
+
+  /* Queue */
+  .queue{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+  .card{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+  .thumb{position:relative;aspect-ratio:4/3;background:#0a0c10;display:grid;place-items:center;overflow:hidden;cursor:pointer}
+  .thumb img{width:100%;height:100%;object-fit:contain;display:block}
+  .thumb .badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.66);color:#fff;font-size:12px;
+    padding:3px 8px;border-radius:999px;display:flex;align-items:center;gap:5px;backdrop-filter:blur(3px)}
+  .thumb .badge svg{width:13px;height:13px}
+  .card-body{padding:11px 12px;display:flex;flex-direction:column;gap:7px}
+  .fname{font-size:13.5px;font-weight:600;word-break:break-all;line-height:1.3}
+  .meta{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+  .stat{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600}
+  .stat .s-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+  .stat.queued .s-dot{background:var(--muted)}
+  .stat.detecting .s-dot,.stat.redacting .s-dot{background:var(--accent);animation:pulse 1s infinite}
+  .stat.done .s-dot{background:var(--ok)} .stat.failed .s-dot{background:var(--err)}
+  .card-actions{display:flex;gap:7px;margin-top:2px}
+  .icon-btn{flex:1;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:7px;
+    padding:7px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:600}
+  .icon-btn:hover{border-color:var(--accent)}
+  .icon-btn svg{width:14px;height:14px}
+  .icon-btn.warnbtn{color:var(--err)} .icon-btn.warnbtn:hover{border-color:var(--err)}
+  .err-note{font-size:12px;color:var(--err);background:rgba(239,91,107,.1);padding:6px 8px;border-radius:6px}
+  .empty{color:var(--muted);text-align:center;padding:40px 10px;font-size:14px}
+
+  /* Modal / Editor */
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;z-index:50;
+    backdrop-filter:blur(2px)}
+  .modal-back.open{display:block}
+  .modal{position:fixed;inset:0;z-index:51;display:none;padding:14px;overflow:auto}
+  .modal.open{display:flex;align-items:flex-start;justify-content:center}
+  .editor{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);width:min(1000px,100%);
+    margin:auto;display:flex;flex-direction:column;max-height:calc(100vh - 28px)}
+  .editor-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .editor-head h2{margin:0;font-size:16px;flex:1;word-break:break-all;text-transform:none;color:var(--text)}
+  .x-btn{border:none;background:var(--panel-2);color:var(--text);width:34px;height:34px;border-radius:8px;font-size:18px;flex:none}
+  .editor-toolbar{display:flex;flex-wrap:wrap;gap:9px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:center}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:7px;padding:8px 11px;font-size:13px;font-weight:600}
+  .chip svg{width:15px;height:15px}
+  .editor-canvas-area{flex:1;overflow:auto;padding:16px;display:grid;place-items:center;background:
+    repeating-conic-gradient(#0000 0% 25%, rgba(128,128,128,.06) 0% 50%) 50%/22px 22px}
+  .canvas-host{position:relative;line-height:0;max-width:100%}
+  .canvas-host canvas{max-width:100%;height:auto;touch-action:none;border-radius:6px;display:block;cursor:crosshair}
+  .hint{font-size:12.5px;color:var(--muted);padding:0 16px 12px;text-align:center}
+  .nav-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px 4px;flex-wrap:wrap}
+  .zbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600}
+  .zbtn:hover{border-color:var(--accent)}
+  .zbtn[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .zbtn svg{width:15px;height:15px}
+  .zlabel{min-width:56px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;color:var(--muted)}
+  .editor-foot{display:flex;flex-wrap:wrap;gap:10px;padding:13px 16px;border-top:1px solid var(--line)}
+  .editor-foot .spacer{flex:1}
+  .editor-foot .btn{width:auto}
+
+  /* compare */
+  .cmp-tabs{display:flex;gap:6px}
+  .cmp-tabs button{border:1px solid var(--line);background:var(--panel-2);color:var(--muted);
+    border-radius:7px;padding:7px 11px;font-size:13px;font-weight:600}
+  .cmp-tabs button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .cmp-stage{position:relative;max-width:100%}
+  .cmp-stage img{display:block;max-width:100%;height:auto;border-radius:6px}
+  .cmp-side{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .cmp-side figure{margin:0;max-width:48%;min-width:240px}
+  .cmp-side figcaption{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+  .slider-wrap{position:relative;display:inline-block;max-width:100%;overflow:hidden;border-radius:6px}
+  .slider-wrap .over{position:absolute;top:0;left:0;height:100%;overflow:hidden;width:50%}
+  .slider-wrap .over img{max-width:none;height:100%}
+  .slider-handle{position:absolute;top:0;bottom:0;width:3px;background:#fff;left:50%;transform:translateX(-50%);box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+  .slider-handle::after{content:"↔";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:#fff;color:#111;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:15px}
+  .cmp-range{width:100%;margin-top:12px;accent-color:var(--accent)}
+
+  /* toast */
+  .toasts{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;width:min(440px,92vw)}
+  .toast{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:10px;padding:11px 14px;font-size:14px;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;gap:10px;align-items:flex-start}
+  .toast.ok{border-left-color:var(--ok)} .toast.err{border-left-color:var(--err)} .toast.warn{border-left-color:var(--warn)}
+  .toast svg{width:18px;height:18px;flex:none;margin-top:1px}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+  footer.foot{margin-top:30px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.7}
+  kbd{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12px}
+
+  /* ---------- Responsive / mobile ---------- */
+  @media (max-width:600px){
+    body{font-size:15px}
+    .wrap{padding:14px 12px 80px}
+    header.top{padding:2px 0 10px}
+    .brand{flex:1 1 100%}
+    .brand h1{font-size:17px}
+    .status-chip{flex:1 1 100%; justify-content:center; margin-top:4px}
+    .privacy-banner{padding:11px 13px; font-size:13px}
+    .grid{gap:14px}
+    .panel{padding:14px;border-radius:10px}
+    .queue{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+    .seg button{padding:10px 6px;font-size:13px}
+    .toolbar{gap:8px}
+    .modal{padding:0}
+    .editor{border-radius:0;max-height:100vh;height:100dvh;width:100%}
+    .editor-head{padding:12px 14px}
+    .editor-toolbar{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:10px 14px}
+    .editor-toolbar .chip{flex:none}
+    .editor-toolbar .spacer{display:none}
+    .cmp-tabs{flex:none}
+    .editor-foot{padding:11px 14px}
+    .editor-foot .btn{flex:1 1 auto;width:auto}
+    .editor-foot .spacer{display:none}
+    .editor-canvas-area{padding:10px}
+    .cmp-side figure{max-width:100%;min-width:0}
+  }
+  /* Bigger touch targets on touch devices */
+  @media (hover:none){
+    .icon-btn,.btn,.chip,.seg button,.x-btn{min-height:44px}
+    input[type=range]{height:32px}
+    .dropzone{padding:40px 18px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z"/><circle cx="12" cy="10" r="2.4"/><path d="M8.5 16c.7-1.8 2-2.6 3.5-2.6S14.8 14.2 15.5 16"/></svg>
+      </span>
+      <div>
+        <h1>Penyensor Wajah Privat</h1>
+        <p>Samarkan wajah langsung di perangkat Anda — tanpa unggah, tanpa akun.</p>
+      </div>
+    </div>
+    <span class="status-chip" role="status" aria-live="polite">
+      <span class="dot" id="engineDot"></span>
+      <span id="engineText">Memuat model deteksi…</span>
+    </span>
+  </header>
+
+  <div class="privacy-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+    <p><strong>Foto diproses langsung di perangkat Anda.</strong>
+    Foto tidak diunggah ke server. Aplikasi menyamarkan wajah, bukan menjamin anonimitas total — periksa kembali semua wajah sebelum membagikan hasil.</p>
+  </div>
+
+  <div class="grid">
+    <!-- ===== Sidebar controls ===== -->
+    <aside class="panel" aria-label="Pengaturan sensor">
+      <h2>Pengaturan</h2>
+
+      <div class="field">
+        <label id="modeLabel">Metode sensor</label>
+        <div class="seg" role="group" aria-labelledby="modeLabel">
+          <button type="button" id="modeBox" aria-pressed="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>Kotak</button>
+          <button type="button" id="modeBlur" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/></svg>Blur</button>
+          <button type="button" id="modePixel" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>Pixel</button>
+        </div>
+      </div>
+
+      <div class="field" id="boxColorField">
+        <label for="boxColor">Warna kotak</label>
+        <div class="row"><input type="color" id="boxColor" value="#000000" aria-describedby="boxColorHelp" />
+          <span class="help" id="boxColorHelp" style="margin:0">Default hitam pekat.</span></div>
+      </div>
+
+      <div class="field" id="blurField" hidden>
+        <label for="blurAmt">Intensitas blur</label>
+        <div class="row"><input type="range" id="blurAmt" min="8" max="60" step="1" value="28" />
+          <span class="val" id="blurVal">28</span></div>
+        <p class="help">Nilai tinggi membuat detail identitas makin sulit dikenali.</p>
+      </div>
+
+      <div class="field" id="pixelField" hidden>
+        <label for="pixelAmt">Ukuran kotak mozaik</label>
+        <div class="row"><input type="range" id="pixelAmt" min="6" max="48" step="1" value="16" />
+          <span class="val" id="pixelVal">16</span></div>
+        <p class="help">Kotak lebih besar membuat wajah makin tidak dikenali (efek mozaik/pixelate).</p>
+      </div>
+
+      <div class="field">
+        <label for="padding">Padding area sensor</label>
+        <div class="row"><input type="range" id="padding" min="0" max="40" step="1" value="18" />
+          <span class="val" id="padVal">18%</span></div>
+        <p class="help">Memperluas area agar sisi wajah ikut tertutup.</p>
+      </div>
+
+      <div class="field">
+        <label for="sensitivity">Sensitivitas deteksi wajah</label>
+        <div class="row"><input type="range" id="sensitivity" min="10" max="60" step="5" value="40" />
+          <span class="val" id="sensVal">Sedang</span></div>
+        <p class="help">Lebih sensitif = menangkap lebih banyak wajah (termasuk yang kecil/menyamping), tetapi bisa menambah deteksi keliru yang dapat Anda hapus di editor. Ubah lalu tekan <strong>Deteksi Ulang Semua</strong>.</p>
+      </div>
+
+      <div class="field">
+        <label for="outFormat">Format output</label>
+        <select id="outFormat">
+          <option value="image/jpeg">JPEG (.jpg)</option>
+          <option value="image/png">PNG (.png)</option>
+        </select>
+      </div>
+
+      <div class="field" id="qualityField">
+        <label for="quality">Kualitas JPEG</label>
+        <div class="row"><input type="range" id="quality" min="50" max="100" step="1" value="92" />
+          <span class="val" id="qVal">92%</span></div>
+      </div>
+
+      <div class="field">
+        <label class="switch"><input type="checkbox" id="stripMeta" checked />
+          Hapus metadata EXIF &amp; lokasi</label>
+        <p class="help">Direkomendasikan aktif. Metadata dihapus dari hasil.</p>
+      </div>
+
+      <div class="btn-stack">
+        <button class="btn" id="detectAll" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          Deteksi Ulang Semua</button>
+        <button class="btn primary" id="reprocessAll" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+          Proses Ulang Semua</button>
+        <button class="btn" id="downloadAll" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Unduh Semua</button>
+        <button class="btn danger" id="clearAll" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Hapus Semua</button>
+      </div>
+    </aside>
+
+    <!-- ===== Main ===== -->
+    <main class="panel" aria-label="Antrean pemrosesan">
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Unggah foto: klik atau seret berkas ke sini">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg>
+        <h3>Unggah Foto</h3>
+        <p>Seret &amp; lepas, klik untuk memilih, atau <strong>tempel dengan Ctrl / ⌘ + V</strong>. JPEG, PNG, WebP — maks. 25&nbsp;MB / berkas.</p>
+        <div class="dz-btn" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <span class="btn primary" style="width:auto" id="pickBtn">Pilih Foto</span>
+          <button type="button" class="btn" style="width:auto" id="pasteBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>Tempel Gambar</button>
+        </div>
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple class="sr-only" />
+      </div>
+
+      <div id="queueWrap" hidden style="margin-top:16px">
+        <div class="toolbar">
+          <span class="count"><span id="qCount">0</span> foto</span>
+          <span class="spacer"></span>
+          <span class="help" id="summary" style="margin:0"></span>
+        </div>
+        <div class="progress-wrap" id="progressWrap" hidden>
+          <div class="progress-head"><span id="progressText">Memproses foto…</span><span class="pct" id="progressPct">0%</span></div>
+          <div class="progress"><i id="progressFill"></i></div>
+        </div>
+        <div class="queue" id="queue"></div>
+      </div>
+      <div id="emptyState" class="empty">Belum ada foto. Unggah untuk mulai menyamarkan wajah.</div>
+    </main>
+  </div>
+
+  <footer class="foot">
+    Pemrosesan 100% lokal • Tanpa pelacakan • Tanpa server gambar<br>
+    Deteksi otomatis dapat keliru — selalu tinjau hasil sebelum berbagi. Aplikasi ini menyamarkan wajah, tidak menjamin anonimitas total.
+  </footer>
+</div>
+
+<!-- ===== Editor modal ===== -->
+<div class="modal-back" id="modalBack"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="edTitle">
+  <div class="editor">
+    <div class="editor-head">
+      <h2 id="edTitle">Editor</h2>
+      <button class="x-btn" id="edClose" aria-label="Tutup editor">✕</button>
+    </div>
+
+    <div class="editor-toolbar" id="edToolbarEdit">
+      <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span id="edFaceCount">0 area</span></span>
+      <button class="chip" id="edAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Tambah area</button>
+      <button class="chip" id="edType"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/></svg>Tipe area: Kotak</button>
+      <button class="chip" id="edDelete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>Hapus area</button>
+      <button class="chip" id="edUndo" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-1"/></svg>Urungkan</button>
+      <button class="chip" id="edRedo" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h1"/></svg>Ulangi</button>
+      <button class="chip" id="edReset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Kembali ke deteksi otomatis</button>
+      <span class="spacer" style="flex:1"></span>
+      <div class="cmp-tabs" role="group" aria-label="Mode perbandingan">
+        <button id="tabEdit" aria-pressed="true">Edit</button>
+        <button id="tabToggle" aria-pressed="false">Toggle</button>
+        <button id="tabSide" aria-pressed="false">Berdampingan</button>
+        <button id="tabSlider" aria-pressed="false">Slider</button>
+      </div>
+    </div>
+
+    <div class="editor-canvas-area">
+      <div id="edStage" class="canvas-host"><canvas id="edCanvas"></canvas></div>
+      <div id="cmpStage" hidden></div>
+    </div>
+    <div class="nav-bar" id="navBar" role="group" aria-label="Navigasi gambar">
+      <button class="zbtn" id="edPan" type="button" aria-pressed="false" title="Mode geser gambar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 0 1 4 0v6a8 8 0 0 1-8 8h-2a8 8 0 0 1-7-4l-1.5-2.5"/></svg>Geser</button>
+      <button class="zbtn" id="edZoomOut" type="button" aria-label="Perkecil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+      <span class="zlabel" id="edZoomLabel">100%</span>
+      <button class="zbtn" id="edZoomIn" type="button" aria-label="Perbesar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="zbtn" id="edFit" type="button" title="Paskan ke layar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>Paskan</button>
+    </div>
+    <p class="hint" id="edHint">Seret di area kosong untuk membuat sensor baru. Seret kotak untuk memindah, tarik sudut untuk mengubah ukuran. Tekan <kbd>Delete</kbd> untuk menghapus. <strong>Scroll / cubit (pinch) untuk zoom</strong>, klik <strong>Geser</strong> lalu seret untuk menggeser gambar (atau dua jari di ponsel). Urungkan dengan <kbd>Ctrl/⌘ + Z</kbd>, ganti tipe area dengan <kbd>B</kbd>/<kbd>L</kbd>/<kbd>P</kbd>, dan geser area terpilih memakai tombol panah.</p>
+
+    <div class="editor-foot">
+      <button class="btn" id="edReprocess" style="width:auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Terapkan &amp; Perbarui</button>
+      <span class="spacer"></span>
+      <button class="btn" id="edDownload" style="width:auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Unduh Foto Ini</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="sr-only" id="liveRegion" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+<script>
+/* Penyensor Wajah Privat — 100% client-side. No uploads, no tracking. */
+(() => {
+  'use strict';
+
+  // ---------- Config ----------
+  const MAX_BYTES = 25 * 1024 * 1024;      // 25 MB per file
+  const MAX_FILES = 60;                      // session cap
+  const MAX_DIM   = 10000;                    // px guard
+  const DET_MAX_DIM = 2048;                   // primary detection size (speed/accuracy balance)
+  const DET_RETRY_DIM = 3200;                 // higher-res retry pass to recover small/missed faces
+  const ACCEPTED  = ['image/jpeg', 'image/png', 'image/webp'];
+  const LS_KEY = 'pwp.settings.v1';           // persisted user settings (never image data)
+  const CONCURRENCY = 2;                       // queue, not all-parallel
+  // Multiple model hosts: try in order so detection works even if one CDN path 404s.
+  const MODEL_URLS = [
+    'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model',
+    'https://cdn.jsdelivr.net/gh/vladmandic/face-api@master/model',
+    'https://raw.githubusercontent.com/vladmandic/face-api/master/model',
+  ];
+
+  // ---------- State ----------
+  const state = {
+    items: [],
+    mode: 'box',
+    boxColor: '#000000',
+    blurAmt: 28,
+    pixelAmt: 16,
+    paddingPct: 18,
+    minConfidence: 0.3,     // detection threshold (lower = more sensitive)
+    format: 'image/jpeg',
+    quality: 0.92,
+    stripMeta: true,
+    engineReady: false,
+    engineTried: false,
+    detectorType: null,     // 'ssd' | 'tiny'
+    modelBase: null,
+  };
+  let uid = 0;
+
+  // engine promise: resolves once model load attempt finishes (success OR fail)
+  let engineResolve;
+  const enginePromise = new Promise((r) => { engineResolve = r; });
+
+  // ---------- DOM ----------
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    engineDot:$('engineDot'), engineText:$('engineText'),
+    modeBox:$('modeBox'), modeBlur:$('modeBlur'), modePixel:$('modePixel'),
+    boxColorField:$('boxColorField'), boxColor:$('boxColor'),
+    blurField:$('blurField'), blurAmt:$('blurAmt'), blurVal:$('blurVal'),
+    pixelField:$('pixelField'), pixelAmt:$('pixelAmt'), pixelVal:$('pixelVal'),
+    padding:$('padding'), padVal:$('padVal'),
+    sensitivity:$('sensitivity'), sensVal:$('sensVal'),
+    outFormat:$('outFormat'), qualityField:$('qualityField'), quality:$('quality'), qVal:$('qVal'),
+    stripMeta:$('stripMeta'),
+    detectAll:$('detectAll'), reprocessAll:$('reprocessAll'), downloadAll:$('downloadAll'), clearAll:$('clearAll'),
+    dropzone:$('dropzone'), pickBtn:$('pickBtn'), pasteBtn:$('pasteBtn'), fileInput:$('fileInput'),
+    queueWrap:$('queueWrap'), queue:$('queue'), qCount:$('qCount'), summary:$('summary'),
+    emptyState:$('emptyState'), progressWrap:$('progressWrap'), progressFill:$('progressFill'),
+    progressText:$('progressText'), progressPct:$('progressPct'),
+    toasts:$('toasts'), live:$('liveRegion'),
+    modal:$('modal'), modalBack:$('modalBack'), edClose:$('edClose'), edTitle:$('edTitle'),
+    edCanvas:$('edCanvas'), edStage:$('edStage'), cmpStage:$('cmpStage'),
+    edFaceCount:$('edFaceCount'), edAdd:$('edAdd'), edType:$('edType'), edDelete:$('edDelete'),
+    edReset:$('edReset'), edReprocess:$('edReprocess'), edDownload:$('edDownload'), edHint:$('edHint'),
+    edUndo:$('edUndo'), edRedo:$('edRedo'),
+    tabEdit:$('tabEdit'), tabToggle:$('tabToggle'), tabSide:$('tabSide'), tabSlider:$('tabSlider'),
+    navBar:$('navBar'), edPan:$('edPan'), edZoomIn:$('edZoomIn'), edZoomOut:$('edZoomOut'),
+    edFit:$('edFit'), edZoomLabel:$('edZoomLabel'),
+  };
+
+  // ---------- Utils ----------
+  const fmtSize = (b) => b < 1024 ? b + ' B'
+    : b < 1048576 ? (b/1024).toFixed(1) + ' KB'
+    : (b/1048576).toFixed(2) + ' MB';
+  const sanitize = (name) => (name || 'gambar').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/\s+/g, '_');
+  const baseName = (name) => { const s = sanitize(name); const i = s.lastIndexOf('.'); return i > 0 ? s.slice(0, i) : s; };
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const announce = (msg) => { els.live.textContent = ''; setTimeout(() => els.live.textContent = msg, 30); };
+
+  // Reused offscreen canvases to cut per-frame allocations (better performance).
+  const _scratch = {};
+  function scratch(name, w, h) {
+    let c = _scratch[name];
+    if (!c) { c = _scratch[name] = document.createElement('canvas'); }
+    w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h));
+    if (c.width !== w) c.width = w;
+    if (c.height !== h) c.height = h;
+    return c;
+  }
+  // Decode a file to a drawable bitmap, honoring EXIF orientation when supported
+  // (prevents sideways photos that would otherwise break detection and output).
+  async function decodeImage(file, fallbackUrl) {
+    if (typeof createImageBitmap === 'function') {
+      try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+      catch (e) { try { return await createImageBitmap(file); } catch (e2) { /* fall through */ } }
+    }
+    return await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('decode'));
+      img.src = fallbackUrl;
+    });
+  }
+  const imgW = (im) => im.naturalWidth || im.width;
+  const imgH = (im) => im.naturalHeight || im.height;
+
+  function toast(msg, kind = 'info', ms = 4200) {
+    const t = document.createElement('div');
+    t.className = 'toast ' + kind;
+    const icons = {
+      ok:'M20 6 9 17l-5-5',
+      err:'M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z',
+      warn:'M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z',
+      info:'M12 16v-4m0-4h.01M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Z'
+    };
+    t.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="'+(icons[kind]||icons.info)+'"/></svg><span></span>';
+    t.querySelector('span').textContent = msg;
+    els.toasts.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 320); }, ms);
+  }
+  function setEngine(cls, text) { els.engineDot.className = 'dot ' + cls; els.engineText.textContent = text; }
+
+  // ---------- Engine load (robust, multi-host, SSD then Tiny) ----------
+  async function loadEngine() {
+    if (typeof faceapi === 'undefined') {
+      finishEngine(false, 'Pustaka deteksi tidak termuat (periksa koneksi internet). Mode manual aktif.');
+      return;
+    }
+    setEngine('busy', 'Memuat model deteksi…');
+    // 1) Try the more accurate SSD MobileNet v1 across hosts
+    for (const base of MODEL_URLS) {
+      try {
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(base);
+        state.detectorType = 'ssd'; state.engineReady = true; state.modelBase = base;
+        break;
+      } catch (e) { /* try next host */ }
+    }
+    // 2) Fallback to the lightweight TinyFaceDetector
+    if (!state.engineReady) {
+      for (const base of MODEL_URLS) {
+        try {
+          await faceapi.nets.tinyFaceDetector.loadFromUri(base);
+          state.detectorType = 'tiny'; state.engineReady = true; state.modelBase = base;
+          break;
+        } catch (e) { /* try next host */ }
+      }
+    }
+    if (state.engineReady) {
+      finishEngine(true, 'Siap — deteksi otomatis aktif (' + (state.detectorType === 'ssd' ? 'akurasi tinggi' : 'mode cepat') + ')');
+    } else {
+      finishEngine(false, 'Model deteksi gagal dimuat — gunakan editor untuk sensor manual.');
+      toast('Model deteksi gagal dimuat dari semua sumber. Periksa koneksi internet, lalu muat ulang halaman. Anda tetap bisa menyensor manual di editor.', 'warn', 7000);
+    }
+  }
+  function finishEngine(ok, text) {
+    state.engineTried = true;
+    setEngine(ok ? 'ready' : 'err', text);
+    engineResolve();
+    // Re-run detection for any photos that were added & finished before the model was ready.
+    if (ok) {
+      let pending = 0;
+      for (const item of state.items) {
+        if (!item.manuallyEdited && item.regions.length === 0 && item.status !== 'failed') {
+          item.status = 'queued'; item.note = null; pending++;
+        }
+      }
+      if (pending) { render(); processQueue(); announce('Model siap, mendeteksi ' + pending + ' foto'); }
+    }
+    refreshGlobalButtons();
+  }
+
+  // ---------- File intake ----------
+  function namedPaste(b) {
+    const ext = ((b.type && b.type.split('/')[1]) || 'png').replace('jpeg', 'jpg');
+    const nm = (b.name && b.name !== 'image.png') ? sanitize(b.name) : ('tempel-' + Date.now() + '.' + ext);
+    return new File([b], nm, { type: b.type || 'image/png' });
+  }
+  // Button-triggered paste via the async Clipboard API, with graceful fallbacks.
+  async function pasteFromClipboard() {
+    if (navigator.clipboard && navigator.clipboard.read) {
+      try {
+        const data = await navigator.clipboard.read();
+        const files = [];
+        for (const it of data) {
+          const t = it.types.find(tp => tp.indexOf('image/') === 0);
+          if (t) { const blob = await it.getType(t); files.push(namedPaste(new File([blob], 'image', { type: t }))); }
+        }
+        if (files.length) { handleFiles(files); return; }
+        toast('Tidak ada gambar di clipboard. Salin gambar dulu, lalu coba lagi.', 'warn');
+        return;
+      } catch (e) {
+        toast('Izin clipboard ditolak. Tekan Ctrl/\u2318 + V untuk menempel gambar.', 'warn', 5200);
+        return;
+      }
+    }
+    toast('Browser ini tidak mendukung tombol tempel. Gunakan Ctrl/\u2318 + V.', 'info', 5200);
+  }
+
+  function handleFiles(fileList) {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+    let added = 0;
+    for (const f of files) {
+      if (state.items.length >= MAX_FILES) { toast('Batas ' + MAX_FILES + ' foto per sesi tercapai.', 'warn'); break; }
+      if (!ACCEPTED.includes(f.type)) { toast('Format tidak didukung: ' + sanitize(f.name || 'tempelan'), 'err'); continue; }
+      if (f.size > MAX_BYTES) { toast('File terlalu besar (maks 25 MB): ' + sanitize(f.name), 'err'); continue; }
+      if (f.size === 0) { toast('File rusak/kosong: ' + sanitize(f.name), 'err'); continue; }
+      addItem(f); added++;
+    }
+    if (added) {
+      toast(added + ' foto ditambahkan ke antrean.', 'ok');
+      announce(added + ' foto ditambahkan');
+      render();
+      processQueue();
+    }
+  }
+
+  function addItem(file) {
+    state.items.push({
+      id: ++uid, file, name: file.name || ('tempel-' + Date.now() + '.png'), size: file.size, type: file.type,
+      url: URL.createObjectURL(file),
+      img: null, w: 0, h: 0,
+      status: 'queued', faceCount: 0,
+      regions: [], manuallyEdited: false,
+      resultBlob: null, resultUrl: null,
+      error: null, note: null,
+    });
+  }
+
+  // ---------- Queue processing ----------
+  let activeCount = 0;
+  function processQueue() {
+    const pending = state.items.filter(i => i.status === 'queued');
+    while (activeCount < CONCURRENCY && pending.length) {
+      const item = pending.shift();
+      activeCount++;
+      item.status = 'detecting'; setItemStatus(item);
+      processItem(item).catch(()=>{}).finally(() => { activeCount--; updateProgress(); processQueue(); });
+    }
+    updateProgress();
+  }
+
+  // One detection pass at a target max dimension + confidence; returns ratio-based boxes.
+  async function detectPass(item, maxDim, conf, tinyInput) {
+    let dw = item.w, dh = item.h;
+    if (Math.max(dw, dh) > maxDim) { const s = maxDim / Math.max(dw, dh); dw = Math.round(dw*s); dh = Math.round(dh*s); }
+    const c = scratch('det', dw, dh);
+    const cx = c.getContext('2d');
+    cx.clearRect(0, 0, dw, dh);
+    cx.drawImage(item.img, 0, 0, dw, dh);
+    const opts = state.detectorType === 'ssd'
+      ? new faceapi.SsdMobilenetv1Options({ minConfidence: conf, maxResults: 300 })
+      : new faceapi.TinyFaceDetectorOptions({ inputSize: tinyInput || 608, scoreThreshold: conf });
+    const dets = await faceapi.detectAllFaces(c, opts);
+    return dets.map(d => {
+      const b = d.box;
+      return {
+        x: clamp(b.x / dw, 0, 1), y: clamp(b.y / dh, 0, 1),
+        w: clamp(b.width / dw, 0, 1), h: clamp(b.height / dh, 0, 1),
+        score: d.score, type: state.mode, manual: false,
+      };
+    });
+  }
+
+  // Drop near-duplicate boxes (keep higher score) so multi-pass does not double-cover.
+  function dedupeRegions(regions) {
+    const out = [];
+    for (const r of regions.slice().sort((a,b) => (b.score||0) - (a.score||0))) {
+      const dup = out.some(o => {
+        const ix = Math.max(0, Math.min(r.x+r.w, o.x+o.w) - Math.max(r.x, o.x));
+        const iy = Math.max(0, Math.min(r.y+r.h, o.y+o.h) - Math.max(r.y, o.y));
+        const inter = ix * iy, union = r.w*r.h + o.w*o.h - inter;
+        return union > 0 && inter / union > 0.4;
+      });
+      if (!dup) out.push(r);
+    }
+    return out;
+  }
+
+  // Accurate adaptive detection: a balanced primary pass, then a higher-res / more
+  // sensitive retry that recovers small or missed faces, with de-duplication.
+  async function detectFaces(item) {
+    const big = Math.max(item.w, item.h);
+    const tiny = state.detectorType === 'tiny';
+    let regions = await detectPass(item, DET_MAX_DIM, state.minConfidence, tiny ? 608 : 0);
+    const retryDim = Math.min(big, DET_RETRY_DIM);
+    const retryConf = clamp(state.minConfidence - 0.1, 0.1, 0.6);
+    const canRetry = retryDim > DET_MAX_DIM + 1 || retryConf < state.minConfidence - 1e-6;
+    if (regions.length === 0 && canRetry) {
+      regions = await detectPass(item, retryDim, retryConf, tiny ? 768 : 0);
+    }
+    return dedupeRegions(regions);
+  }
+
+  async function processItem(item) {
+    try {
+      if (!item.img) {
+        const img = await decodeImage(item.file, item.url);
+        item.img = img; item.w = imgW(img); item.h = imgH(img);
+        if (!item.w || !item.h) throw new Error('decode');
+        if (item.w > MAX_DIM || item.h > MAX_DIM) throw new Error('dim');
+      }
+      // Auto-detect (waits for the model to finish loading first)
+      if (!item.manuallyEdited && item.regions.length === 0) {
+        await enginePromise;
+        if (state.engineReady) {
+          try {
+            item.regions = await detectFaces(item);
+          } catch (e) {
+            item.note = 'Deteksi otomatis gagal pada foto ini — tambahkan area manual di editor.';
+          }
+          if (item.regions.length === 0 && !item.note) {
+            item.note = 'Tidak ada wajah terdeteksi. Naikkan sensitivitas lalu “Deteksi Ulang”, atau tambah area manual di editor.';
+          } else {
+            item.note = null;
+          }
+        } else {
+          item.note = 'Model deteksi tidak tersedia — tambahkan area sensor manual di editor.';
+        }
+      }
+      item.faceCount = item.regions.length;
+      item.status = 'redacting'; setItemStatus(item);
+      await renderResult(item);
+      item.status = 'done'; item.error = null;
+      if (item.faceCount === 0) announce(sanitize(item.name) + ': tidak ada wajah terdeteksi');
+    } catch (e) {
+      item.status = 'failed';
+      item.error = e.message === 'dim' ? 'Dimensi gambar terlalu besar untuk diproses.'
+        : e.message === 'decode' ? 'File gambar rusak atau tidak dapat dibaca.'
+        : 'Pemrosesan gagal. Coba ulang.';
+    }
+    updateCard(item);
+  }
+
+  // ---------- Redaction rendering ----------
+  function renderToCanvas(item) {
+    const c = document.createElement('canvas');
+    c.width = item.w; c.height = item.h;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(item.img, 0, 0, item.w, item.h);
+    const pad = state.paddingPct / 100;
+    for (const r of item.regions) {
+      const px = r.w * pad, py = r.h * pad;
+      let x = (r.x - px) * item.w, y = (r.y - py) * item.h;
+      let w = (r.w + px*2) * item.w, h = (r.h + py*2) * item.h;
+      x = clamp(x, 0, item.w); y = clamp(y, 0, item.h);
+      w = clamp(w, 1, item.w - x); h = clamp(h, 1, item.h - y);
+      if (r.type === 'box') { ctx.fillStyle = state.boxColor; ctx.fillRect(x, y, w, h); }
+      else if (r.type === 'pixel') applyPixelate(ctx, item.img, x, y, w, h);
+      else applyBlur(ctx, item.img, x, y, w, h);
+    }
+    return c;
+  }
+
+  function applyBlur(ctx, img, x, y, w, h) {
+    const amt = state.blurAmt;
+    const iw = Math.max(1, Math.round(w)), ih = Math.max(1, Math.round(h));
+    const factor = clamp(0.04 + (60 - amt) / 60 * 0.10, 0.02, 0.16);
+    const sw = Math.max(1, Math.round(iw * factor)), sh = Math.max(1, Math.round(ih * factor));
+    const tmp = scratch('blur', sw, sh);
+    const tctx = tmp.getContext('2d'); tctx.imageSmoothingEnabled = true; tctx.clearRect(0, 0, sw, sh);
+    tctx.drawImage(img, x, y, w, h, 0, 0, sw, sh);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    ctx.imageSmoothingEnabled = true;
+    ctx.filter = 'blur(' + Math.round(amt * 0.5) + 'px)';
+    ctx.drawImage(tmp, 0, 0, sw, sh, x, y, w, h);
+    ctx.filter = 'none';
+    ctx.restore();
+  }
+
+  function applyPixelate(ctx, img, x, y, w, h) {
+    const block = Math.max(4, state.pixelAmt);
+    const iw = Math.max(1, Math.round(w)), ih = Math.max(1, Math.round(h));
+    const cols = Math.max(1, Math.round(iw / block)), rows = Math.max(1, Math.round(ih / block));
+    const tmp = scratch('pix', cols, rows);
+    const tctx = tmp.getContext('2d'); tctx.imageSmoothingEnabled = true; tctx.clearRect(0, 0, cols, rows);
+    tctx.drawImage(img, x, y, w, h, 0, 0, cols, rows);
+    const prev = ctx.imageSmoothingEnabled;
+    ctx.save(); ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(tmp, 0, 0, cols, rows, x, y, w, h);
+    ctx.restore(); ctx.imageSmoothingEnabled = prev;
+  }
+
+  function canvasToBlob(canvas) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('export')), state.format,
+        state.format === 'image/jpeg' ? state.quality : undefined);
+    });
+  }
+
+  async function renderResult(item) {
+    const canvas = renderToCanvas(item);
+    const blob = await canvasToBlob(canvas);
+    if (item.resultUrl) URL.revokeObjectURL(item.resultUrl);
+    item.resultBlob = blob;
+    item.resultUrl = URL.createObjectURL(blob);
+  }
+
+  // ---------- Rendering UI ----------
+  function statusLabel(s) {
+    return { queued:'Menunggu', detecting:'Mendeteksi wajah', redacting:'Menerapkan sensor', done:'Selesai', failed:'Gagal' }[s] || s;
+  }
+
+  function render() {
+    const has = state.items.length > 0;
+    els.queueWrap.hidden = !has;
+    els.emptyState.hidden = has;
+    els.qCount.textContent = state.items.length;
+    if (has) {
+      const done = state.items.filter(i => i.status === 'done').length;
+      const faces = state.items.reduce((a, i) => a + (i.faceCount || 0), 0);
+      els.summary.textContent = done + ' selesai • ' + faces + ' wajah terdeteksi';
+    }
+    els.queue.innerHTML = '';
+    for (const item of state.items) els.queue.appendChild(card(item));
+    refreshGlobalButtons();
+  }
+
+  // Lightweight single-card refresh (avoids rebuilding the whole queue each completion).
+  function updateCard(item) {
+    const old = els.queue.querySelector('.card[data-id="' + item.id + '"]');
+    if (!old) { render(); return; }
+    old.replaceWith(card(item));
+    const done = state.items.filter(i => i.status === 'done').length;
+    const faces = state.items.reduce((a, i) => a + (i.faceCount || 0), 0);
+    els.summary.textContent = done + ' selesai • ' + faces + ' wajah terdeteksi';
+    refreshGlobalButtons();
+  }
+
+  function card(item) {
+    const el = document.createElement('div');
+    el.className = 'card'; el.dataset.id = item.id;
+    const previewUrl = item.resultUrl || item.url;
+    const faceBadge = item.status === 'done'
+      ? '<span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>' + item.faceCount + ' wajah</span>'
+      : '';
+    el.innerHTML =
+      '<div class="thumb" data-act="open" role="button" tabindex="0" aria-label="Buka editor untuk ' + escapeHtml(item.name) + '">' +
+        '<img src="' + previewUrl + '" alt="Pratinjau ' + escapeHtml(item.name) + '" />' + faceBadge +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="fname" title="' + escapeHtml(item.name) + '">' + escapeHtml(item.name) + '</div>' +
+        '<div class="meta"><span>' + fmtSize(item.size) + '</span>' +
+          '<span class="stat ' + item.status + '"><span class="s-dot"></span>' + statusLabel(item.status) + '</span></div>' +
+        (item.error ? '<div class="err-note">' + escapeHtml(item.error) + '</div>' : '') +
+        (item.note && !item.error ? '<div class="err-note" style="color:var(--muted);background:var(--panel)">' + escapeHtml(item.note) + '</div>' : '') +
+        '<div class="card-actions">' +
+          (item.status === 'failed'
+            ? '<button class="icon-btn" data-act="retry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Coba ulang</button>'
+            : '<button class="icon-btn" data-act="open" ' + (item.status==='done'?'':'disabled') + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4v16h16v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>Edit</button>' +
+              '<button class="icon-btn" data-act="download" ' + (item.status==='done'?'':'disabled') + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></button>') +
+          '<button class="icon-btn warnbtn" data-act="remove" aria-label="Hapus dari antrean"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>' +
+        '</div>' +
+      '</div>';
+
+    el.addEventListener('click', (e) => {
+      const act = e.target.closest('[data-act]'); if (!act) return;
+      const a = act.dataset.act;
+      if (a === 'open' && item.status === 'done') openEditor(item);
+      else if (a === 'download') downloadOne(item);
+      else if (a === 'remove') removeItem(item);
+      else if (a === 'retry') { item.status = 'queued'; item.note = null; render(); processQueue(); }
+    });
+    el.querySelector('.thumb').addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && item.status === 'done') { e.preventDefault(); openEditor(item); }
+    });
+    return el;
+  }
+
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  function setItemStatus(item) {
+    const el = els.queue.querySelector('.card[data-id="' + item.id + '"] .stat');
+    if (el) { el.className = 'stat ' + item.status; el.innerHTML = '<span class="s-dot"></span>' + statusLabel(item.status); }
+  }
+
+  function updateProgress() {
+    const total = state.items.length;
+    const wrap = els.progressWrap;
+    const active = state.items.filter(i => ['queued','detecting','redacting'].includes(i.status));
+    if (active.length > 0 && total > 0) {
+      wrap.hidden = false;
+      const done = state.items.filter(i => i.status === 'done' || i.status === 'failed').length;
+      // If the model is still loading and nothing is finished yet, show an indeterminate bar.
+      if (!state.engineTried && done === 0) {
+        wrap.querySelector('.progress').classList.add('indet');
+        els.progressPct.textContent = '';
+        els.progressText.textContent = 'Memuat model deteksi wajah…';
+      } else {
+        wrap.querySelector('.progress').classList.remove('indet');
+        const pct = Math.round(done / total * 100);
+        els.progressFill.style.width = pct + '%';
+        els.progressPct.textContent = pct + '%';
+        els.progressText.textContent = 'Memproses ' + Math.min(done + 1, total) + ' dari ' + total + ' foto…';
+      }
+    } else {
+      wrap.querySelector('.progress').classList.remove('indet');
+      els.progressFill.style.width = '100%';
+      els.progressPct.textContent = '100%';
+      els.progressText.textContent = 'Selesai';
+      setTimeout(() => { if (!state.items.some(i => ['queued','detecting','redacting'].includes(i.status))) wrap.hidden = true; }, 600);
+    }
+  }
+
+  function refreshGlobalButtons() {
+    const anyDone = state.items.some(i => i.status === 'done');
+    const any = state.items.length > 0;
+    els.detectAll.disabled = !any || !state.engineReady;
+    els.reprocessAll.disabled = !any;
+    els.downloadAll.disabled = !anyDone;
+    els.clearAll.disabled = !any;
+  }
+
+  // ---------- Remove / clear ----------
+  function freeItem(item) {
+    if (item.url) URL.revokeObjectURL(item.url);
+    if (item.resultUrl) URL.revokeObjectURL(item.resultUrl);
+    if (item.img && typeof item.img.close === 'function') { try { item.img.close(); } catch (e) {} }
+    item.img = null; item.resultBlob = null; item.regions = [];
+  }
+  function removeItem(item) {
+    freeItem(item);
+    state.items = state.items.filter(i => i !== item);
+    render();
+    toast('Foto dihapus dari antrean.', 'info', 2500);
+  }
+  function clearAll() {
+    if (!state.items.length) return;
+    if (!confirm('Hapus semua foto, hasil, koordinat wajah, dan data sesi? Tindakan ini tidak dapat dibatalkan.')) return;
+    state.items.forEach(freeItem);
+    state.items = [];
+    render();
+    toast('Semua data sesi telah dihapus.', 'ok');
+    announce('Semua data sesi dihapus');
+  }
+
+  // ---------- Download ----------
+  function extFor() { return state.format === 'image/png' ? 'png' : 'jpg'; }
+  function downloadBlob(blob, filename) {
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  function downloadOne(item) {
+    if (item.status !== 'done' || !item.resultBlob) return;
+    downloadBlob(item.resultBlob, baseName(item.name) + '-redacted.' + extFor());
+    toast('Mengunduh ' + baseName(item.name) + '-redacted.' + extFor(), 'ok', 2500);
+  }
+  async function downloadAll() {
+    const done = state.items.filter(i => i.status === 'done' && i.resultBlob);
+    if (!done.length) return;
+    if (done.length === 1) return downloadOne(done[0]);
+    if (typeof JSZip === 'undefined') {
+      toast('Pembuat arsip tidak tersedia, mengunduh satu per satu.', 'warn');
+      done.forEach((i, idx) => setTimeout(() => downloadOne(i), idx * 350));
+      return;
+    }
+    const zip = new JSZip(); const used = {};
+    for (const it of done) {
+      let fn = baseName(it.name) + '-redacted.' + extFor();
+      if (used[fn]) { fn = baseName(it.name) + '-redacted-' + (++used[fn]) + '.' + extFor(); } else used[fn] = 1;
+      zip.file(fn, it.resultBlob);
+    }
+    toast('Membuat arsip ZIP secara lokal…', 'info', 2500);
+    const blob = await zip.generateAsync({ type: 'blob' });
+    downloadBlob(blob, 'foto-redacted.zip');
+    toast('Arsip ' + done.length + ' foto siap diunduh.', 'ok');
+  }
+
+  // ---------- Re-detect all / Reprocess all ----------
+  function detectAllAgain() {
+    if (!state.engineReady) { toast('Model deteksi belum siap atau gagal dimuat.', 'warn'); return; }
+    let n = 0, skipped = 0;
+    for (const item of state.items) {
+      if (item.status === 'failed') continue;
+      if (item.manuallyEdited) { skipped++; continue; }
+      item.regions = []; item.note = null; item.status = 'queued'; n++;
+    }
+    if (!n) { toast('Tidak ada foto untuk dideteksi ulang' + (skipped ? ' (foto dengan koreksi manual dilewati).' : '.'), 'info'); return; }
+    render(); processQueue();
+    toast('Mendeteksi ulang ' + n + ' foto dengan sensitivitas terbaru…' + (skipped ? ' ' + skipped + ' foto manual dilewati.' : ''), 'info', 3200);
+  }
+
+  async function reprocessAll() {
+    if (!state.items.length) return;
+    const hasManual = state.items.some(i => i.manuallyEdited);
+    if (hasManual && !confirm('Beberapa foto memiliki koreksi manual. Proses ulang akan menerapkan gaya sensor terbaru tetapi mempertahankan area manual Anda. Lanjutkan?')) return;
+    for (const item of state.items) {
+      if (item.status === 'failed') continue;
+      item.regions.forEach(r => { if (!r.manual) r.type = state.mode; });
+      item.status = 'queued';
+    }
+    render(); processQueue();
+    toast('Memproses ulang seluruh foto dengan pengaturan terbaru…', 'info', 2500);
+  }
+
+  // =====================================================================
+  //  EDITOR
+  // =====================================================================
+  const editor = { item:null, view:'edit', scale:1, dispW:0, dispH:0, sel:-1, drag:null, newType:'box',
+    zoom:1, panX:0, panY:0, tool:'edit', gesture:null, pan:null, history:[], hidx:-1 };
+  let nudgeTimer = null;
+
+  function openEditor(item) {
+    editor.item = item; editor.sel = -1; editor.newType = state.mode; editor.view = 'edit';
+    els.edTitle.textContent = item.name;
+    els.modal.classList.add('open'); els.modalBack.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTool('edit');
+    setEditorView('edit'); updateTypeBtn(); layoutCanvas(); resetView(); histReset(); drawEditor();
+    els.edClose.focus();
+  }
+  function closeEditor() {
+    els.modal.classList.remove('open'); els.modalBack.classList.remove('open');
+    document.body.style.overflow = ''; editor.item = null;
+  }
+
+  // ---------- Undo / redo history (per editing session) ----------
+  function cloneRegions(rs){ return rs.map(r => ({...r})); }
+  function updateUndoButtons(){
+    if (els.edUndo) els.edUndo.disabled = editor.hidx <= 0;
+    if (els.edRedo) els.edRedo.disabled = editor.hidx >= editor.history.length - 1;
+  }
+  function histReset(){ editor.history = [cloneRegions(editor.item.regions)]; editor.hidx = 0; updateUndoButtons(); }
+  function histPush(){
+    if (!editor.item) return;
+    const top = editor.history[editor.hidx];
+    if (top && JSON.stringify(top) === JSON.stringify(editor.item.regions)) return;
+    editor.history = editor.history.slice(0, editor.hidx + 1);
+    editor.history.push(cloneRegions(editor.item.regions));
+    if (editor.history.length > 50) editor.history.shift();
+    editor.hidx = editor.history.length - 1;
+    updateUndoButtons();
+  }
+  function histApply(){
+    editor.item.regions = cloneRegions(editor.history[editor.hidx]);
+    editor.item.manuallyEdited = true; editor.sel = -1;
+    updateUndoButtons(); drawEditor();
+  }
+  function undo(){ if (editor.hidx > 0) { editor.hidx--; histApply(); announce('Urungkan'); } }
+  function redo(){ if (editor.hidx < editor.history.length - 1) { editor.hidx++; histApply(); announce('Ulangi'); } }
+
+  function setEditorView(view) {
+    editor.view = view;
+    const editMode = view === 'edit';
+    els.edStage.hidden = !editMode;
+    els.cmpStage.hidden = editMode;
+    els.edHint.style.display = editMode ? '' : 'none';
+    [['tabEdit','edit'],['tabToggle','toggle'],['tabSide','side'],['tabSlider','slider']].forEach(([id,v]) =>
+      $(id).setAttribute('aria-pressed', String(v === view)));
+    [els.edAdd, els.edType, els.edDelete, els.edReset, els.edUndo, els.edRedo, els.edFaceCount.parentElement].forEach(b => b && (b.style.display = editMode ? '' : 'none'));
+    if (els.navBar) els.navBar.style.display = editMode ? '' : 'none';
+    if (editMode) { layoutCanvas(); resetView(); drawEditor(); } else renderCompare(view);
+  }
+
+  function layoutCanvas() {
+    const item = editor.item; if (!item) return;
+    const host = els.edCanvas.parentElement.parentElement;
+    const maxW = Math.min(host.clientWidth - 32, 920);
+    const maxH = window.innerHeight - 320;
+    let s = Math.min(maxW / item.w, maxH / item.h, 1);
+    if (!isFinite(s) || s <= 0) s = Math.min(maxW / item.w, 1);
+    editor.scale = s;
+    editor.dispW = Math.round(item.w * s);
+    editor.dispH = Math.round(item.h * s);
+    const dpr = window.devicePixelRatio || 1;
+    els.edCanvas.width = Math.round(editor.dispW * dpr);
+    els.edCanvas.height = Math.round(editor.dispH * dpr);
+    els.edCanvas.style.width = editor.dispW + 'px';
+    els.edCanvas.style.height = editor.dispH + 'px';
+    els.edCanvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // ---------- Zoom / pan navigation ----------
+  function updateZoomLabel(){ if (els.edZoomLabel) els.edZoomLabel.textContent = Math.round(editor.zoom * 100) + '%'; }
+  function clampPan(){
+    const cw = editor.dispW, ch = editor.dispH;
+    const sw = cw * editor.zoom, sh = ch * editor.zoom;
+    editor.panX = sw <= cw ? (cw - sw) / 2 : clamp(editor.panX, cw - sw, 0);
+    editor.panY = sh <= ch ? (ch - sh) / 2 : clamp(editor.panY, ch - sh, 0);
+  }
+  function resetView(){ editor.zoom = 1; editor.panX = 0; editor.panY = 0; clampPan(); updateZoomLabel(); }
+  function setZoom(z, cx, cy){
+    const nz = clamp(z, 1, 8);
+    if (cx == null) { cx = editor.dispW / 2; cy = editor.dispH / 2; }
+    const ratio = nz / editor.zoom;
+    editor.panX = cx - (cx - editor.panX) * ratio;
+    editor.panY = cy - (cy - editor.panY) * ratio;
+    editor.zoom = nz; clampPan(); updateZoomLabel(); drawEditor();
+  }
+  function zoomBy(factor, cx, cy){ setZoom(editor.zoom * factor, cx, cy); }
+  function setTool(tool){
+    editor.tool = tool;
+    if (els.edPan) els.edPan.setAttribute('aria-pressed', String(tool === 'pan'));
+    els.edCanvas.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
+  }
+  function twoTouch(e){
+    const rect = els.edCanvas.getBoundingClientRect();
+    const sx = rect.width ? editor.dispW / rect.width : 1;
+    const sy = rect.height ? editor.dispH / rect.height : 1;
+    const a = e.touches[0], b = e.touches[1];
+    const ax = (a.clientX - rect.left) * sx, ay = (a.clientY - rect.top) * sy;
+    const bx = (b.clientX - rect.left) * sx, by = (b.clientY - rect.top) * sy;
+    return { dist: Math.hypot(bx - ax, by - ay), midX: (ax + bx) / 2, midY: (ay + by) / 2 };
+  }
+  function startGesture(e){
+    const rp = twoTouch(e);
+    editor.gesture = { dist: rp.dist, midX: rp.midX, midY: rp.midY, zoom: editor.zoom, panX: editor.panX, panY: editor.panY };
+    editor.drag = null; editor.pan = null;
+  }
+  function handleGesture(e){
+    const g = editor.gesture; if (!g) return;
+    const rp = twoTouch(e);
+    const nz = clamp(g.zoom * (rp.dist / (g.dist || rp.dist)), 1, 8);
+    editor.zoom = nz;
+    editor.panX = rp.midX - (g.midX - g.panX) * (nz / g.zoom);
+    editor.panY = rp.midY - (g.midY - g.panY) * (nz / g.zoom);
+    clampPan(); updateZoomLabel(); drawEditor();
+  }
+
+  let _drawPending = false;
+  function drawEditor() { if (_drawPending) return; _drawPending = true; requestAnimationFrame(() => { _drawPending = false; drawEditorNow(); }); }
+  function drawEditorNow() {
+    const item = editor.item; if (!item) return;
+    const ctx = els.edCanvas.getContext('2d');
+    const W = editor.dispW, H = editor.dispH;
+    const dpr = window.devicePixelRatio || 1;
+    const z = editor.zoom;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.translate(editor.panX, editor.panY); ctx.scale(z, z);
+    ctx.drawImage(item.img, 0, 0, W, H);
+    const pad = state.paddingPct / 100;
+    item.regions.forEach((r, i) => {
+      const px = r.w * pad, py = r.h * pad;
+      const x = (r.x - px) * W, y = (r.y - py) * H, w = (r.w + px*2) * W, h = (r.h + py*2) * H;
+      if (r.type === 'box') { ctx.fillStyle = state.boxColor; ctx.fillRect(x, y, w, h); }
+      else if (r.type === 'pixel') {
+        const sx2 = Math.max(0, r.x*item.w - px*item.w), sy2 = Math.max(0, r.y*item.h - py*item.h);
+        const sw2 = (r.w+px*2)*item.w, sh2 = (r.h+py*2)*item.h;
+        const block = Math.max(4, state.pixelAmt);
+        const cols = Math.max(1, Math.round(sw2 / block)), rows = Math.max(1, Math.round(sh2 / block));
+        const tmp = scratch('pixEd', cols, rows);
+        const tctx = tmp.getContext('2d'); tctx.imageSmoothingEnabled = true; tctx.clearRect(0, 0, cols, rows);
+        tctx.drawImage(item.img, sx2, sy2, sw2, sh2, 0, 0, cols, rows);
+        ctx.save(); ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(tmp, 0, 0, cols, rows, x, y, w, h);
+        ctx.restore(); ctx.imageSmoothingEnabled = true;
+      }
+      else {
+        ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+        ctx.filter = 'blur(' + Math.round(state.blurAmt*0.5) + 'px)';
+        ctx.drawImage(item.img, Math.max(0,r.x*item.w-px*item.w), Math.max(0,r.y*item.h-py*item.h),
+          (r.w+px*2)*item.w, (r.h+py*2)*item.h, x, y, w, h);
+        ctx.filter='none'; ctx.restore();
+      }
+      const selected = i === editor.sel;
+      ctx.lineWidth = (selected ? 3 : 2) / z;
+      ctx.strokeStyle = selected ? '#4f8cff' : 'rgba(255,255,255,.85)';
+      ctx.setLineDash(selected ? [] : [6/z, 4/z]);
+      ctx.strokeRect(x, y, w, h); ctx.setLineDash([]);
+      ctx.fillStyle = r.type === 'box' ? '#4f8cff' : (r.type === 'pixel' ? '#39c07a' : '#f0a93a');
+      ctx.font = '600 ' + (12/z) + 'px system-ui';
+      ctx.fillText((r.type==='box'?'BOX':(r.type==='pixel'?'PIXEL':'BLUR')), x+4/z, (y-5/z < 10/z) ? y+14/z : y-5/z);
+      if (selected) {
+        const hs = 9 / z; ctx.fillStyle = '#4f8cff';
+        handlePts(x,y,w,h).forEach(p => ctx.fillRect(p.x - hs/2, p.y - hs/2, hs, hs));
+      }
+    });
+    els.edFaceCount.textContent = item.regions.length + ' area';
+  }
+
+  function handlePts(x,y,w,h){return [{k:'nw',x,y},{k:'ne',x:x+w,y},{k:'sw',x,y:y+h},{k:'se',x:x+w,y:y+h}];}
+  function paddedRect(r){const pad=state.paddingPct/100;const px=r.w*pad,py=r.h*pad;
+    return {x:(r.x-px)*editor.dispW,y:(r.y-py)*editor.dispH,w:(r.w+px*2)*editor.dispW,h:(r.h+py*2)*editor.dispH};}
+
+  function rawPtr(e){
+    const rect = els.edCanvas.getBoundingClientRect();
+    const t = (e.touches && e.touches[0]) ? e.touches[0]
+      : (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : e;
+    const sx = rect.width ? editor.dispW / rect.width : 1;
+    const sy = rect.height ? editor.dispH / rect.height : 1;
+    return { x: (t.clientX - rect.left) * sx, y: (t.clientY - rect.top) * sy };
+  }
+  function ptr(e){
+    const rp = rawPtr(e);
+    const x = (rp.x - editor.panX) / editor.zoom;
+    const y = (rp.y - editor.panY) / editor.zoom;
+    return { x: clamp(x, 0, editor.dispW), y: clamp(y, 0, editor.dispH) };
+  }
+  function hitTest(p) {
+    const tol = 12 / editor.zoom;
+    if (editor.sel >= 0) {
+      const pr = paddedRect(editor.item.regions[editor.sel]);
+      for (const h of handlePts(pr.x,pr.y,pr.w,pr.h))
+        if (Math.abs(p.x-h.x) <= tol && Math.abs(p.y-h.y) <= tol) return { mode:'resize', handle:h.k };
+    }
+    for (let i = editor.item.regions.length - 1; i >= 0; i--) {
+      const pr = paddedRect(editor.item.regions[i]);
+      if (p.x>=pr.x && p.x<=pr.x+pr.w && p.y>=pr.y && p.y<=pr.y+pr.h) return { mode:'move', index:i };
+    }
+    return null;
+  }
+  function onPointerDown(e) {
+    if (editor.view !== 'edit') return;
+    if (e.touches && e.touches.length >= 2) { e.preventDefault(); startGesture(e); return; }
+    const wantPan = editor.tool === 'pan' || e.button === 1 || e.button === 2;
+    if (wantPan) {
+      e.preventDefault();
+      const rp = rawPtr(e);
+      editor.pan = { sx: rp.x, sy: rp.y, panX: editor.panX, panY: editor.panY };
+      els.edCanvas.style.cursor = 'grabbing';
+      return;
+    }
+    e.preventDefault();
+    const p = ptr(e); const hit = hitTest(p);
+    if (hit && hit.mode === 'resize') {
+      editor.drag = { mode:'resize', handle:hit.handle, start:p, orig:{...editor.item.regions[editor.sel]} };
+    } else if (hit && hit.mode === 'move') {
+      editor.sel = hit.index;
+      editor.drag = { mode:'move', start:p, orig:{...editor.item.regions[hit.index]} };
+    } else {
+      const r = { x:p.x/editor.dispW, y:p.y/editor.dispH, w:0, h:0, type:editor.newType, manual:true };
+      editor.item.regions.push(r); editor.sel = editor.item.regions.length - 1;
+      editor.drag = { mode:'create', start:p, anchor:{x:p.x/editor.dispW,y:p.y/editor.dispH} };
+    }
+    drawEditor();
+  }
+  function onPointerMove(e) {
+    if (editor.gesture && e.touches && e.touches.length >= 2) { e.preventDefault(); handleGesture(e); return; }
+    if (editor.pan) {
+      e.preventDefault();
+      const rp = rawPtr(e);
+      editor.panX = editor.pan.panX + (rp.x - editor.pan.sx);
+      editor.panY = editor.pan.panY + (rp.y - editor.pan.sy);
+      clampPan(); drawEditor();
+      return;
+    }
+    if (!editor.drag) return;
+    e.preventDefault();
+    const p = ptr(e); const r = editor.item.regions[editor.sel];
+    const dx = (p.x - editor.drag.start.x) / editor.dispW;
+    const dy = (p.y - editor.drag.start.y) / editor.dispH;
+    if (editor.drag.mode === 'move') {
+      r.x = clamp(editor.drag.orig.x + dx, 0, 1 - r.w);
+      r.y = clamp(editor.drag.orig.y + dy, 0, 1 - r.h);
+    } else if (editor.drag.mode === 'create') {
+      const ax = editor.drag.anchor.x, ay = editor.drag.anchor.y;
+      const cx = p.x/editor.dispW, cy = p.y/editor.dispH;
+      r.x = Math.min(ax, cx); r.y = Math.min(ay, cy);
+      r.w = Math.abs(cx - ax); r.h = Math.abs(cy - ay);
+    } else if (editor.drag.mode === 'resize') {
+      const o = editor.drag.orig, h = editor.drag.handle;
+      let x1 = o.x, y1 = o.y, x2 = o.x + o.w, y2 = o.y + o.h;
+      const cx = clamp(p.x/editor.dispW,0,1), cy = clamp(p.y/editor.dispH,0,1);
+      if (h.includes('w')) x1 = cx; if (h.includes('e')) x2 = cx;
+      if (h.includes('n')) y1 = cy; if (h.includes('s')) y2 = cy;
+      r.x = Math.min(x1,x2); r.y = Math.min(y1,y2); r.w = Math.abs(x2-x1); r.h = Math.abs(y2-y1);
+    }
+    drawEditor();
+  }
+  function onPointerUp(e) {
+    if (editor.gesture) { if (!e || !e.touches || e.touches.length < 2) editor.gesture = null; }
+    if (editor.pan) { editor.pan = null; els.edCanvas.style.cursor = editor.tool === 'pan' ? 'grab' : 'crosshair'; return; }
+    if (!editor.drag) return;
+    const wasCreate = editor.drag.mode === 'create';
+    const r = editor.item.regions[editor.sel];
+    let changed = true;
+    if (r && (r.w < 0.01 || r.h < 0.01) && wasCreate) {
+      editor.item.regions.splice(editor.sel, 1); editor.sel = -1; changed = false;
+    } else if (r) { r.manual = true; editor.item.manuallyEdited = true; }
+    editor.drag = null; drawEditor();
+    if (changed) histPush();
+  }
+
+  function updateTypeBtn() {
+    const names = { box:'Kotak', blur:'Heavy Blur', pixel:'Pixelate' };
+    els.edType.lastChild.textContent = 'Tipe area: ' + (names[editor.newType] || editor.newType);
+  }
+  function edAddArea() {
+    editor.item.regions.push({ x:0.4, y:0.4, w:0.2, h:0.2, type:editor.newType, manual:true });
+    editor.sel = editor.item.regions.length-1; editor.item.manuallyEdited = true; drawEditor(); histPush();
+    announce('Area sensor ditambahkan');
+  }
+  function edToggleType() {
+    const order = ['box','blur','pixel'];
+    editor.newType = order[(order.indexOf(editor.newType) + 1) % order.length];
+    updateTypeBtn();
+    if (editor.sel >= 0) { editor.item.regions[editor.sel].type = editor.newType; editor.item.manuallyEdited = true; drawEditor(); histPush(); }
+  }
+  function edDeleteArea() {
+    if (editor.sel < 0) { toast('Pilih area terlebih dulu untuk menghapus.', 'warn', 2500); return; }
+    editor.item.regions.splice(editor.sel, 1); editor.sel = -1;
+    editor.item.manuallyEdited = true; drawEditor(); histPush(); announce('Area sensor dihapus');
+  }
+  function edResetAuto() {
+    if (!confirm('Kembalikan ke hasil deteksi otomatis? Semua koreksi manual pada foto ini akan hilang.')) return;
+    const item = editor.item;
+    item.regions = []; item.manuallyEdited = false; item.note = null; editor.sel = -1;
+    item.status = 'queued'; render(); processQueue(); closeEditor();
+    toast('Mengembalikan ke deteksi otomatis…', 'info', 2500);
+  }
+  async function edReprocess() {
+    const item = editor.item;
+    item.faceCount = item.regions.length;
+    item.status = 'redacting'; setItemStatus(item);
+    try { await renderResult(item); item.status = 'done'; }
+    catch(e){ item.status='failed'; item.error='Ekspor gagal.'; }
+    render(); drawEditor(); toast('Pratinjau diperbarui.', 'ok', 2200);
+  }
+
+  function renderCompare(view) {
+    const item = editor.item; if (!item) return;
+    const host = els.cmpStage; host.innerHTML = '';
+    const orig = item.url, res = item.resultUrl || item.url;
+    if (view === 'toggle') {
+      const img = document.createElement('img'); img.src = res; img.alt = 'Hasil sensor';
+      const btn = document.createElement('button'); btn.className = 'btn'; btn.style.cssText='width:auto;margin:10px auto 0';
+      btn.textContent = 'Tahan untuk lihat asli'; let showing=false;
+      const set=(o)=>{img.src=o?orig:res; btn.textContent=o?'Lepas untuk lihat hasil':'Tahan untuk lihat asli';};
+      btn.addEventListener('mousedown',()=>set(true)); btn.addEventListener('mouseup',()=>set(false));
+      btn.addEventListener('mouseleave',()=>set(false));
+      btn.addEventListener('touchstart',(e)=>{e.preventDefault();set(true);}); btn.addEventListener('touchend',()=>set(false));
+      btn.addEventListener('click',()=>{showing=!showing;set(showing);});
+      const col=document.createElement('div'); col.style.cssText='display:flex;flex-direction:column;align-items:center';
+      col.appendChild(img); col.appendChild(btn); host.appendChild(col);
+    } else if (view === 'side') {
+      const c = document.createElement('div'); c.className = 'cmp-side';
+      c.innerHTML = '<figure><img src="'+orig+'" alt="Asli"><figcaption>Asli (hanya sesi ini)</figcaption></figure>'+
+                    '<figure><img src="'+res+'" alt="Hasil"><figcaption>Hasil tersensor</figcaption></figure>';
+      host.appendChild(c);
+    } else if (view === 'slider') {
+      const wrap = document.createElement('div'); wrap.className='slider-wrap';
+      const base = document.createElement('img'); base.src=res; base.alt='Hasil';
+      const over = document.createElement('div'); over.className='over';
+      const oimg = document.createElement('img'); oimg.src=orig; oimg.alt='Asli';
+      const handle = document.createElement('div'); handle.className='slider-handle';
+      over.appendChild(oimg); wrap.appendChild(base); wrap.appendChild(over); wrap.appendChild(handle);
+      const range = document.createElement('input'); range.type='range'; range.min=0; range.max=100; range.value=50; range.className='cmp-range';
+      range.setAttribute('aria-label','Geser perbandingan sebelum-sesudah');
+      const sync=()=>{const v=range.value; over.style.width=v+'%'; handle.style.left=v+'%'; oimg.style.width=wrap.clientWidth+'px';};
+      base.onload=sync; range.addEventListener('input',sync);
+      host.appendChild(wrap); host.appendChild(range); setTimeout(sync,50);
+    }
+  }
+
+  // ---------- Sensitivity mapping ----------
+  function applySensitivity(sliderVal) {
+    // higher slider = more sensitive = lower confidence threshold
+    state.minConfidence = clamp((70 - sliderVal) / 100, 0.1, 0.6);
+    els.sensVal.textContent = sliderVal <= 25 ? 'Rendah' : (sliderVal <= 40 ? 'Sedang' : 'Tinggi');
+  }
+
+  // =====================================================================
+  //  EVENTS
+  // =====================================================================
+  function bind() {
+    els.modeBox.addEventListener('click', () => setMode('box'));
+    els.modeBlur.addEventListener('click', () => setMode('blur'));
+    if (els.modePixel) els.modePixel.addEventListener('click', () => setMode('pixel'));
+    els.boxColor.addEventListener('input', e => { state.boxColor = e.target.value; saveSettings(); });
+    els.blurAmt.addEventListener('input', e => { state.blurAmt = +e.target.value; els.blurVal.textContent = e.target.value; saveSettings(); });
+    if (els.pixelAmt) els.pixelAmt.addEventListener('input', e => { state.pixelAmt = +e.target.value; els.pixelVal.textContent = e.target.value; saveSettings(); });
+    els.padding.addEventListener('input', e => { state.paddingPct = +e.target.value; els.padVal.textContent = e.target.value + '%'; saveSettings(); });
+    els.sensitivity.addEventListener('input', e => { applySensitivity(+e.target.value); saveSettings(); });
+    els.outFormat.addEventListener('change', e => {
+      state.format = e.target.value;
+      els.qualityField.style.display = state.format === 'image/jpeg' ? '' : 'none';
+      saveSettings();
+    });
+    els.quality.addEventListener('input', e => { state.quality = +e.target.value / 100; els.qVal.textContent = e.target.value + '%'; saveSettings(); });
+    els.stripMeta.addEventListener('change', e => { state.stripMeta = e.target.checked; saveSettings(); });
+
+    els.detectAll.addEventListener('click', detectAllAgain);
+    els.reprocessAll.addEventListener('click', reprocessAll);
+    els.downloadAll.addEventListener('click', downloadAll);
+    els.clearAll.addEventListener('click', clearAll);
+
+    els.pickBtn.addEventListener('click', (e) => { e.stopPropagation(); els.fileInput.click(); });
+    els.dropzone.addEventListener('click', () => els.fileInput.click());
+    els.dropzone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); els.fileInput.click(); } });
+    els.fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); e.target.value = ''; });
+    ['dragenter','dragover'].forEach(ev => els.dropzone.addEventListener(ev, (e) => { e.preventDefault(); els.dropzone.classList.add('drag'); }));
+    ['dragleave','dragend'].forEach(ev => els.dropzone.addEventListener(ev, () => els.dropzone.classList.remove('drag')));
+    els.dropzone.addEventListener('drop', (e) => { e.preventDefault(); els.dropzone.classList.remove('drag'); handleFiles(e.dataTransfer.files); });
+    window.addEventListener('dragover', e => e.preventDefault());
+    window.addEventListener('drop', e => e.preventDefault());
+
+    // Paste-to-upload (keyboard paste anywhere outside the editor)
+    window.addEventListener('paste', (e) => {
+      if (els.modal.classList.contains('open')) return;       // don't hijack paste in editor
+      const items = e.clipboardData && e.clipboardData.items; if (!items) return;
+      const files = [];
+      for (const it of items) {
+        if (it.kind === 'file' && it.type && it.type.indexOf('image/') === 0) {
+          const b = it.getAsFile();
+          if (b) files.push(namedPaste(b));
+        }
+      }
+      if (files.length) { e.preventDefault(); handleFiles(files); }
+    });
+    if (els.pasteBtn) els.pasteBtn.addEventListener('click', pasteFromClipboard);
+
+    els.edClose.addEventListener('click', closeEditor);
+    els.modalBack.addEventListener('click', closeEditor);
+    els.edAdd.addEventListener('click', edAddArea);
+    els.edType.addEventListener('click', edToggleType);
+    els.edDelete.addEventListener('click', edDeleteArea);
+    els.edReset.addEventListener('click', edResetAuto);
+    if (els.edUndo) els.edUndo.addEventListener('click', undo);
+    if (els.edRedo) els.edRedo.addEventListener('click', redo);
+    els.edReprocess.addEventListener('click', edReprocess);
+    els.edDownload.addEventListener('click', () => editor.item && downloadOne(editor.item));
+    els.tabEdit.addEventListener('click', () => setEditorView('edit'));
+    els.tabToggle.addEventListener('click', () => setEditorView('toggle'));
+    els.tabSide.addEventListener('click', () => setEditorView('side'));
+    els.tabSlider.addEventListener('click', () => setEditorView('slider'));
+
+    if (els.edPan) els.edPan.addEventListener('click', () => setTool(editor.tool === 'pan' ? 'edit' : 'pan'));
+    if (els.edZoomIn) els.edZoomIn.addEventListener('click', () => zoomBy(1.3));
+    if (els.edZoomOut) els.edZoomOut.addEventListener('click', () => zoomBy(1/1.3));
+    if (els.edFit) els.edFit.addEventListener('click', () => { resetView(); drawEditor(); });
+
+    const cv = els.edCanvas;
+    cv.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+    cv.addEventListener('touchstart', onPointerDown, { passive:false });
+    cv.addEventListener('touchmove', onPointerMove, { passive:false });
+    cv.addEventListener('touchend', onPointerUp);
+    cv.addEventListener('touchcancel', onPointerUp);
+    cv.addEventListener('contextmenu', (e) => e.preventDefault());
+    cv.addEventListener('wheel', (e) => {
+      if (editor.view !== 'edit') return;
+      e.preventDefault();
+      const rp = rawPtr(e);
+      zoomBy(e.deltaY < 0 ? 1.12 : 1/1.12, rp.x, rp.y);
+    }, { passive:false });
+    cv.addEventListener('dblclick', (e) => {
+      if (editor.view !== 'edit') return;
+      e.preventDefault();
+      const rp = rawPtr(e);
+      if (editor.zoom > 1) { resetView(); drawEditor(); } else zoomBy(2.2, rp.x, rp.y);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!els.modal.classList.contains('open')) return;
+      const mod = e.ctrlKey || e.metaKey;
+      if (e.key === 'Escape') { closeEditor(); return; }
+      if (mod && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+      if (mod && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); return; }
+      if (editor.view !== 'edit') return;
+      if ((e.key === 'Delete' || e.key === 'Backspace') && editor.sel >= 0) { e.preventDefault(); edDeleteArea(); return; }
+      if (editor.sel >= 0 && (e.key === 'b' || e.key === 'l' || e.key === 'p')) {
+        const map = { b:'box', l:'blur', p:'pixel' };
+        editor.item.regions[editor.sel].type = map[e.key]; editor.newType = map[e.key];
+        editor.item.manuallyEdited = true; updateTypeBtn(); drawEditor(); histPush(); return;
+      }
+      if (editor.sel >= 0 && e.key.indexOf('Arrow') === 0) {
+        e.preventDefault();
+        const r = editor.item.regions[editor.sel];
+        const step = e.shiftKey ? 0.02 : 0.005;
+        if (e.altKey) {
+          if (e.key === 'ArrowRight') r.w = clamp(r.w + step, 0.01, 1 - r.x);
+          else if (e.key === 'ArrowLeft') r.w = clamp(r.w - step, 0.01, 1 - r.x);
+          else if (e.key === 'ArrowDown') r.h = clamp(r.h + step, 0.01, 1 - r.y);
+          else if (e.key === 'ArrowUp') r.h = clamp(r.h - step, 0.01, 1 - r.y);
+        } else {
+          if (e.key === 'ArrowRight') r.x = clamp(r.x + step, 0, 1 - r.w);
+          else if (e.key === 'ArrowLeft') r.x = clamp(r.x - step, 0, 1 - r.w);
+          else if (e.key === 'ArrowDown') r.y = clamp(r.y + step, 0, 1 - r.h);
+          else if (e.key === 'ArrowUp') r.y = clamp(r.y - step, 0, 1 - r.h);
+        }
+        editor.item.manuallyEdited = true; drawEditor();
+        clearTimeout(nudgeTimer); nudgeTimer = setTimeout(histPush, 350);
+        return;
+      }
+    });
+    els.modal.addEventListener('keydown', trapFocus);
+    window.addEventListener('resize', () => { if (els.modal.classList.contains('open') && editor.view==='edit') { layoutCanvas(); resetView(); drawEditor(); } });
+    window.addEventListener('beforeunload', () => state.items.forEach(freeItem));
+  }
+
+  function trapFocus(e) {
+    if (e.key !== 'Tab') return;
+    const list = Array.from(els.modal.querySelectorAll('button, [tabindex="0"], input, select')).filter(el => el.offsetParent !== null);
+    if (!list.length) return;
+    const first = list[0], last = list[list.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    els.modeBox.setAttribute('aria-pressed', String(mode === 'box'));
+    els.modeBlur.setAttribute('aria-pressed', String(mode === 'blur'));
+    if (els.modePixel) els.modePixel.setAttribute('aria-pressed', String(mode === 'pixel'));
+    els.boxColorField.hidden = mode !== 'box';
+    els.blurField.hidden = mode !== 'blur';
+    if (els.pixelField) els.pixelField.hidden = mode !== 'pixel';
+    saveSettings();
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        mode: state.mode, boxColor: state.boxColor, blurAmt: state.blurAmt,
+        pixelAmt: state.pixelAmt, paddingPct: state.paddingPct,
+        sens: +els.sensitivity.value, format: state.format,
+        quality: Math.round(state.quality * 100), stripMeta: state.stripMeta,
+      }));
+    } catch (e) { /* storage unavailable */ }
+  }
+  function loadSettings() {
+    let s; try { s = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { s = null; }
+    if (!s) return;
+    if (s.mode) state.mode = s.mode;
+    if (typeof s.boxColor === 'string') { state.boxColor = s.boxColor; els.boxColor.value = s.boxColor; }
+    if (s.blurAmt != null) { state.blurAmt = s.blurAmt; els.blurAmt.value = s.blurAmt; els.blurVal.textContent = s.blurAmt; }
+    if (s.pixelAmt != null && els.pixelAmt) { state.pixelAmt = s.pixelAmt; els.pixelAmt.value = s.pixelAmt; els.pixelVal.textContent = s.pixelAmt; }
+    if (s.paddingPct != null) { state.paddingPct = s.paddingPct; els.padding.value = s.paddingPct; els.padVal.textContent = s.paddingPct + '%'; }
+    if (s.sens != null) { els.sensitivity.value = s.sens; }
+    if (s.format) { state.format = s.format; els.outFormat.value = s.format; }
+    if (s.quality != null) { state.quality = s.quality / 100; els.quality.value = s.quality; els.qVal.textContent = s.quality + '%'; }
+    if (typeof s.stripMeta === 'boolean') { state.stripMeta = s.stripMeta; els.stripMeta.checked = s.stripMeta; }
+  }
+
+  function init() {
+    loadSettings();
+    bind();
+    setMode(state.mode);
+    applySensitivity(+els.sensitivity.value);
+    els.qualityField.style.display = state.format === 'image/jpeg' ? '' : 'none';
+    render();
+    loadEngine();
+  }
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
+</body>
+</html>
