@@ -139,6 +139,24 @@ export const tools: EnrichedTool[] = [
     "date": 1781255380000
   },
   {
+    "id": "penyensor-wajah-privatx",
+    "name": "Penyensor Wajah Privat",
+    "description": "Auto-detected HTML utility tool for penyensor wajah privatx.",
+    "category": "Utility",
+    "tags": [
+      "html",
+      "penyensor",
+      "wajah",
+      "privatx",
+      "privat"
+    ],
+    "type": "html",
+    "path": "html/penyensor-wajah-privatx",
+    "autoDetected": true,
+    "filePath": "html/penyensor-wajah-privatx.html",
+    "date": 1781327063000
+  },
+  {
     "id": "pelangan-wifi",
     "name": "Pelangan Wifi",
     "description": "Auto-detected HTML utility tool for pelangan wifi.",
@@ -157,21 +175,21 @@ export const tools: EnrichedTool[] = [
   },
   {
     "id": "openeditor",
-    "name": "Quill Pad",
+    "name": "Open File",
     "description": "Auto-detected HTML utility tool for openeditor.",
     "category": "Utility",
     "tags": [
       "html",
       "openeditor",
-      "quill",
-      "pad",
+      "open",
+      "file",
       "utility"
     ],
     "type": "html",
     "path": "html/openeditor",
     "autoDetected": true,
     "filePath": "html/openeditor.html",
-    "date": 1781295840000
+    "date": 1781301269000
   },
   {
     "id": "javasandi",
@@ -208,6 +226,24 @@ export const tools: EnrichedTool[] = [
     "autoDetected": true,
     "filePath": "html/javascript/index.html",
     "date": 1781119393000
+  },
+  {
+    "id": "Generator_data",
+    "name": "Generator Data Contoh Indonesia",
+    "description": "Generator data contoh Indonesia yang valid dan realistis untuk testing form, demo, dan QA.",
+    "category": "Utility",
+    "tags": [
+      "html",
+      "generator",
+      "data",
+      "contoh",
+      "indonesia"
+    ],
+    "type": "html",
+    "path": "html/Generator_data",
+    "autoDetected": true,
+    "filePath": "html/Generator_data.html",
+    "date": 1781462604000
   },
   {
     "id": "toolsbox",

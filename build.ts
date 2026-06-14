@@ -1,6 +1,7 @@
 import tailwind from "bun-plugin-tailwind";
 import { copyFile, cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { normalizeSpaIndexHtml } from "./src/lib/buildHtml";
 import { generateAutoRegistry } from "./src/lib/toolRegistry";
 
 const outdir = path.join(process.cwd(), "dist");
@@ -55,7 +56,7 @@ async function normalizeBunHtmlOutput() {
 
   try {
     const html = await readFile(nestedIndex, "utf8");
-    await writeFile(rootIndex, html.replaceAll('href="../', 'href="./').replaceAll('src="../', 'src="./'), "utf8");
+    await writeFile(rootIndex, normalizeSpaIndexHtml(html), "utf8");
     console.log(" dist/index.html  normalized spa entry");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
