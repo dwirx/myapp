@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<meta name="description" content="Generator data contoh Indonesia yang valid dan realistis untuk testing form, demo, dan QA.">
+<title>Generator Data Contoh Indonesia</title>
+<style>
+:root{
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Inter','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono','Cascadia Code','Roboto Mono',Menlo,Consolas,monospace;
+  --bg:#0f1115; --bg-soft:#161a21; --panel:#1b212b; --panel-2:#222a36;
+  --border:#2a323f; --border-soft:#222b37;
+  --text:#e9edf3; --muted:#97a3b4; --faint:#828d9e;
+  --accent:#5b8cff; --accent-2:#3f6fe0; --accent-soft:rgba(91,140,255,.14);
+  --green:#3ecf8e; --green-soft:rgba(62,207,142,.14);
+  --red:#ff6b6b; --red-soft:rgba(255,107,107,.14);
+  --radius:14px; --radius-sm:10px;
+  --shadow:0 10px 40px rgba(0,0,0,.35);
+}
+[data-theme="light"]{
+  --bg:#f4f6fa; --bg-soft:#eef1f6; --panel:#ffffff; --panel-2:#f3f5f9;
+  --border:#e1e6ee; --border-soft:#eaeef4;
+  --text:#13181f; --muted:#5a6675; --faint:#646e7c;
+  --accent:#3f6fe0; --accent-2:#2f5bc7; --accent-soft:rgba(63,111,224,.10);
+  --green:#13a866; --green-soft:rgba(19,168,102,.12);
+  --red:#d83a3a; --red-soft:rgba(216,58,58,.10);
+  --shadow:0 10px 40px rgba(40,60,90,.10);
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; padding-bottom:env(safe-area-inset-bottom);
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:0; font-weight:600; letter-spacing:-.01em;}
+button{font-family:var(--sans); cursor:pointer;}
+input,select{font-family:var(--sans);}
+.mono{font-family:var(--mono);}
+
+/* ===== Layout ===== */
+.shell{max-width:1080px; margin:0 auto; padding:clamp(14px,4vw,24px) clamp(12px,4vw,20px) 96px;}
+.topbar{display:flex; align-items:center; gap:12px; margin-bottom:22px; flex-wrap:wrap;}
+.brand{display:flex; align-items:center; gap:12px; min-width:0;}
+.brand .logo{width:42px; height:42px; border-radius:12px; flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:grid; place-items:center; font-weight:700; color:#fff; font-size:18px;}
+.brand h1{font-size:18px; line-height:1.2;}
+.brand p{margin:2px 0 0; color:var(--muted); font-size:12.5px;}
+.topbar .spacer{flex:1;}
+.icon-btn{background:var(--panel); border:1px solid var(--border); color:var(--text);
+  width:40px; height:40px; border-radius:11px; display:grid; place-items:center; font-size:17px;
+  transition:.15s; flex:none;}
+.icon-btn:hover{border-color:var(--accent); color:var(--accent);}
+
+.grid{display:grid; grid-template-columns:380px minmax(0,1fr); gap:18px; align-items:start;}
+@media(max-width:860px){ .grid{grid-template-columns:1fr;} }
+
+.card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+.card .head{padding:16px 18px; border-bottom:1px solid var(--border-soft); display:flex; align-items:center; gap:10px;}
+.card .head h2{font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+.card .body{padding:18px;}
+
+/* ===== Controls ===== */
+.field{margin-bottom:14px;}
+.field:last-child{margin-bottom:0;}
+label.lbl{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; letter-spacing:.02em;}
+select{width:100%; appearance:none; -webkit-appearance:none; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+  padding:12px 38px 12px 13px; min-height:46px; border-radius:var(--radius-sm); font-size:15px; transition:.15s;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2397a3b4' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat; background-position:right 12px center;}
+select:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+select:disabled{opacity:.5; cursor:not-allowed;}
+
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:1px solid var(--border); background:var(--panel-2); color:var(--text);
+  padding:12px 16px; min-height:48px; border-radius:var(--radius-sm); font-size:15px; font-weight:500; transition:.15s; width:100%;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;}
+.btn:hover{border-color:var(--accent);}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2)); border-color:transparent; color:#fff; font-weight:600;}
+.btn.primary:hover{filter:brightness(1.07);}
+.btn.ghost{background:transparent;}
+.btn:active{transform:translateY(1px);}
+.btn-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;}
+.btn-row .full{grid-column:1 / -1;}
+
+/* ===== Result ===== */
+.result-head{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+.loc-badge{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px;
+  color:var(--accent); background:var(--accent-soft); padding:5px 10px; border-radius:999px; border:1px solid var(--accent-soft);}
+.fields{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; margin-top:4px;}
+@media(max-width:560px){ .fields{grid-template-columns:1fr;} }
+.fitem{background:var(--panel-2); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:10px 12px; min-width:0;}
+.fitem.span{grid-column:1 / -1;}
+.fitem .k{font-size:11px; color:var(--faint); margin-bottom:3px; display:flex; align-items:center; gap:4px;}
+.fitem .k .req{color:var(--accent);}
+.fitem .row{display:flex; align-items:center; gap:8px;}
+.fitem .v{font-family:var(--mono); font-size:14px; color:var(--text); word-break:break-word; overflow-wrap:anywhere; flex:1; min-width:0;}
+.copy-btn{flex:none; width:36px; height:36px; border-radius:9px; border:1px solid var(--border); background:var(--panel);
+  color:var(--muted); display:grid; place-items:center; transition:.15s; font-size:15px; -webkit-tap-highlight-color:transparent;}
+.copy-btn:hover{color:var(--accent); border-color:var(--accent);}
+.copy-btn.ok{color:var(--green); border-color:var(--green);}
+
+.section-group{margin-top:16px;}
+.section-group .gh{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--faint); margin:18px 0 8px;}
+.regen-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+.chip{font-size:12.5px; color:var(--muted); background:var(--panel-2); border:1px solid var(--border); padding:9px 14px; border-radius:999px; transition:.15s; -webkit-tap-highlight-color:transparent; touch-action:manipulation;}
+.chip:hover{border-color:var(--accent); color:var(--accent);}
+
+.empty{text-align:center; padding:40px 16px; color:var(--faint);}
+.empty .big{font-size:34px; margin-bottom:10px;}
+
+/* ===== History ===== */
+.hist-list{display:flex; flex-direction:column; gap:8px;}
+.hist-item{background:var(--panel-2); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:10px 12px; display:flex; align-items:center; gap:10px; transition:.15s;}
+.hist-item:hover{border-color:var(--accent);}
+.hist-item .meta{flex:1; min-width:0;}
+.hist-item .nm{font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.hist-item .sub{font-size:11px; color:var(--faint); font-family:var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.hist-item .mini{flex:none; width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--panel); color:var(--muted); display:grid; place-items:center; font-size:13px;}
+.hist-item .mini:hover{color:var(--accent); border-color:var(--accent);}
+.hist-empty{color:var(--faint); font-size:13px; text-align:center; padding:16px;}
+
+/* ===== Toast ===== */
+#toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+  background:var(--panel); border:1px solid var(--border); color:var(--text); padding:11px 18px;
+  border-radius:999px; font-size:13px; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.25s; z-index:50;
+  display:flex; align-items:center; gap:8px; max-width:90vw;}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+#toast.err{border-color:var(--red); color:var(--red);}
+#toast.ok .dot{color:var(--green);}
+
+.note{font-size:11.5px; color:var(--faint); margin-top:14px; line-height:1.5;}
+.foot{text-align:center; color:var(--faint); font-size:12px; margin-top:34px;}
+.foot .mono{color:var(--muted);}
+
+/* ===== Batch table ===== */
+.table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--border-soft); border-radius:var(--radius-sm); margin-top:8px;}
+.batch-table{width:100%; border-collapse:collapse; font-size:12.5px; min-width:560px;}
+.batch-table th,.batch-table td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--border-soft); white-space:nowrap;}
+.batch-table th{position:sticky; top:0; background:var(--panel-2); color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em;}
+.batch-table td{font-family:var(--mono); color:var(--text);}
+.batch-table tr:last-child td{border-bottom:none;}
+.batch-table tbody tr:hover{background:var(--accent-soft);}
+.batch-table td .tcopy{width:24px; height:24px; border-radius:6px; border:1px solid var(--border); background:var(--panel); color:var(--muted); font-size:11px;}
+.batch-table td .tcopy:hover{color:var(--accent); border-color:var(--accent);}
+.batch-table .idx{color:var(--faint); font-size:11px;}
+@media(max-width:560px){ .table-scroll{margin-left:-2px;} }
+
+/* ===== Animations ===== */
+@keyframes fadeUp{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+#result:not([hidden]){animation:fadeUp .28s ease both;}
+.hist-item{animation:fadeUp .2s ease both;}
+@media(prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important; scroll-behavior:auto !important;}}
+html{scroll-behavior:smooth;}
+
+/* ===== Mobile sticky action bar ===== */
+.mobile-bar{display:none;}
+.mobile-bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:40;
+  gap:10px; padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  background:color-mix(in srgb,var(--bg) 88%, transparent);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);
+}
+.mobile-bar .btn{min-height:50px; font-size:15px; flex:1;}
+.mobile-bar .icon-btn{height:50px; width:50px;}
+
+/* ===== Tablet & below ===== */
+@media(max-width:860px){
+  .topbar{margin-bottom:16px; gap:10px;}
+  .brand .logo{width:38px; height:38px; font-size:16px;}
+  .brand h1{font-size:16px;}
+  .brand p{font-size:11.5px;}
+  .card .body{padding:15px;}
+  .card .head{padding:14px 15px;}
+  /* Panel lokasi tampil setelah hasil di mobile agar hasil langsung terlihat */
+  .grid{gap:14px;}
+  .mobile-bar{display:flex; align-items:center;}
+  .shell{padding-bottom:104px;}
+  #toast{bottom:calc(78px + env(safe-area-inset-bottom));}
+  /* Sembunyikan tombol Generate/Copy panel (digantikan mobile-bar) untuk hemat ruang */
+  .btn-row .full#genBtn, .btn-row #copyAllBtn{display:none;}
+  .btn-row{grid-template-columns:1fr;}
+}
+
+/* ===== Phone ===== */
+@media(max-width:560px){
+  body{font-size:14.5px;}
+  .fields{gap:10px;}
+  .fitem{padding:11px 12px;}
+  .fitem .v{font-size:14.5px;}
+  .copy-btn{width:38px; height:38px;}
+  .regen-row{gap:7px;}
+  .loc-badge{font-size:11px;}
+  .empty{padding:30px 12px;}
+  .empty .big{font-size:40px;}
+  /* Tabel batch -> kartu bertumpuk */
+  .table-scroll{overflow:visible; border:none;}
+  .batch-table{min-width:0; font-size:13px;}
+  .batch-table thead{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+  .batch-table tbody tr{display:block; border:1px solid var(--border-soft); border-radius:var(--radius-sm);
+    padding:8px 12px; margin-bottom:10px; background:var(--panel-2);}
+  .batch-table tbody tr:hover{background:var(--panel-2);}
+  .batch-table td{display:flex; justify-content:space-between; align-items:center; gap:14px;
+    border:none; padding:6px 0; white-space:normal; text-align:right;}
+  .batch-table td::before{content:attr(data-label); color:var(--faint); font-family:var(--sans);
+    font-size:11px; text-transform:uppercase; letter-spacing:.04em; text-align:left; flex:none;}
+  .batch-table td.idx{justify-content:flex-start; border-bottom:1px solid var(--border-soft); padding-bottom:8px; margin-bottom:4px; color:var(--accent); font-weight:600;}
+  .batch-table td.idx::before{content:'Data ke';}
+  .batch-table td.act{justify-content:flex-end;}
+  .batch-table td.act::before{content:'';}
+  .batch-table td .tcopy{width:34px; height:34px; font-size:14px;}
+}
+
+/* Larger touch hit-area for header button */
+@media(hover:none){
+  .icon-btn{width:44px; height:44px;}
+}
+
+/* ===== Skill polish: navigation, segmented control, a11y, contrast ===== */
+/* Sticky single-line header (desktop nav <= 72px) */
+.topbar{
+  position:sticky; top:0; z-index:30; flex-wrap:nowrap;
+  margin:0 calc(-1*clamp(12px,4vw,20px)) 22px; padding:12px clamp(12px,4vw,20px);
+  background:color-mix(in srgb,var(--bg) 86%, transparent);
+  -webkit-backdrop-filter:blur(12px) saturate(1.4); backdrop-filter:blur(12px) saturate(1.4);
+  border-bottom:1px solid var(--border);
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){ .topbar{background:var(--bg);} }
+.brand h1{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+/* Segmented control: Jumlah Data */
+.segmented{display:flex; gap:4px; background:var(--panel-2); border:1px solid var(--border);
+  border-radius:var(--radius-sm); padding:4px;}
+.seg{flex:1; min-height:42px; border:none; background:transparent; color:var(--muted);
+  border-radius:7px; font-family:var(--mono); font-size:14px; font-weight:500; transition:.15s;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;}
+.seg:hover{color:var(--text);}
+.seg.active{background:var(--accent-2); color:#fff;}
+
+/* Solid CTA fill -> guaranteed AA contrast with white label */
+.btn.primary{background:var(--accent-2); border-color:transparent;}
+.btn.primary:hover{filter:brightness(1.08);}
+
+/* Tactile press feedback */
+.chip:active,.copy-btn:active,.icon-btn:active,.seg:active,.hist-item .mini:active,.batch-table td .tcopy:active{transform:scale(.95);}
+.btn.primary:active{transform:translateY(1px) scale(.99);}
+
+/* Keyboard focus-visible rings (a11y) */
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.btn:focus-visible,.chip:focus-visible,.seg:focus-visible,.icon-btn:focus-visible,.copy-btn:focus-visible,.hist-item .mini:focus-visible,.batch-table td .tcopy:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:8px;}
+select:focus-visible{outline:none;}
+button:focus:not(:focus-visible){outline:none;}
+
+/* Toast semantic icon + stacking */
+#toast{z-index:60;}
+#toast .ticon{font-weight:700; color:var(--green); font-size:13px;}
+#toast.err .ticon{color:var(--red);}
+
+@media(max-width:560px){
+  .seg{min-height:44px; font-size:13.5px;}
+  .brand p{display:none;}
+  .topbar{margin-bottom:16px;}
+}
+
+/* ===== Fit-to-screen safety (cegah overflow horizontal) ===== */
+.grid > *{min-width:0;}
+.card{min-width:0;}
+
+/* ===== Custom count input ===== */
+.count-row{display:flex; gap:8px; align-items:stretch;}
+.count-row .segmented{flex:1; min-width:0;}
+.count-input{width:88px; flex:none; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+  border-radius:var(--radius-sm); padding:0 12px; font-family:var(--mono); font-size:14px; text-align:center;
+  -webkit-appearance:none; appearance:none; -webkit-tap-highlight-color:transparent;}
+.count-input::-webkit-outer-spin-button,.count-input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+.count-input::placeholder{color:var(--faint);}
+.count-input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+.hint{margin:9px 0 0; font-size:11.5px; color:var(--faint); line-height:1.4;}
+
+/* ===== Batch result cards ===== */
+.batch-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr)); gap:12px; margin-top:10px;}
+.bcard{background:var(--panel-2); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:12px 13px; min-width:0; transition:border-color .15s;}
+.bcard:hover{border-color:var(--accent);}
+.bcard-top{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px;}
+.bidx{font-family:var(--mono); font-size:11px; color:var(--accent); font-weight:600; letter-spacing:.02em;}
+.bcard .bname{font-weight:600; font-size:14px; margin-bottom:8px; word-break:break-word; line-height:1.3;}
+.brow{display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-size:12px; padding:2.5px 0;}
+.brow span{color:var(--faint); flex:none;}
+.brow b{font-family:var(--mono); font-weight:500; text-align:right; word-break:break-word; overflow-wrap:anywhere; min-width:0;}
+.bcard .tcopy{width:30px; height:30px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--muted);
+  display:grid; place-items:center; font-size:13px; flex:none; transition:.15s; -webkit-tap-highlight-color:transparent;}
+.bcard .tcopy:hover{color:var(--accent); border-color:var(--accent);}
+.bcard .tcopy.ok{color:var(--green); border-color:var(--green);}
+
+@media(max-width:560px){
+  .count-row{flex-wrap:wrap;}
+  .count-input{width:100%; min-height:46px;}
+  .batch-grid{grid-template-columns:1fr;}
+}
+
+/* ===== Selectable batch cards + contained scroll ===== */
+.batch-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.chip.primary-chip{background:var(--accent-2); color:#fff; border-color:transparent;}
+.chip.primary-chip:hover{filter:brightness(1.08);}
+
+.batch-scroll{max-height:min(58vh,560px); overflow-y:auto; overflow-x:hidden; margin-top:10px; padding:3px; border-radius:var(--radius-sm); -webkit-overflow-scrolling:touch; overscroll-behavior:contain;}
+.batch-scroll .batch-grid{margin-top:0;}
+.batch-scroll::-webkit-scrollbar{width:10px;}
+.batch-scroll::-webkit-scrollbar-thumb{background:var(--border); border-radius:8px; border:2px solid var(--panel);}
+.batch-scroll::-webkit-scrollbar-track{background:transparent;}
+
+.bcard{cursor:pointer;}
+.bcard:hover{border-color:var(--accent);}
+.bcard.selected{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent);}
+.bleft{display:flex; align-items:center; gap:8px; min-width:0;}
+.bsel{width:17px; height:17px; border-radius:5px; border:1.5px solid var(--border); display:grid; place-items:center;
+  font-size:11px; line-height:1; color:transparent; transition:.15s; flex:none;}
+.bcard:hover .bsel{border-color:var(--accent);}
+.bcard.selected .bsel{background:var(--accent-2); border-color:var(--accent-2); color:#fff;}
+.bcard.selected .bidx{color:var(--accent);}
+
+@media(max-width:560px){
+  .batch-scroll{max-height:64vh;}
+  .batch-actions{width:100%;}
+  .batch-actions .chip{flex:1; min-width:calc(50% - 4px); justify-content:center;}
+}
+
+/* ===== Active (sedang ditampilkan) + clickable checkbox ===== */
+.bsel{cursor:pointer;}
+.bsel:hover{border-color:var(--accent);}
+.bcard.active{box-shadow:inset 3px 0 0 var(--accent);}
+.bcard.selected.active{box-shadow:inset 3px 0 0 var(--accent), inset 0 0 0 1px var(--accent);}
+
+/* ===== Typography polish (hybrid sans UI + mono data) ===== */
+h1,h2,h3{letter-spacing:-.015em;}
+.brand h1{font-size:19px; letter-spacing:-.02em;}
+.fitem .k,.brow span{letter-spacing:.01em;}
+.fitem .v,.brow b{letter-spacing:-.01em;}
+
+/* ===== Gender badge on batch cards ===== */
+.gtag{display:inline-block; margin-left:8px; vertical-align:middle; font-size:10px; font-weight:700; line-height:1; padding:3px 7px; border-radius:999px; font-family:var(--mono);}
+.gtag.l{ background:rgba(91,140,255,.18); color:var(--accent); }
+.gtag.p{ background:rgba(255,107,107,.18); color:var(--red); }
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">ID</div>
+      <div>
+        <h1>Generator Data Contoh Indonesia</h1>
+        <p>Data dummy realistis untuk testing form, demo &amp; QA</p>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="themeBtn" title="Ganti tema" aria-label="Ganti tema">🌙</button>
+  </div>
+
+  <div class="grid">
+    <!-- ===== Panel kiri: kontrol ===== -->
+    <section class="card" aria-label="Pilihan lokasi">
+      <div class="head"><span>📍</span><h2>Pilih Lokasi</h2></div>
+      <div class="body">
+        <div class="field">
+          <label class="lbl" for="prov">Provinsi</label>
+          <select id="prov"><option value="">Acak (seluruh Indonesia)</option></select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="city">Kota / Kabupaten</label>
+          <select id="city" disabled><option value="">Acak</option></select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="dist">Kecamatan</label>
+          <select id="dist" disabled><option value="">Acak</option></select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="vill">Kelurahan / Desa &amp; Kode Pos</label>
+          <select id="vill" disabled><option value="">Acak</option></select>
+        </div>
+        <div class="field">
+          <label class="lbl" id="countLbl">Jumlah Data</label>
+          <div class="count-row">
+            <div class="segmented" role="group" aria-labelledby="countLbl" id="countSeg">
+              <button type="button" class="seg active" data-count="1">1</button>
+              <button type="button" class="seg" data-count="5">5</button>
+              <button type="button" class="seg" data-count="10">10</button>
+              <button type="button" class="seg" data-count="25">25</button>
+              <button type="button" class="seg" data-count="50">50</button>
+            </div>
+            <input type="number" id="countCustom" class="count-input" min="1" max="200" inputmode="numeric" placeholder="Lainnya" aria-label="Jumlah data kustom">
+          </div>
+          <p class="hint">Pilih preset atau ketik jumlah sendiri (maks. 200).</p>
+          <input type="hidden" id="count" value="1">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary full" id="genBtn">⚡ Generate Data</button>
+          <button class="btn" id="copyAllBtn">📋 Copy Semua</button>
+          <button class="btn ghost" id="resetBtn">↺ Reset</button>
+        </div>
+        <p class="note">Data identitas (nama, email, telepon, perusahaan) bersifat <b>dummy</b>. Data wilayah &amp; kode pos memakai referensi nyata agar alamat realistis. Tidak ada data yang dikirim ke server.</p>
+      </div>
+    </section>
+
+    <!-- ===== Panel kanan: hasil ===== -->
+    <section class="card" aria-label="Hasil data">
+      <div class="head result-head">
+        <div style="display:flex;align-items:center;gap:10px;"><span>🧾</span><h2>Hasil Data</h2></div>
+        <span class="loc-badge" id="locBadge" hidden></span>
+      </div>
+      <div class="body">
+        <div id="empty" class="empty">
+          <div class="big">🇮🇩</div>
+          Belum ada data.<br>Tekan <b>Generate Data</b> untuk membuat data contoh.
+        </div>
+
+        <div id="result" hidden>
+          <div class="section-group">
+            <div class="gh">Identitas</div>
+            <div class="fields" id="identityFields"></div>
+          </div>
+          <div class="section-group">
+            <div class="gh">Alamat</div>
+            <div class="fields" id="addressFields"></div>
+          </div>
+          <div class="regen-row">
+            <button class="chip" data-regen="name">↻ Nama</button>
+            <button class="chip" data-regen="email">↻ Email</button>
+            <button class="chip" data-regen="phone">↻ Telepon</button>
+            <button class="chip" data-regen="company">↻ Perusahaan</button>
+            <button class="chip" data-regen="address">↻ Alamat</button>
+          </div>
+
+          <div id="batchWrap" hidden>
+            <div class="gh" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+              <span id="batchCount">Semua Data</span>
+              <span class="batch-actions">
+                <button class="chip" id="selectAll">☑ Pilih Semua</button>
+                <button class="chip primary-chip" id="copySel" hidden>📋 Salin Terpilih (<span id="selCount">0</span>)</button>
+                <button class="chip" id="exportCsv">⬇ CSV</button>
+                <button class="chip" id="exportJson">⬇ JSON</button>
+              </span>
+            </div>
+            <p class="hint" id="selHint">Klik kartu untuk menampilkannya di Hasil Data. Centang kotak di kartu untuk memilih, lalu salin data terpilih.</p>
+            <div class="batch-scroll"><div class="batch-grid" id="batchTable"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Riwayat ===== -->
+  <section class="card" style="margin-top:18px;" aria-label="Riwayat">
+    <div class="head result-head">
+      <div style="display:flex;align-items:center;gap:10px;"><span>🕘</span><h2>Riwayat Generate</h2></div>
+      <button class="chip" id="clearHist">🗑 Hapus Semua</button>
+    </div>
+    <div class="body">
+      <div class="hist-list" id="histList"></div>
+    </div>
+  </section>
+
+  <p class="foot">Generator Data Contoh Indonesia &middot; <span class="mono">offline &amp; tanpa login</span></p>
+</main>
+
+<nav class="mobile-bar" id="mobileBar" aria-label="Aksi cepat">
+  <button class="btn primary" id="mGen">⚡ Generate</button>
+  <button class="btn" id="mCopy">📋 Copy</button>
+  <button class="icon-btn" id="mUp" title="Ke atas" aria-label="Ke atas">↑</button>
+</nav>
+
+<div id="toast"><span class="ticon" id="toastIcon">✓</span><span id="toastMsg"></span></div>
+<script>
+// Dataset wilayah Indonesia (kurasi diperluas). Relasi: Provinsi > Kota/Kabupaten > Kecamatan > Kelurahan/Desa (+kode pos).
+// Data wilayah & kode pos memakai referensi nyata; data identitas yang digenerate bersifat dummy.
+window.WILAYAH = [
+  {
+    name: "DKI Jakarta",
+    cities: [
+      { name: "Kota Jakarta Pusat", districts: [
+        { name: "Gambir", villages: [ {name:"Gambir",postal:"10110"}, {name:"Cideng",postal:"10150"}, {name:"Petojo Utara",postal:"10130"}, {name:"Kebon Kelapa",postal:"10120"} ] },
+        { name: "Tanah Abang", villages: [ {name:"Bendungan Hilir",postal:"10210"}, {name:"Karet Tengsin",postal:"10220"}, {name:"Gelora",postal:"10270"}, {name:"Petamburan",postal:"10260"} ] },
+        { name: "Menteng", villages: [ {name:"Menteng",postal:"10310"}, {name:"Pegangsaan",postal:"10320"}, {name:"Cikini",postal:"10330"}, {name:"Gondangdia",postal:"10350"} ] }
+      ] },
+      { name: "Kota Jakarta Selatan", districts: [
+        { name: "Kebayoran Baru", villages: [ {name:"Senayan",postal:"12190"}, {name:"Gunung",postal:"12120"}, {name:"Gandaria Utara",postal:"12140"}, {name:"Melawai",postal:"12160"} ] },
+        { name: "Setiabudi", villages: [ {name:"Karet",postal:"12920"}, {name:"Kuningan Timur",postal:"12950"}, {name:"Menteng Atas",postal:"12960"}, {name:"Setiabudi",postal:"12910"} ] },
+        { name: "Tebet", villages: [ {name:"Tebet Timur",postal:"12820"}, {name:"Tebet Barat",postal:"12810"}, {name:"Manggarai",postal:"12850"}, {name:"Kebon Baru",postal:"12830"} ] }
+      ] },
+      { name: "Kota Jakarta Barat", districts: [
+        { name: "Grogol Petamburan", villages: [ {name:"Tomang",postal:"11440"}, {name:"Grogol",postal:"11450"}, {name:"Jelambar",postal:"11460"} ] },
+        { name: "Kebon Jeruk", villages: [ {name:"Kebon Jeruk",postal:"11530"}, {name:"Kelapa Dua",postal:"11550"}, {name:"Sukabumi Utara",postal:"11540"} ] }
+      ] },
+      { name: "Kota Jakarta Timur", districts: [
+        { name: "Matraman", villages: [ {name:"Pisangan Baru",postal:"13110"}, {name:"Utan Kayu Utara",postal:"13120"}, {name:"Kayu Manis",postal:"13130"} ] },
+        { name: "Jatinegara", villages: [ {name:"Bali Mester",postal:"13310"}, {name:"Kampung Melayu",postal:"13320"}, {name:"Bidara Cina",postal:"13330"}, {name:"Rawa Bunga",postal:"13350"} ] }
+      ] },
+      { name: "Kota Jakarta Utara", districts: [
+        { name: "Kelapa Gading", villages: [ {name:"Kelapa Gading Barat",postal:"14240"}, {name:"Kelapa Gading Timur",postal:"14240"}, {name:"Pegangsaan Dua",postal:"14250"} ] },
+        { name: "Tanjung Priok", villages: [ {name:"Tanjung Priok",postal:"14310"}, {name:"Sunter Agung",postal:"14350"}, {name:"Kebon Bawang",postal:"14320"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "DI Yogyakarta",
+    cities: [
+      { name: "Kota Yogyakarta", districts: [
+        { name: "Umbulharjo", villages: [ {name:"Warungboto",postal:"55164"}, {name:"Muja Muju",postal:"55165"}, {name:"Semaki",postal:"55166"}, {name:"Pandeyan",postal:"55161"} ] },
+        { name: "Gondokusuman", villages: [ {name:"Demangan",postal:"55221"}, {name:"Klitren",postal:"55222"}, {name:"Kotabaru",postal:"55224"}, {name:"Terban",postal:"55223"} ] },
+        { name: "Mergangsan", villages: [ {name:"Wirogunan",postal:"55151"}, {name:"Keparakan",postal:"55152"}, {name:"Brontokusuman",postal:"55153"} ] },
+        { name: "Jetis", villages: [ {name:"Bumijo",postal:"55231"}, {name:"Cokrodiningratan",postal:"55233"}, {name:"Gowongan",postal:"55232"} ] }
+      ] },
+      { name: "Kabupaten Sleman", districts: [
+        { name: "Depok", villages: [ {name:"Caturtunggal",postal:"55281"}, {name:"Maguwoharjo",postal:"55282"}, {name:"Condongcatur",postal:"55283"} ] },
+        { name: "Mlati", villages: [ {name:"Sinduadi",postal:"55284"}, {name:"Sendangadi",postal:"55285"}, {name:"Tlogoadi",postal:"55286"} ] },
+        { name: "Ngaglik", villages: [ {name:"Sariharjo",postal:"55581"}, {name:"Sinduharjo",postal:"55581"}, {name:"Sukoharjo",postal:"55581"} ] }
+      ] },
+      { name: "Kabupaten Bantul", districts: [
+        { name: "Banguntapan", villages: [ {name:"Banguntapan",postal:"55198"}, {name:"Baturetno",postal:"55197"}, {name:"Tamanan",postal:"55191"} ] },
+        { name: "Kasihan", villages: [ {name:"Tirtonirmolo",postal:"55181"}, {name:"Ngestiharjo",postal:"55182"}, {name:"Tamantirto",postal:"55183"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Jawa Barat",
+    cities: [
+      { name: "Kota Bandung", districts: [
+        { name: "Coblong", villages: [ {name:"Dago",postal:"40135"}, {name:"Lebak Gede",postal:"40132"}, {name:"Sadang Serang",postal:"40133"}, {name:"Cipaganti",postal:"40131"} ] },
+        { name: "Sukajadi", villages: [ {name:"Sukawarna",postal:"40164"}, {name:"Sukagalih",postal:"40163"}, {name:"Cipedes",postal:"40162"}, {name:"Pasteur",postal:"40161"} ] },
+        { name: "Bandung Wetan", villages: [ {name:"Tamansari",postal:"40116"}, {name:"Citarum",postal:"40115"}, {name:"Cihapit",postal:"40114"} ] }
+      ] },
+      { name: "Kota Bekasi", districts: [
+        { name: "Bekasi Selatan", villages: [ {name:"Marga Jaya",postal:"17141"}, {name:"Pekayon Jaya",postal:"17148"}, {name:"Jaka Mulya",postal:"17146"}, {name:"Kayuringin Jaya",postal:"17144"} ] },
+        { name: "Bekasi Timur", villages: [ {name:"Margahayu",postal:"17113"}, {name:"Bekasi Jaya",postal:"17112"}, {name:"Duren Jaya",postal:"17111"} ] }
+      ] },
+      { name: "Kota Depok", districts: [
+        { name: "Beji", villages: [ {name:"Beji",postal:"16421"}, {name:"Kemiri Muka",postal:"16423"}, {name:"Pondok Cina",postal:"16424"} ] },
+        { name: "Pancoran Mas", villages: [ {name:"Depok",postal:"16431"}, {name:"Depok Jaya",postal:"16432"}, {name:"Mampang",postal:"16433"} ] }
+      ] },
+      { name: "Kota Bogor", districts: [
+        { name: "Bogor Tengah", villages: [ {name:"Pabaton",postal:"16121"}, {name:"Sempur",postal:"16129"}, {name:"Babakan",postal:"16128"}, {name:"Tegallega",postal:"16129"} ] },
+        { name: "Bogor Utara", villages: [ {name:"Bantarjati",postal:"16153"}, {name:"Tegal Gundil",postal:"16152"}, {name:"Tanah Baru",postal:"16154"} ] }
+      ] },
+      { name: "Kota Cimahi", districts: [
+        { name: "Cimahi Tengah", villages: [ {name:"Cimahi",postal:"40521"}, {name:"Padasuka",postal:"40526"}, {name:"Karangmekar",postal:"40522"} ] }
+      ] },
+      { name: "Kota Cirebon", districts: [
+        { name: "Kejaksan", villages: [ {name:"Kejaksan",postal:"45123"}, {name:"Sukapura",postal:"45122"}, {name:"Kebonbaru",postal:"45124"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Jawa Tengah",
+    cities: [
+      { name: "Kota Semarang", districts: [
+        { name: "Semarang Tengah", villages: [ {name:"Pekunden",postal:"50241"}, {name:"Sekayu",postal:"50132"}, {name:"Miroto",postal:"50135"}, {name:"Bangunharjo",postal:"50137"} ] },
+        { name: "Candisari", villages: [ {name:"Jatingaleh",postal:"50254"}, {name:"Karanganyar Gunung",postal:"50252"}, {name:"Tegalsari",postal:"50251"} ] },
+        { name: "Tembalang", villages: [ {name:"Tembalang",postal:"50277"}, {name:"Bulusan",postal:"50277"}, {name:"Sumurboto",postal:"50269"} ] }
+      ] },
+      { name: "Kota Surakarta", districts: [
+        { name: "Laweyan", villages: [ {name:"Pajang",postal:"57146"}, {name:"Laweyan",postal:"57148"}, {name:"Sondakan",postal:"57147"}, {name:"Penumping",postal:"57141"} ] },
+        { name: "Banjarsari", villages: [ {name:"Mangkubumen",postal:"57139"}, {name:"Setabelan",postal:"57133"}, {name:"Kestalan",postal:"57134"} ] }
+      ] },
+      { name: "Kota Magelang", districts: [
+        { name: "Magelang Tengah", villages: [ {name:"Magelang",postal:"56117"}, {name:"Cacaban",postal:"56121"}, {name:"Kemirirejo",postal:"56122"} ] }
+      ] },
+      { name: "Kota Tegal", districts: [
+        { name: "Tegal Barat", villages: [ {name:"Pekauman",postal:"52111"}, {name:"Kraton",postal:"52112"}, {name:"Tegalsari",postal:"52111"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Jawa Timur",
+    cities: [
+      { name: "Kota Surabaya", districts: [
+        { name: "Gubeng", villages: [ {name:"Airlangga",postal:"60286"}, {name:"Gubeng",postal:"60281"}, {name:"Mojo",postal:"60285"}, {name:"Pucang Sewu",postal:"60282"} ] },
+        { name: "Wonokromo", villages: [ {name:"Darmo",postal:"60241"}, {name:"Wonokromo",postal:"60243"}, {name:"Sawunggaling",postal:"60242"}, {name:"Jagir",postal:"60244"} ] },
+        { name: "Sukolilo", villages: [ {name:"Keputih",postal:"60111"}, {name:"Gebang Putih",postal:"60117"}, {name:"Klampis Ngasem",postal:"60117"} ] }
+      ] },
+      { name: "Kota Malang", districts: [
+        { name: "Klojen", villages: [ {name:"Kauman",postal:"65119"}, {name:"Kasin",postal:"65117"}, {name:"Sukoharjo",postal:"65118"}, {name:"Kiduldalem",postal:"65111"} ] },
+        { name: "Lowokwaru", villages: [ {name:"Dinoyo",postal:"65144"}, {name:"Ketawanggede",postal:"65145"}, {name:"Sumbersari",postal:"65145"}, {name:"Tlogomas",postal:"65144"}, {name:"Jatimulyo",postal:"65141"} ] },
+        { name: "Blimbing", villages: [ {name:"Blimbing",postal:"65126"}, {name:"Purwodadi",postal:"65125"}, {name:"Polowijen",postal:"65126"} ] },
+        { name: "Sukun", villages: [ {name:"Sukun",postal:"65147"}, {name:"Bandungrejosari",postal:"65148"}, {name:"Tanjungrejo",postal:"65147"} ] }
+      ] },
+      { name: "Kabupaten Malang", districts: [
+        { name: "Singosari", villages: [ {name:"Candirenggo",postal:"65153"}, {name:"Pagentan",postal:"65153"}, {name:"Losari",postal:"65153"}, {name:"Ardimulyo",postal:"65153"}, {name:"Tamanharjo",postal:"65153"}, {name:"Watugede",postal:"65153"} ] },
+        { name: "Lawang", villages: [ {name:"Lawang",postal:"65211"}, {name:"Kalirejo",postal:"65215"}, {name:"Bedali",postal:"65216"}, {name:"Sumberporong",postal:"65213"}, {name:"Sidoluhur",postal:"65214"} ] },
+        { name: "Kepanjen", villages: [ {name:"Kepanjen",postal:"65163"}, {name:"Penarukan",postal:"65162"}, {name:"Ardirejo",postal:"65161"}, {name:"Cepokomulyo",postal:"65163"}, {name:"Panggungrejo",postal:"65162"} ] },
+        { name: "Tumpang", villages: [ {name:"Tumpang",postal:"65156"}, {name:"Malangsuko",postal:"65156"}, {name:"Bokor",postal:"65156"}, {name:"Pandanajeng",postal:"65156"} ] },
+        { name: "Pakis", villages: [ {name:"Pakis",postal:"65154"}, {name:"Pakiskembar",postal:"65154"}, {name:"Saptorenggo",postal:"65154"}, {name:"Asrikaton",postal:"65154"} ] },
+        { name: "Dau", villages: [ {name:"Mulyoagung",postal:"65151"}, {name:"Sumbersekar",postal:"65151"}, {name:"Landungsari",postal:"65151"} ] },
+        { name: "Karangploso", villages: [ {name:"Girimoyo",postal:"65152"}, {name:"Bocek",postal:"65152"}, {name:"Donowarih",postal:"65152"} ] },
+        { name: "Turen", villages: [ {name:"Turen",postal:"65175"}, {name:"Sedayu",postal:"65175"}, {name:"Tumpukrenteng",postal:"65175"} ] },
+        { name: "Bululawang", villages: [ {name:"Bululawang",postal:"65171"}, {name:"Krebet",postal:"65171"}, {name:"Sukonolo",postal:"65171"} ] }
+      ] },
+      { name: "Kota Batu", districts: [
+        { name: "Batu", villages: [ {name:"Sisir",postal:"65314"}, {name:"Temas",postal:"65315"}, {name:"Ngaglik",postal:"65313"}, {name:"Songgokerto",postal:"65312"} ] },
+        { name: "Junrejo", villages: [ {name:"Junrejo",postal:"65321"}, {name:"Mojorejo",postal:"65321"}, {name:"Tlekung",postal:"65327"} ] },
+        { name: "Bumiaji", villages: [ {name:"Bumiaji",postal:"65331"}, {name:"Punten",postal:"65301"}, {name:"Sidomulyo",postal:"65331"} ] }
+      ] },
+      { name: "Kabupaten Sidoarjo", districts: [
+        { name: "Sidoarjo", villages: [ {name:"Sidokumpul",postal:"61212"}, {name:"Lemahputro",postal:"61213"}, {name:"Pucang",postal:"61219"}, {name:"Magersari",postal:"61218"} ] },
+        { name: "Waru", villages: [ {name:"Waru",postal:"61256"}, {name:"Kureksari",postal:"61256"}, {name:"Tropodo",postal:"61256"}, {name:"Janti",postal:"61256"} ] },
+        { name: "Taman", villages: [ {name:"Taman",postal:"61257"}, {name:"Sepanjang",postal:"61257"}, {name:"Ketegan",postal:"61257"} ] }
+      ] },
+      { name: "Kota Kediri", districts: [
+        { name: "Kota", villages: [ {name:"Pocanan",postal:"64122"}, {name:"Setono Gedong",postal:"64122"}, {name:"Balowerti",postal:"64124"} ] },
+        { name: "Mojoroto", villages: [ {name:"Mojoroto",postal:"64112"}, {name:"Sukorame",postal:"64114"}, {name:"Bujel",postal:"64118"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Bali",
+    cities: [
+      { name: "Kota Denpasar", districts: [
+        { name: "Denpasar Barat", villages: [ {name:"Dauh Puri",postal:"80111"}, {name:"Pemecutan",postal:"80119"}, {name:"Padangsambian",postal:"80117"} ] },
+        { name: "Denpasar Selatan", villages: [ {name:"Sanur",postal:"80228"}, {name:"Renon",postal:"80235"}, {name:"Sesetan",postal:"80223"}, {name:"Panjer",postal:"80234"} ] },
+        { name: "Denpasar Timur", villages: [ {name:"Kesiman",postal:"80237"}, {name:"Sumerta",postal:"80239"}, {name:"Penatih",postal:"80238"} ] }
+      ] },
+      { name: "Kabupaten Badung", districts: [
+        { name: "Kuta", villages: [ {name:"Kuta",postal:"80361"}, {name:"Legian",postal:"80361"}, {name:"Seminyak",postal:"80361"} ] },
+        { name: "Kuta Selatan", villages: [ {name:"Jimbaran",postal:"80361"}, {name:"Benoa",postal:"80361"}, {name:"Pecatu",postal:"80361"} ] }
+      ] },
+      { name: "Kabupaten Gianyar", districts: [
+        { name: "Ubud", villages: [ {name:"Ubud",postal:"80571"}, {name:"Peliatan",postal:"80571"}, {name:"Mas",postal:"80571"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Sumatera Utara",
+    cities: [
+      { name: "Kota Medan", districts: [
+        { name: "Medan Kota", villages: [ {name:"Mesjid",postal:"20212"}, {name:"Pusat Pasar",postal:"20212"}, {name:"Kota Matsum III",postal:"20215"} ] },
+        { name: "Medan Baru", villages: [ {name:"Padang Bulan",postal:"20154"}, {name:"Merdeka",postal:"20153"}, {name:"Babura",postal:"20152"}, {name:"Petisah Hulu",postal:"20153"} ] },
+        { name: "Medan Petisah", villages: [ {name:"Petisah Tengah",postal:"20112"}, {name:"Sekip",postal:"20113"}, {name:"Sei Putih Tengah",postal:"20118"} ] }
+      ] },
+      { name: "Kota Binjai", districts: [
+        { name: "Binjai Kota", villages: [ {name:"Tangsi",postal:"20712"}, {name:"Satria",postal:"20714"}, {name:"Kartini",postal:"20711"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Sulawesi Selatan",
+    cities: [
+      { name: "Kota Makassar", districts: [
+        { name: "Makassar", villages: [ {name:"Maradekaya",postal:"90142"}, {name:"Barana",postal:"90144"}, {name:"Maccini",postal:"90143"} ] },
+        { name: "Rappocini", villages: [ {name:"Gunung Sari",postal:"90222"}, {name:"Karunrung",postal:"90222"}, {name:"Buakana",postal:"90222"}, {name:"Ballaparang",postal:"90223"} ] },
+        { name: "Tamalanrea", villages: [ {name:"Tamalanrea",postal:"90245"}, {name:"Kapasa",postal:"90243"}, {name:"Bira",postal:"90243"} ] }
+      ] },
+      { name: "Kota Parepare", districts: [
+        { name: "Soreang", villages: [ {name:"Lakessi",postal:"91131"}, {name:"Ujung Baru",postal:"91132"}, {name:"Bukit Indah",postal:"91131"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Banten",
+    cities: [
+      { name: "Kota Tangerang", districts: [
+        { name: "Tangerang", villages: [ {name:"Sukasari",postal:"15118"}, {name:"Babakan",postal:"15118"}, {name:"Cikokol",postal:"15117"}, {name:"Kelapa Indah",postal:"15117"} ] },
+        { name: "Cipondoh", villages: [ {name:"Cipondoh",postal:"15146"}, {name:"Poris Plawad",postal:"15141"}, {name:"Kenanga",postal:"15146"} ] }
+      ] },
+      { name: "Kota Tangerang Selatan", districts: [
+        { name: "Serpong", villages: [ {name:"Serpong",postal:"15311"}, {name:"Lengkong Gudang",postal:"15321"}, {name:"Rawa Buntu",postal:"15318"}, {name:"Lengkong Wetan",postal:"15310"}, {name:"Cilenggang",postal:"15311"} ] },
+        { name: "Serpong Utara", villages: [ {name:"Pondok Jagung",postal:"15326"}, {name:"Lengkong Karya",postal:"15323"}, {name:"Jelupang",postal:"15323"}, {name:"Pakulonan",postal:"15325"} ] },
+        { name: "Pamulang", villages: [ {name:"Pamulang Barat",postal:"15417"}, {name:"Pondok Cabe Udik",postal:"15418"}, {name:"Benda Baru",postal:"15416"} ] },
+        { name: "Ciputat", villages: [ {name:"Ciputat",postal:"15411"}, {name:"Cipayung",postal:"15411"}, {name:"Sawah Baru",postal:"15413"} ] }
+      ] },
+      { name: "Kota Cilegon", districts: [
+        { name: "Cilegon", villages: [ {name:"Ketileng",postal:"42417"}, {name:"Bagendung",postal:"42417"}, {name:"Bendungan",postal:"42416"} ] }
+      ] },
+      { name: "Kabupaten Tangerang", districts: [
+        { name: "Kelapa Dua", villages: [ {name:"Bojong Nangka",postal:"15810"}, {name:"Kelapa Dua",postal:"15810"}, {name:"Pakulonan Barat",postal:"15810"} ] },
+        { name: "Cisauk", villages: [ {name:"Cisauk",postal:"15341"}, {name:"Sampora",postal:"15345"}, {name:"Suradita",postal:"15343"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Sumatera Selatan",
+    cities: [
+      { name: "Kota Palembang", districts: [
+        { name: "Ilir Barat I", villages: [ {name:"Bukit Lama",postal:"30139"}, {name:"Lorok Pakjo",postal:"30137"}, {name:"Demang Lebar Daun",postal:"30137"}, {name:"Bukit Baru",postal:"30139"} ] },
+        { name: "Ilir Timur I", villages: [ {name:"13 Ilir",postal:"30113"}, {name:"Sungai Pangeran",postal:"30114"}, {name:"20 Ilir D I",postal:"30129"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Kepulauan Riau",
+    cities: [
+      { name: "Kota Batam", districts: [
+        { name: "Batam Kota", villages: [ {name:"Belian",postal:"29464"}, {name:"Teluk Tering",postal:"29461"}, {name:"Sukajadi",postal:"29432"}, {name:"Taman Baloi",postal:"29463"} ] },
+        { name: "Lubuk Baja", villages: [ {name:"Lubuk Baja Kota",postal:"29444"}, {name:"Batu Selicin",postal:"29442"}, {name:"Kampung Pelita",postal:"29432"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Kalimantan Timur",
+    cities: [
+      { name: "Kota Samarinda", districts: [
+        { name: "Samarinda Ulu", villages: [ {name:"Air Putih",postal:"75124"}, {name:"Gunung Kelua",postal:"75123"}, {name:"Sidodadi",postal:"75121"} ] }
+      ] },
+      { name: "Kota Balikpapan", districts: [
+        { name: "Balikpapan Selatan", villages: [ {name:"Damai",postal:"76114"}, {name:"Gunung Bahagia",postal:"76114"}, {name:"Sepinggan",postal:"76115"} ] }
+      ] }
+    ]
+  },
+  {
+    name: "Lampung",
+    cities: [
+      { name: "Kota Bandar Lampung", districts: [
+        { name: "Tanjung Karang Pusat", villages: [ {name:"Durian Payung",postal:"35116"}, {name:"Palapa",postal:"35117"}, {name:"Gotong Royong",postal:"35119"} ] },
+        { name: "Kedaton", villages: [ {name:"Kedaton",postal:"35142"}, {name:"Sukamenanti",postal:"35148"}, {name:"Surabaya",postal:"35146"} ] }
+      ] }
+    ]
+  }
+];
+
+window.NAMA_DEPAN_L = ["Budi","Andi","Agus","Rizki","Ahmad","Bayu","Hadi","Joko","Surya","Tono","Umar","Wahyu","Yusuf","Zaki","Bagas","Damar","Ferry","Galih","Irfan","Kurniawan","Lukman","Naufal","Pandu","Rifqi","Tegar","Vito","Yoga","Bima","Dimas","Farhan","Gilang","Ivan","Krisna","Miftah","Reza","Dani","Eko","Fauzan","Gunawan","Hendra","Ilham","Bambang","Slamet","Teguh","Arif","Dedi","Iqbal","Rahmat","Sigit","Wawan","Yanto","Adi","Faisal","Aldi","Bagus","Putra","Bangun","Oki"];
+window.NAMA_DEPAN_P = ["Dewi","Siti","Putri","Citra","Dian","Eka","Gita","Indah","Kartika","Lestari","Maya","Nanda","Rara","Vina","Anggun","Endah","Hesti","Jihan","Mira","Ratna","Adelia","Cindy","Elsa","Hana","Jasmine","Laras","Nadia","Qori","Salsa","Ulfa","Winda","Zahra","Ayu","Fitri","Intan","Nurul","Rina","Sari","Wulan","Yuni","Bunga","Dinda","Fadhila","Gendis","Ika","Karin","Lia","Mega","Novita","Rani","Tika","Sinta","Rahma","Melati"];
+window.NAMA_BELAKANG = ["Santoso","Wijaya","Pratama","Saputra","Nugroho","Hidayat","Kusuma","Wibowo","Setiawan","Permana","Maulana","Ramadhan","Anggraini","Lestari","Puspita","Halim","Gunawan","Suryani","Firmansyah","Hutapea","Sinaga","Siregar","Nasution","Wati","Dwi","Putri","Yulianto","Hartono","Mahendra","Rahmawati","Cahyono","Utomo","Iskandar","Mulyono","Susanto","Prasetyo","Handoko","Kurniawan","Wahyudi","Setyawan","Aprilia","Ardiansyah","Nurhaliza","Pangestu","Saputri","Wardhana","Octaviani","Hermawan","Fauzi","Ramadani","Lubis","Tanjung","Harahap","Manurung","Situmorang","Ginting","Sembiring","Tarigan","Simbolon","Pakpahan","Hakim","Pranoto","Wijoyo","Saputro","Hasanuddin"];
+window.JALAN = ["Perintis Kemerdekaan","Diponegoro","Ahmad Yani","Sudirman","Gatot Subroto","Gajah Mada","Pemuda","Merdeka","Pahlawan","Veteran","Imam Bonjol","Cik Di Tiro","Hayam Wuruk","Kartini","Mangkubumi","Pangeran Antasari","Cendrawasih","Melati","Kenanga","Anggrek","Mawar","Teuku Umar","Wahid Hasyim","Asia Afrika","Riau","Setiabudi","Brigjen Katamso","Slamet Riyadi","Pandanaran","Basuki Rahmat","Soekarno Hatta","Raya Darmo","Mayjen Sungkono","Letjen Suprapto","HOS Cokroaminoto","Dr. Wahidin","Panglima Sudirman","Raya Tlogomas","Soegijapranata","Pahlawan Trip","Bandung","Ijen","Semeru","Kawi","Bromo","Pajajaran","Otto Iskandardinata","Margonda Raya","Cihampelas","Dipatiukur","Malioboro","Tunjungan","MH Thamrin","Rasuna Said","Kaliurang","Magelang","Solo","Wahidin Sudirohusodo"];
+window.PERUSAHAAN = ["None","PT Maju Bersama","CV Sumber Rejeki","PT Karya Abadi","PT Nusantara Jaya","CV Cahaya Mandiri","PT Sentosa Makmur","PT Bintang Timur","CV Berkah Sejahtera","PT Andalan Digital","PT Mitra Solusi","CV Tunas Harapan","PT Global Teknologi","PT Surya Kencana","CV Rejeki Lancar","PT Cipta Karya","PT Indah Permata","PT Bumi Lestari","CV Maju Jaya","PT Anugerah Sentosa","PT Solusi Digital","CV Berkah Mandiri","PT Sinar Harapan","None","None","None","None"];
+window.PEKERJAAN = ["Karyawan Swasta","Pegawai Negeri Sipil","Wiraswasta","Guru","Dosen","Dokter","Perawat","Programmer","Desainer Grafis","Akuntan","Arsitek","Pengacara","Polisi","TNI","Petani","Nelayan","Pedagang","Sopir","Montir","Mahasiswa","Pelajar","Ibu Rumah Tangga","Pensiunan","Konsultan","Staf Marketing","Sales","Apoteker","Bidan","Chef","Barista","Fotografer","Penulis","Editor","Analis Data","Manajer Proyek","Teknisi","Satpam","Kurir","Pramuniaga","Notaris"];
+window.EMAIL_DOMAIN = ["gmail.com","yahoo.com","outlook.com","mail.com","proton.me","hotmail.com","icloud.com","ymail.com","live.com"];
+(function(){
+  'use strict';
+  var W = window.WILAYAH, FN_L = window.NAMA_DEPAN_L, FN_P = window.NAMA_DEPAN_P, LN = window.NAMA_BELAKANG,
+      ST = window.JALAN, CO = window.PERUSAHAAN, DOM = window.EMAIL_DOMAIN, JOB = window.PEKERJAAN;
+  var $ = function(id){return document.getElementById(id);};
+  var rand = function(a){return a[Math.floor(Math.random()*a.length)];};
+  var randInt = function(min,max){return Math.floor(Math.random()*(max-min+1))+min;};
+
+  var els = {
+    prov:$('prov'), city:$('city'), dist:$('dist'), vill:$('vill'), count:$('count'),
+    gen:$('genBtn'), copyAll:$('copyAllBtn'), reset:$('resetBtn'),
+    empty:$('empty'), result:$('result'), locBadge:$('locBadge'),
+    idF:$('identityFields'), addrF:$('addressFields'),
+    batchWrap:$('batchWrap'), batchTable:$('batchTable'), batchCount:$('batchCount'),
+    exportCsv:$('exportCsv'), exportJson:$('exportJson'),
+    histList:$('histList'), clearHist:$('clearHist'),
+    theme:$('themeBtn'), toast:$('toast'), toastMsg:$('toastMsg'), toastIcon:$('toastIcon'),
+    selectAll:$('selectAll'), copySel:$('copySel'), selCount:$('selCount')
+  };
+
+  var current = null;   // record yang ditampilkan di kartu detail
+  var records = [];     // semua record hasil generate terakhir (batch)
+  var sel = {};         // indeks kartu yang dipilih (untuk salin terpilih)
+  var activeIdx = null; // indeks kartu yang sedang ditampilkan di Hasil Data
+  var HKEY = 'gdci_history_v2', TKEY = 'gdci_theme';
+
+  /* ---------- Validasi dataset ---------- */
+  if(!W || !W.length){
+    els.empty.innerHTML = '<div class="big">\u26a0\ufe0f</div>Dataset lokasi gagal dimuat.';
+    return;
+  }
+
+  /* ---------- Dropdown bertingkat ---------- */
+  function fill(sel, items, label){
+    sel.innerHTML = '';
+    var o = document.createElement('option'); o.value=''; o.textContent='Acak'+(label?(' ('+label+')'):''); sel.appendChild(o);
+    items.forEach(function(it,i){
+      var op = document.createElement('option'); op.value=i;
+      op.textContent = it.postal ? (it.name+' \u00b7 '+it.postal) : it.name;
+      sel.appendChild(op);
+    });
+  }
+  function provObj(){ return els.prov.value!==''? W[+els.prov.value] : null; }
+  function cityObj(){ var p=provObj(); return (p && els.city.value!=='')? p.cities[+els.city.value] : null; }
+  function distObj(){ var c=cityObj(); return (c && els.dist.value!=='')? c.districts[+els.dist.value] : null; }
+
+  fill(els.prov, W);
+  els.prov.options[0].textContent = 'Acak (seluruh Indonesia)';
+
+  els.prov.addEventListener('change', function(){
+    var p = provObj();
+    if(p){ fill(els.city, p.cities); els.city.disabled=false; }
+    else { els.city.innerHTML='<option value="">Acak</option>'; els.city.disabled=true; }
+    els.dist.innerHTML='<option value="">Acak</option>'; els.dist.disabled=true;
+    els.vill.innerHTML='<option value="">Acak</option>'; els.vill.disabled=true;
+  });
+  els.city.addEventListener('change', function(){
+    var c = cityObj();
+    if(c){ fill(els.dist, c.districts); els.dist.disabled=false; }
+    else { els.dist.innerHTML='<option value="">Acak</option>'; els.dist.disabled=true; }
+    els.vill.innerHTML='<option value="">Acak</option>'; els.vill.disabled=true;
+  });
+  els.dist.addEventListener('change', function(){
+    var d = distObj();
+    if(d){ fill(els.vill, d.villages); els.vill.disabled=false; }
+    else { els.vill.innerHTML='<option value="">Acak</option>'; els.vill.disabled=true; }
+  });
+
+  /* ---------- Generator lokasi sesuai pilihan ---------- */
+  function genLocation(){
+    var p = provObj() || rand(W);
+    var c = cityObj() || rand(p.cities);
+    var d = distObj() || rand(c.districts);
+    var v = (provObj() && cityObj() && distObj() && els.vill.value!=='') ? d.villages[+els.vill.value] : rand(d.villages);
+    if(!v || !v.postal) return null;
+    return { provinsi:p.name, kota:c.name, kecamatan:d.name, kelurahan:v.name, kodepos:v.postal };
+  }
+
+  /* ---------- Generator identitas dummy ---------- */
+  function pad(n,l){ n=String(n); while(n.length<l) n='0'+n; return n; }
+  function genGender(){ return Math.random()<0.5 ? 'L' : 'P'; }
+  function genName(g){ return { depan:(g==='P'?rand(FN_P):rand(FN_L)), belakang:rand(LN) }; }
+  function slug(s){ return s.toLowerCase().replace(/[^a-z]/g,''); }
+  function genEmail(n){ var sep=rand(['','.','_']); return slug(n.depan)+sep+slug(n.belakang)+randInt(1,999)+'@'+rand(DOM); }
+  function genPhone(){ var s=''; for(var i=0;i<randInt(8,10);i++) s+=randInt(0,9); return '628'+ (Math.random()<.5?'1':'5') + s; }
+  function genCompany(){ return rand(CO); }
+  function genJob(){ return rand(JOB); }
+  function genBirth(){
+    var y=randInt(1965,2005), m=randInt(1,12);
+    var dmax=[31,28,31,30,31,30,31,31,30,31,30,31][m-1];
+    if(m===2 && (y%4===0 && (y%100!==0 || y%400===0))) dmax=29;
+    return { d:randInt(1,dmax), m:m, y:y };
+  }
+  function ageFrom(b){ var now=new Date(), a=now.getFullYear()-b.y, mo=now.getMonth()+1; if(mo<b.m || (mo===b.m && now.getDate()<b.d)) a--; return a; }
+  function genNIK(g,b){
+    var reg=''; for(var i=0;i<6;i++) reg+=randInt(0,9);
+    var dd = g==='P' ? b.d+40 : b.d;
+    return reg + pad(dd,2) + pad(b.m,2) + pad(b.y%100,2) + pad(randInt(1,9999),4);
+  }
+  function genAddress(loc){
+    var rt=pad(randInt(1,20),2), rw=pad(randInt(1,15),2);
+    return { alamat1:'Jl. '+rand(ST)+' No. '+randInt(1,250), alamat2:'RT '+rt+'/RW '+rw+', '+loc.kelurahan+', '+loc.kecamatan };
+  }
+
+  function buildData(){
+    var loc = genLocation();
+    if(!loc) return null;
+    var g = genGender();
+    var n = genName(g);
+    var b = genBirth();
+    var addr = genAddress(loc);
+    return {
+      depan:n.depan, belakang:n.belakang,
+      jenisKelamin: g==='P'?'Perempuan':'Laki-laki',
+      tanggalLahir: pad(b.d,2)+'-'+pad(b.m,2)+'-'+b.y,
+      usia: ageFrom(b)+' tahun',
+      nik: genNIK(g,b), pekerjaan: genJob(),
+      perusahaan:genCompany(),
+      email:genEmail(n), telepon:genPhone(),
+      alamat1:addr.alamat1, alamat2:addr.alamat2,
+      kota:loc.kota, provinsi:loc.provinsi, kecamatan:loc.kecamatan,
+      kelurahan:loc.kelurahan, kodepos:loc.kodepos, negara:'Indonesia',
+      _loc:loc, _g:g, ts:Date.now()
+    };
+  }
+
+  /* ---------- Render kartu detail ---------- */
+  var ID_FIELDS = [
+    ['depan','Nama Depan',true],['belakang','Nama Belakang',true],
+    ['jenisKelamin','Jenis Kelamin',false],['tanggalLahir','Tanggal Lahir',false],
+    ['usia','Usia',false],['nik','NIK',true],['pekerjaan','Pekerjaan',false],
+    ['perusahaan','Nama Perusahaan',false],['email','Alamat Email',true],['telepon','Nomor Telepon',true]
+  ];
+  var ADDR_FIELDS = [
+    ['alamat1','Alamat 1',true,true],['alamat2','Alamat 2',false,true],
+    ['kota','Kota/Kabupaten',true],['provinsi','Provinsi',true],
+    ['kecamatan','Kecamatan',false],['kelurahan','Kelurahan/Desa',false],
+    ['kodepos','Kode Pos',true],['negara','Negara',true]
+  ];
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function fieldHtml(key,label,req,span){
+    return '<div class="fitem'+(span?' span':'')+'">'+
+      '<div class="k">'+esc(label)+(req?' <span class="req">*</span>':'')+'</div>'+
+      '<div class="row"><span class="v" data-k="'+key+'">'+esc(current[key]==null?'-':current[key])+'</span>'+
+      '<button class="copy-btn" data-copy="'+key+'" title="Salin">\u29c9</button></div></div>';
+  }
+  function render(){
+    els.empty.hidden=true; els.result.hidden=false;
+    els.idF.innerHTML = ID_FIELDS.map(function(f){return fieldHtml(f[0],f[1],f[2],f[0]==='email'||f[0]==='nik');}).join('');
+    els.addrF.innerHTML = ADDR_FIELDS.map(function(f){return fieldHtml(f[0],f[1],f[2],f[3]);}).join('');
+    els.locBadge.hidden=false;
+    els.locBadge.innerHTML = '\ud83d\udccd '+esc(current.kota)+' \u00b7 '+esc(current.kodepos);
+    renderBatch();
+  }
+
+  /* ---------- Render tabel batch ---------- */
+  var COLS = [['depan','Depan'],['belakang','Belakang'],['email','Email'],['telepon','Telepon'],['kota','Kota/Kab'],['provinsi','Provinsi'],['kodepos','Kode Pos']];
+  function renderBatch(){
+    if(records.length <= 1){ els.batchWrap.hidden = true; return; }
+    els.batchWrap.hidden = false;
+    els.batchCount.textContent = 'Semua Data (' + records.length + ')';
+    els.batchTable.innerHTML = records.map(function(r,i){
+      return '<div class="bcard'+(sel[i]?' selected':'')+(i===activeIdx?' active':'')+'" data-idx="'+i+'">'+
+        '<div class="bcard-top">'+
+          '<span class="bleft"><span class="bsel">\u2713</span><span class="bidx">#'+(i+1)+'</span></span>'+
+          '<button class="tcopy" data-rowcopy="'+i+'" title="Salin data">\u29c9</button>'+
+        '</div>'+
+        '<div class="bname">'+esc(r.depan+' '+r.belakang)+'<span class="gtag '+(r.jenisKelamin==='Perempuan'?'p':'l')+'">'+esc((r.jenisKelamin||'').charAt(0))+'</span></div>'+
+        '<div class="brow"><span>NIK</span><b>'+esc(r.nik)+'</b></div>'+
+        '<div class="brow"><span>Email</span><b>'+esc(r.email)+'</b></div>'+
+        '<div class="brow"><span>Telepon</span><b>'+esc(r.telepon)+'</b></div>'+
+        '<div class="brow"><span>Pekerjaan</span><b>'+esc(r.pekerjaan)+'</b></div>'+
+        '<div class="brow"><span>Kota</span><b>'+esc(r.kota)+'</b></div>'+
+        '<div class="brow"><span>Kode Pos</span><b>'+esc(r.kodepos)+'</b></div>'+
+      '</div>';
+    }).join('');
+    updateSelUI();
+  }
+
+  function selectedRecords(){ return records.filter(function(r,i){ return sel[i]; }); }
+  function updateSelUI(){
+    var n = selectedRecords().length;
+    if(els.selCount) els.selCount.textContent = n;
+    if(els.copySel) els.copySel.hidden = n===0;
+    if(els.selectAll) els.selectAll.textContent = (records.length>1 && n===records.length) ? '\u2610 Batal Pilih' : '\u2611 Pilih Semua';
+  }
+  function toggleSel(i, card){
+    if(sel[i]){ delete sel[i]; if(card) card.classList.remove('selected'); }
+    else { sel[i]=true; if(card) card.classList.add('selected'); }
+    updateSelUI();
+  }
+
+  /* ---------- Format copy & export ---------- */
+  function toText(d){
+    return 'Nama Depan: '+d.depan+'\n'+'Nama Belakang: '+d.belakang+'\n'+
+      'Jenis Kelamin: '+d.jenisKelamin+'\n'+'Tanggal Lahir: '+d.tanggalLahir+'\n'+
+      'Usia: '+d.usia+'\n'+'NIK: '+d.nik+'\n'+'Pekerjaan: '+d.pekerjaan+'\n'+
+      'Nama Perusahaan: '+d.perusahaan+'\n'+'Alamat Email: '+d.email+'\n'+
+      'Alamat 1: '+d.alamat1+'\n'+'Alamat 2: '+d.alamat2+'\n'+
+      'Kota/Kabupaten: '+d.kota+'\n'+'Provinsi: '+d.provinsi+'\n'+
+      'Kode Pos: '+d.kodepos+'\n'+'Negara: '+d.negara+'\n'+'Nomor Telepon: '+d.telepon;
+  }
+  function toAllText(arr){ return arr.map(toText).join('\n\n----------\n\n'); }
+  var CSV_COLS = [['depan','Nama Depan'],['belakang','Nama Belakang'],['jenisKelamin','Jenis Kelamin'],['tanggalLahir','Tanggal Lahir'],['usia','Usia'],['nik','NIK'],['pekerjaan','Pekerjaan'],['perusahaan','Nama Perusahaan'],['email','Alamat Email'],['telepon','Nomor Telepon'],['alamat1','Alamat 1'],['alamat2','Alamat 2'],['kota','Kota/Kabupaten'],['provinsi','Provinsi'],['kecamatan','Kecamatan'],['kelurahan','Kelurahan/Desa'],['kodepos','Kode Pos'],['negara','Negara']];
+  function csvCell(v){ v=String(v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+  function toCsv(arr){
+    var head = CSV_COLS.map(function(c){return c[1];}).join(',');
+    var rows = arr.map(function(r){ return CSV_COLS.map(function(c){return csvCell(r[c[0]]);}).join(','); });
+    return head + '\n' + rows.join('\n');
+  }
+  function toJson(arr){
+    return JSON.stringify(arr.map(function(r){
+      var o={}; CSV_COLS.forEach(function(c){o[c[0]]=r[c[0]];}); return o;
+    }), null, 2);
+  }
+  function download(filename, text, mime){
+    try{
+      var blob = new Blob([text], {type:mime||'text/plain;charset=utf-8'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href=url; a.download=filename;
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+      return true;
+    }catch(e){ return false; }
+  }
+
+  /* ---------- Clipboard ---------- */
+  function copyText(txt, cb){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){cb(true);},function(){fallback(txt,cb);});
+    } else fallback(txt,cb);
+  }
+  function fallback(txt,cb){
+    try{ var t=document.createElement('textarea'); t.value=txt; t.style.position='fixed'; t.style.opacity='0';
+      document.body.appendChild(t); t.focus(); t.select(); var ok=document.execCommand('copy'); document.body.removeChild(t); cb(ok);
+    }catch(e){ cb(false); }
+  }
+
+  /* ---------- Toast ---------- */
+  var toastTimer;
+  function toast(msg, type){
+    els.toastMsg.textContent = msg;
+    if(els.toastIcon) els.toastIcon.textContent = type==='err' ? '\u2715' : '\u2713';
+    els.toast.className = 'show '+(type==='err'?'err':'ok');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ els.toast.className=''; }, 1900);
+  }
+
+  /* ---------- Aksi tombol ---------- */
+  els.gen.addEventListener('click', function(){
+    var n = Math.min(200, Math.max(1, parseInt(els.count.value,10)||1));
+    var out = [], guardEmpty=false;
+    for(var i=0;i<n;i++){ var d=buildData(); if(!d){ guardEmpty=true; break; } out.push(d); }
+    if(!out.length){ toast('Kode pos tidak tersedia untuk wilayah ini. Coba pilihan lain.','err'); return; }
+    records = out; current = out[0]; sel = {}; activeIdx = 0; render();
+    addHistory(out[0]);
+    if(guardEmpty) toast('Sebagian data dilewati: kode pos tak tersedia.','err');
+    else toast(n>1 ? (n+' data berhasil dibuat') : 'Data berhasil dibuat');
+    if(window.matchMedia && window.matchMedia('(max-width:860px)').matches){
+      try{ els.result.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){ window.scrollTo(0,0); }
+    }
+  });
+
+  /* ---------- Mobile action bar ---------- */
+  var mGen=$('mGen'), mCopy=$('mCopy'), mUp=$('mUp');
+  if(mGen) mGen.addEventListener('click', function(){ els.gen.click(); });
+  if(mCopy) mCopy.addEventListener('click', function(){ els.copyAll.click(); });
+  if(mUp) mUp.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  /* ---------- Segmented control: Jumlah Data ---------- */
+  var countSeg=$('countSeg'), countCustom=$('countCustom');
+  function setSegActive(val){
+    if(countSeg) countSeg.querySelectorAll('.seg').forEach(function(s){ s.classList.toggle('active', s.getAttribute('data-count')===String(val)); });
+  }
+  if(countSeg){
+    countSeg.addEventListener('click', function(e){
+      var b=e.target.closest('.seg'); if(!b) return;
+      var v=b.getAttribute('data-count');
+      els.count.value=v; setSegActive(v);
+      if(countCustom) countCustom.value='';
+    });
+  }
+  if(countCustom){
+    countCustom.addEventListener('input', function(){
+      var v=parseInt(countCustom.value,10);
+      if(isNaN(v)) return;
+      v=Math.min(200, Math.max(1, v));
+      els.count.value=String(v);
+      setSegActive(0);
+    });
+    countCustom.addEventListener('blur', function(){
+      if(countCustom.value!==''){ var v=Math.min(200, Math.max(1, parseInt(countCustom.value,10)||1)); countCustom.value=String(v); els.count.value=String(v); }
+    });
+  }
+
+  els.copyAll.addEventListener('click', function(){
+    if(!records.length){ toast('Belum ada data untuk disalin','err'); return; }
+    var txt = records.length>1 ? toAllText(records) : toText(current);
+    copyText(txt, function(ok){ toast(ok?(records.length>1?(records.length+' data tersalin'):'Semua data tersalin'):'Gagal menyalin', ok?'ok':'err'); });
+  });
+
+  if(els.selectAll) els.selectAll.addEventListener('click', function(){
+    var allSel = records.length>0 && selectedRecords().length===records.length;
+    sel = {};
+    if(!allSel){ for(var i=0;i<records.length;i++){ sel[i]=true; } }
+    renderBatch();
+  });
+  if(els.copySel) els.copySel.addEventListener('click', function(){
+    var arr = selectedRecords();
+    if(!arr.length){ toast('Belum ada kartu terpilih','err'); return; }
+    copyText(arr.length>1?toAllText(arr):toText(arr[0]), function(ok){ toast(ok?(arr.length+' data terpilih tersalin'):'Gagal menyalin', ok?'ok':'err'); });
+  });
+
+  els.reset.addEventListener('click', function(){
+    els.prov.value=''; els.prov.dispatchEvent(new Event('change')); els.count.value='1';
+    if(countSeg){ countSeg.querySelectorAll('.seg').forEach(function(s){ s.classList.toggle('active', s.getAttribute('data-count')==='1'); }); }
+    if(countCustom) countCustom.value='';
+    sel={}; activeIdx=null; current=null; records=[]; els.result.hidden=true; els.empty.hidden=false; els.locBadge.hidden=true; els.batchWrap.hidden=true;
+    toast('Pilihan & hasil direset');
+  });
+
+  els.exportCsv.addEventListener('click', function(){
+    if(!records.length) return;
+    var ok = download('data-contoh-indonesia.csv', '\ufeff'+toCsv(records), 'text/csv;charset=utf-8');
+    toast(ok?'CSV diunduh':'Gagal mengunduh CSV', ok?'ok':'err');
+  });
+  els.exportJson.addEventListener('click', function(){
+    if(!records.length) return;
+    var ok = download('data-contoh-indonesia.json', toJson(records), 'application/json');
+    toast(ok?'JSON diunduh':'Gagal mengunduh JSON', ok?'ok':'err');
+  });
+
+  // delegasi copy/regen pada area result
+  els.result.addEventListener('click', function(e){
+    var cb = e.target.closest('[data-copy]');
+    if(cb && current){
+      var k = cb.getAttribute('data-copy');
+      copyText(String(current[k]), function(ok){
+        if(ok){ cb.classList.add('ok'); cb.textContent='\u2713'; toast('Field tersalin');
+          setTimeout(function(){ cb.classList.remove('ok'); cb.textContent='\u29c9'; },1100); }
+        else toast('Gagal menyalin','err');
+      });
+      return;
+    }
+    var rc = e.target.closest('[data-rowcopy]');
+    if(rc){ var idx=+rc.getAttribute('data-rowcopy'); copyText(toText(records[idx]), function(ok){ toast(ok?('Data '+(idx+1)+' tersalin'):'Gagal menyalin', ok?'ok':'err'); }); return; }
+
+    var bsel = e.target.closest('.bsel');
+    if(bsel){ var bc=e.target.closest('.bcard'); if(bc){ toggleSel(+bc.getAttribute('data-idx'), bc); } return; }
+
+    var card = e.target.closest('.bcard');
+    if(card){ var ci=+card.getAttribute('data-idx'); activeIdx=ci; current=records[ci]; render();
+      try{ els.result.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e2){}
+      toast('Data #'+(ci+1)+' ditampilkan di Hasil Data'); return; }
+    var rg = e.target.closest('[data-regen]');
+    if(rg && current){ regen(rg.getAttribute('data-regen')); }
+  });
+
+  function regen(part){
+    if(part==='name'){ var n=genName(current._g||genGender()); current.depan=n.depan; current.belakang=n.belakang; current.email=genEmail(n); }
+    else if(part==='email'){ current.email=genEmail({depan:current.depan,belakang:current.belakang}); }
+    else if(part==='phone'){ current.telepon=genPhone(); }
+    else if(part==='company'){ current.perusahaan=genCompany(); }
+    else if(part==='address'){ var a=genAddress(current._loc); current.alamat1=a.alamat1; current.alamat2=a.alamat2; }
+    render(); toast('Bagian diperbarui');
+  }
+
+  /* ---------- Riwayat (localStorage) ---------- */
+  function getHist(){ try{ return JSON.parse(localStorage.getItem(HKEY)||'[]'); }catch(e){ return []; } }
+  function setHist(h){ try{ localStorage.setItem(HKEY, JSON.stringify(h)); }catch(e){} }
+  function addHistory(d){ var h=getHist(); h.unshift(d); if(h.length>10) h=h.slice(0,10); setHist(h); renderHist(); }
+  function fmtTime(ts){ var dt=new Date(ts); return dt.toLocaleString('id-ID',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'}); }
+  function renderHist(){
+    var h = getHist();
+    if(!h.length){ els.histList.innerHTML='<div class="hist-empty">Belum ada riwayat. Data yang digenerate akan muncul di sini.</div>'; return; }
+    els.histList.innerHTML = h.map(function(d,i){
+      return '<div class="hist-item">'+
+        '<div class="meta">'+
+          '<div class="nm">'+esc(d.depan+' '+d.belakang)+'</div>'+
+          '<div class="sub">'+esc(d.kota+', '+d.kodepos+' \u00b7 '+fmtTime(d.ts))+'</div>'+
+        '</div>'+
+        '<button class="mini" data-load="'+i+'" title="Muat ulang">\u2197</button>'+
+        '<button class="mini" data-hcopy="'+i+'" title="Salin">\u29c9</button>'+
+        '<button class="mini" data-del="'+i+'" title="Hapus">\u00d7</button>'+
+      '</div>';
+    }).join('');
+  }
+  els.histList.addEventListener('click', function(e){
+    var h = getHist();
+    var l=e.target.closest('[data-load]'), c=e.target.closest('[data-hcopy]'), del=e.target.closest('[data-del]');
+    if(l){ current=h[+l.getAttribute('data-load')]; records=[current]; render(); window.scrollTo({top:0,behavior:'smooth'}); toast('Data dimuat dari riwayat'); }
+    else if(c){ copyText(toText(h[+c.getAttribute('data-hcopy')]), function(ok){ toast(ok?'Tersalin':'Gagal menyalin', ok?'ok':'err'); }); }
+    else if(del){ h.splice(+del.getAttribute('data-del'),1); setHist(h); renderHist(); toast('Riwayat dihapus'); }
+  });
+  els.clearHist.addEventListener('click', function(){ setHist([]); renderHist(); toast('Semua riwayat dihapus'); });
+
+  /* ---------- Tema ---------- */
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    els.theme.textContent = t==='light' ? '\u2600\ufe0f' : '\ud83c\udf19';
+    try{ localStorage.setItem(TKEY,t); }catch(e){}
+  }
+  els.theme.addEventListener('click', function(){
+    var cur = document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
+    applyTheme(cur);
+  });
+  (function(){ var t; try{ t=localStorage.getItem(TKEY); }catch(e){}
+    if(!t) t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';
+    applyTheme(t);
+  })();
+
+  /* ---------- Init ---------- */
+  renderHist();
+  document.addEventListener('keydown', function(e){
+    if((e.key==='g'||e.key==='G') && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){ els.gen.click(); }
+  });
+})();
+</script>
+</body>
+</html>
