@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#16161A" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
+  <title>LiteParse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FAFAF9;
+      --surface: #FFFFFF;
+      --panel: #F6F6F4;
+      --ink: #16161A;
+      --text: #16161A;
+      --muted: #6B6B70;
+      --line: #ECECEC;
+      --line-strong: #DADADA;
+      --accent: #4B72FE;
+      --accent-soft: rgba(75,114,254,0.08);
+      --green: #16a34a;
+      --red: #dc2626;
+      --radius-sm: 6px;
+      --radius: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px -4px rgba(0,0,0,0.08), 0 2px 6px -2px rgba(0,0,0,0.04);
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+      --sidebar-w: 260px;
+      --mark: #FFE08A;
+      --mark-active: #FFB020;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0E0E10;
+      --surface: #16161A;
+      --panel: #1E1E22;
+      --ink: #0A0A0C;
+      --text: #E7E7EA;
+      --muted: #9A9AA2;
+      --line: #2A2A2E;
+      --line-strong: #3A3A40;
+      --accent: #7C97FF;
+      --accent-soft: rgba(124,151,255,0.14);
+      --green: #34d399;
+      --red: #f87171;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
+      --shadow-md: 0 8px 24px -6px rgba(0,0,0,0.6), 0 2px 8px -2px rgba(0,0,0,0.5);
+      --mark: #5b4a16;
+      --mark-active: #f0b429;
+    }
+    [data-theme="dark"] .btn.primary { background: var(--accent); border-color: var(--accent); color: #0A0A0C; }
+    [data-theme="dark"] .btn.primary:hover { filter: brightness(1.1); background: var(--accent); }
+    [data-theme="dark"] .icon-btn.active { background: var(--accent); border-color: var(--accent); color: #0A0A0C; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    .app {
+      display: flex; flex-direction: column;
+      height: 100vh; height: 100dvh;
+    }
+
+    /* ---------- Top bar ---------- */
+    .topbar {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.5rem 0.85rem;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      flex-shrink: 0;
+      z-index: 30;
+    }
+    .brand-btn {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      padding: 0.25rem 0.5rem 0.25rem 0.35rem;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .12s, border-color .12s;
+    }
+    .brand-btn:hover { background: var(--panel); border-color: var(--line); }
+    .logo {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #37D7FA 0%, #4B72FE 35%, #FF8DF2 70%, #FF8705 100%);
+      flex-shrink: 0;
+    }
+    .brand {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .file-meta {
+      display: flex; align-items: center; gap: 0.45rem;
+      margin-left: 0.35rem;
+      padding-left: 0.7rem;
+      border-left: 1px solid var(--line);
+      min-width: 0; flex: 0 1 auto;
+    }
+    .file-meta.hidden { display: none; }
+    .file-meta .name {
+      font-family: var(--font-mono); font-size: 0.78rem; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 240px;
+    }
+    .file-meta .sub {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+      white-space: nowrap;
+    }
+    .topbar .spacer { flex: 1; }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    .status-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    .status-pill.is-loading { color: var(--accent); }
+    .status-pill.is-loading .dot {
+      background: transparent;
+      border: 2px solid currentColor; border-right-color: transparent;
+      width: 10px; height: 10px;
+      animation: spin .8s linear infinite;
+    }
+    .status-pill.is-success { color: var(--green); }
+    .status-pill.is-success .dot {
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.15);
+    }
+    .status-pill.is-error { color: var(--red); }
+    .status-pill.is-error .dot {
+      background: var(--red);
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .icon-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px;
+      border: 1px solid var(--line);
+      background: var(--surface); color: var(--text);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .12s, border-color .12s, color .12s;
+    }
+    .icon-btn:hover { background: var(--panel); border-color: var(--line-strong); }
+    .icon-btn.active { background: var(--ink); color: white; border-color: var(--ink); }
+    .icon-btn svg { width: 14px; height: 14px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: var(--font-mono); font-size: 0.74rem; font-weight: 500;
+      padding: 0.4rem 0.7rem;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--surface); color: var(--text);
+      cursor: pointer;
+      transition: background .12s, border-color .12s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--panel); border-color: var(--line-strong); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn svg { width: 13px; height: 13px; }
+    .btn.primary { background: var(--ink); color: white; border-color: var(--ink); }
+    .btn.primary:hover { background: black; }
+
+    /* ---------- Body (sidebar + workspace) ---------- */
+    .body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      min-height: 0;
+      position: relative;
+    }
+    .body.no-sidebar { grid-template-columns: 1fr; }
+    .body.no-sidebar .sidebar { display: none; }
+
+    /* Sidebar (history) */
+    .sidebar {
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      min-height: 0;
+      min-width: 0;
+    }
+    .sidebar-head {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      min-height: 42px;
+    }
+    .sidebar-head .title {
+      font-family: var(--font-mono); font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); font-weight: 500;
+    }
+    .sidebar-head .count {
+      font-family: var(--font-mono); font-size: 0.7rem;
+      background: var(--panel); border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 0.05rem 0.4rem;
+      border-radius: 999px;
+    }
+    .sidebar-head .spacer { flex: 1; }
+    .sidebar-head .close-mobile { display: none; }
+
+    .history-list {
+      flex: 1; overflow-y: auto;
+      padding: 0.4rem;
+    }
+    .history-empty {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      line-height: 1.5;
+    }
+    .history-empty .icon {
+      width: 36px; height: 36px;
+      margin: 0 auto 0.6rem;
+      border-radius: 10px;
+      background: var(--panel);
+      display: grid; place-items: center;
+      color: var(--muted);
+    }
+    .history-empty .icon svg { width: 16px; height: 16px; }
+
+    .history-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: background .12s;
+      margin-bottom: 2px;
+    }
+    .history-item:hover { background: var(--panel); }
+    .history-item.active { background: var(--accent-soft); }
+    .history-item .file-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      display: grid; place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .history-item .file-icon svg { width: 13px; height: 13px; }
+    .history-item .info { min-width: 0; flex: 1; }
+    .history-item .h-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .history-item .h-sub {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+    .history-item .delete {
+      opacity: 0;
+      background: transparent; border: none;
+      width: 24px; height: 24px;
+      display: grid; place-items: center;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: opacity .12s, background .12s, color .12s;
+    }
+    .history-item:hover .delete,
+    .history-item:focus-within .delete { opacity: 1; }
+    .history-item .delete:hover { background: rgba(220,38,38,0.1); color: var(--red); }
+    .history-item .delete svg { width: 13px; height: 13px; }
+
+    .sidebar-foot {
+      border-top: 1px solid var(--line);
+      padding: 0.5rem 0.6rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .sidebar-foot .btn { flex: 1; justify-content: center; }
+    .sidebar-foot .danger {
+      color: var(--red);
+      border-color: var(--line);
+    }
+    .sidebar-foot .danger:hover { background: rgba(220,38,38,0.08); border-color: rgba(220,38,38,0.3); }
+
+    /* ---------- Workspace ---------- */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 0; min-width: 0;
+    }
+    .pane {
+      display: flex; flex-direction: column;
+      min-width: 0; min-height: 0;
+    }
+    .pane + .pane { border-left: 1px solid var(--line); }
+    .pane-head {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.7rem;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      min-height: 42px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .pane-title {
+      font-family: var(--font-mono); font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); font-weight: 500;
+    }
+    .pane-head .spacer { flex: 1; }
+
+    /* Segmented control */
+    .seg {
+      display: inline-flex;
+      background: var(--panel);
+      border-radius: 7px;
+      padding: 2px; gap: 2px;
+      border: 1px solid var(--line);
+    }
+    .seg button {
+      font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500;
+      padding: 0.3rem 0.6rem;
+      border: none; background: transparent; color: var(--muted);
+      border-radius: 5px; cursor: pointer;
+      transition: background .15s, color .15s, box-shadow .15s;
+    }
+    .seg button:hover { color: var(--text); }
+    .seg button.active {
+      background: var(--surface); color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ---------- Empty state (home) ---------- */
+    .empty {
+      flex: 1;
+      display: grid; place-items: center;
+      padding: 1.5rem;
+    }
+    .drop-zone {
+      position: relative;
+      width: 100%; max-width: 540px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 2px dashed var(--line-strong);
+      cursor: pointer;
+      transition: border-color .2s, background .2s, transform .2s;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .drop-zone.dragover { transform: scale(1.005); }
+    .drop-icon {
+      width: 52px; height: 52px;
+      margin: 0 auto 1rem;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: var(--accent-soft); color: var(--accent);
+      border: 1px solid rgba(75,114,254,0.18);
+    }
+    .drop-icon svg { width: 24px; height: 24px; }
+    .drop-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.35rem; letter-spacing: -0.01em; }
+    .drop-sub { font-size: 0.85rem; color: var(--muted); }
+    .drop-sub strong { color: var(--accent); font-weight: 600; }
+    .drop-hint {
+      margin-top: 1rem;
+      font-family: var(--font-mono); font-size: 0.68rem;
+      color: var(--muted); letter-spacing: 0.04em;
+    }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    }
+
+    /* When no file: hide output pane on desktop, show single-pane home */
+    .body.home .workspace { grid-template-columns: 1fr; }
+    .body.home #pane-output { display: none; }
+
+    /* ---------- PDF preview ---------- */
+    .pdf-viewport {
+      flex: 1; overflow: auto;
+      background: var(--panel);
+      padding: 1rem;
+      min-height: 0;
+    }
+    .pdf-pages {
+      display: flex; flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .pdf-page {
+      background: white;
+      box-shadow: var(--shadow-md);
+      border-radius: 4px;
+      max-width: 100%;
+      position: relative;
+    }
+    .pdf-page canvas { display: block; max-width: 100%; height: auto; border-radius: 4px; }
+    .pdf-page .page-label {
+      position: absolute; top: 8px; left: 8px;
+      font-family: var(--font-mono); font-size: 0.65rem;
+      background: rgba(22,22,26,0.75); color: white;
+      padding: 0.15rem 0.45rem; border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .pdf-viewport::-webkit-scrollbar,
+    .history-list::-webkit-scrollbar,
+    #output::-webkit-scrollbar { width: 10px; height: 10px; }
+    .pdf-viewport::-webkit-scrollbar-thumb,
+    .history-list::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 6px; }
+    #output::-webkit-scrollbar-thumb { background: #2A2A2E; border-radius: 6px; }
+
+    .pdf-loading {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.6rem;
+      padding: 3rem 1rem;
+      color: var(--muted);
+      font-family: var(--font-mono); font-size: 0.78rem;
+    }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 2px solid var(--line-strong);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    .zoom {
+      display: inline-flex; align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      overflow: hidden;
+    }
+    .zoom button {
+      background: transparent; border: none; cursor: pointer;
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      color: var(--text);
+      transition: background .12s;
+    }
+    .zoom button:hover { background: var(--surface); }
+    .zoom .level {
+      font-family: var(--font-mono); font-size: 0.7rem;
+      min-width: 44px; text-align: center;
+      color: var(--muted);
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      padding: 0 0.4rem;
+      height: 28px;
+      display: grid; place-items: center;
+    }
+
+    /* ---------- Output ---------- */
+    .output-wrap {
+      flex: 1;
+      display: flex; flex-direction: column;
+      min-height: 0;
+      background: var(--ink);
+    }
+    #output {
+      flex: 1;
+      background: var(--ink); color: #E0E2E6;
+      font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.65;
+      padding: 1rem 1.15rem;
+      overflow: auto;
+      white-space: pre; word-break: normal;
+      tab-size: 2;
+      min-height: 0;
+    }
+    #output.wrap { white-space: pre-wrap; word-break: break-word; }
+    #output.empty-state {
+      display: grid; place-items: center;
+      color: var(--muted);
+      font-family: var(--font-mono); font-size: 0.78rem;
+      text-align: center; padding: 2rem;
+    }
+
+    .stats {
+      display: flex; gap: 1px;
+      background: #1F1F22;
+      border-top: 1px solid #1F1F22;
+      flex-shrink: 0;
+    }
+    .stat {
+      background: var(--ink);
+      padding: 0.55rem 0.85rem;
+      flex: 1;
+      display: flex; flex-direction: column;
+      gap: 0.1rem;
+      min-width: 0;
+    }
+    .stat .label {
+      font-family: var(--font-mono); font-size: 0.6rem;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: #6E6E78;
+    }
+    .stat .value {
+      font-family: var(--font-mono); font-size: 0.86rem; font-weight: 600;
+      color: #E0E2E6;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* Mobile tabs for switching panes */
+    .mobile-tabs { display: none; }
+
+    /* ---------- Responsive ---------- */
+    /* Tablet: sidebar narrower */
+    @media (max-width: 1100px) {
+      :root { --sidebar-w: 220px; }
+    }
+
+    /* Mobile: sidebar becomes overlay, workspace becomes single pane */
+    @media (max-width: 820px) {
+      .body { grid-template-columns: 1fr !important; }
+      .body.no-sidebar { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        top: 0; bottom: 0; left: 0;
+        width: min(86vw, 320px);
+        z-index: 60;
+        box-shadow: var(--shadow-md);
+        transform: translateX(-100%);
+        transition: transform .25s cubic-bezier(.2,.8,.2,1);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-backdrop {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.35);
+        opacity: 0; pointer-events: none;
+        transition: opacity .25s;
+        z-index: 55;
+      }
+      .sidebar-backdrop.show { opacity: 1; pointer-events: auto; }
+      .sidebar-head .close-mobile { display: inline-flex; }
+
+      /* Workspace: stack with tabs */
+      .workspace { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+      .pane + .pane { border-left: none; border-top: 1px solid var(--line); }
+      .pane { display: none; }
+      .pane.active-mobile { display: flex; }
+      .body.home #pane-preview { display: flex; }
+      .body.home #pane-output { display: none !important; }
+
+      .mobile-tabs {
+        display: flex;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+        padding: 0.35rem 0.6rem;
+        gap: 0.3rem;
+      }
+      .body.home .mobile-tabs { display: none; }
+      .mobile-tabs button {
+        flex: 1;
+        font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--muted);
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .mobile-tabs button.active {
+        background: var(--panel); color: var(--text);
+        border-color: var(--line);
+      }
+
+      .file-meta .name { max-width: 130px; }
+      .topbar { padding: 0.5rem 0.6rem; gap: 0.35rem; }
+      .brand-btn .brand { display: none; }
+      .pane-head { padding: 0.4rem 0.55rem; }
+      .btn { padding: 0.35rem 0.55rem; }
+      .btn .btn-label { display: none; }
+      .status-pill .label { display: none; }
+      .seg button { padding: 0.3rem 0.5rem; font-size: 0.68rem; }
+      .icon-btn { width: 34px; height: 34px; }
+      .mobile-tabs button { padding: 0.55rem 0.6rem; }
+      .find-bar input { font-size: 16px; }
+      .pdf-viewport { padding: 0.6rem; }
+      .stat { padding: 0.5rem 0.6rem; }
+      .font-ctrl button { min-width: 34px; height: 34px; }
+      .editor { font-size: 16px !important; }
+    }
+
+    /* Show the hamburger only on small screens */
+    .menu-btn { display: none; }
+    @media (max-width: 820px) { .menu-btn { display: inline-flex; } }
+
+    /* Hide history toggle on small screens (replaced by menu-btn) */
+    @media (max-width: 820px) { .desktop-only { display: none !important; } }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed; bottom: calc(1.25rem + env(safe-area-inset-bottom)); left: 50%;
+      transform: translateX(-50%) translateY(150%);
+      background: var(--ink); color: white;
+      font-family: var(--font-mono); font-size: 0.78rem;
+      padding: 0.55rem 0.95rem;
+      border-radius: 999px;
+      box-shadow: var(--shadow-md);
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      opacity: 0;
+      transition: transform .25s cubic-bezier(.2,.8,.2,1), opacity .2s;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast svg { width: 13px; height: 13px; color: #86efac; }
+
+    /* ---------- Font size control ---------- */
+    .font-ctrl {
+      display: inline-flex;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      overflow: hidden;
+    }
+    .font-ctrl button {
+      background: transparent; border: none; cursor: pointer;
+      font-family: var(--font-mono); font-size: 0.74rem; font-weight: 600;
+      color: var(--text);
+      height: 30px; min-width: 30px;
+      display: grid; place-items: center;
+      transition: background .12s;
+    }
+    .font-ctrl button:hover { background: var(--surface); }
+    .font-ctrl button + button { border-left: 1px solid var(--line); }
+
+    /* ---------- Find bar ---------- */
+    .find-bar {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.6rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .find-bar .find-ico { width: 14px; height: 14px; color: var(--muted); flex-shrink: 0; }
+    .find-bar input {
+      flex: 1; min-width: 0;
+      border: none; outline: none; background: transparent;
+      font-family: var(--font-mono); font-size: 0.8rem; color: var(--text);
+    }
+    .find-count {
+      font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);
+      white-space: nowrap; padding: 0 0.2rem;
+    }
+    .find-nav {
+      background: transparent; border: 1px solid transparent;
+      width: 26px; height: 26px; border-radius: 6px;
+      display: grid; place-items: center; cursor: pointer;
+      color: var(--muted); transition: background .12s, color .12s;
+      flex-shrink: 0;
+    }
+    .find-nav:hover { background: var(--panel); color: var(--text); }
+    .find-nav svg { width: 14px; height: 14px; }
+    #output mark.mark { background: var(--mark); color: inherit; border-radius: 2px; }
+    #output mark.mark.active { background: var(--mark-active); color: #16161A; }
+
+    /* ---------- Editor (textarea) ---------- */
+    .editor {
+      flex: 1; width: 100%;
+      background: var(--ink); color: #E0E2E6;
+      font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.65;
+      padding: 1rem 1.15rem;
+      border: none; outline: none; resize: none;
+      overflow: auto; tab-size: 2;
+      min-height: 0;
+      white-space: pre;
+    }
+    .editor.wrap { white-space: pre-wrap; word-break: break-word; }
+    .editor::placeholder { color: #6E6E78; }
+    .editor::-webkit-scrollbar { width: 10px; height: 10px; }
+    .editor::-webkit-scrollbar-thumb { background: #2A2A2E; border-radius: 6px; }
+    .btn.active { background: var(--ink); color: white; border-color: var(--ink); }
+    .btn.edited::after {
+      content: ""; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); display: inline-block; margin-left: 0.15rem;
+    }
+    [data-theme="dark"] .btn.active { background: var(--accent); border-color: var(--accent); color: #0A0A0C; }
+
+    /* Hidden file input */
+    .hidden-input { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Top bar -->
+    <div class="topbar">
+      <button class="icon-btn menu-btn" id="menu-btn" title="Open history" aria-label="Open history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <button class="brand-btn" id="home-btn" title="Go to home" aria-label="Go to home">
+        <span class="logo" aria-hidden="true"></span>
+        <span class="brand">LiteParse</span>
+      </button>
+
+      <div class="file-meta hidden" id="file-meta">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="name" id="file-name"></span>
+        <span class="sub" id="file-sub"></span>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="status-pill" id="status-pill">
+        <span class="dot"></span>
+        <span class="label" id="status-label">Initializing…</span>
+      </div>
+
+      <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button class="icon-btn desktop-only" id="sidebar-toggle" title="Toggle history" aria-label="Toggle history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </button>
+      <button class="icon-btn" id="new-file-btn" title="Open new PDF" aria-label="Open new PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </button>
+      <input type="file" id="new-file-input" accept=".pdf,application/pdf" class="hidden-input" />
+    </div>
+
+    <!-- Sidebar backdrop (mobile) -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Body -->
+    <div class="body home" id="body">
+      <!-- Sidebar / history -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="title">History</span>
+          <span class="count" id="history-count">0</span>
+          <div class="spacer"></div>
+          <button class="icon-btn close-mobile" id="sidebar-close" title="Close history" aria-label="Close history">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="history-list" id="history-list">
+          <div class="history-empty" id="history-empty">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            No history yet.<br/>Opened PDFs will appear here.
+          </div>
+        </div>
+
+        <div class="sidebar-foot">
+          <button class="btn" id="open-from-sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Open
+          </button>
+          <button class="btn danger" id="clear-history" title="Clear all history">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Clear
+          </button>
+        </div>
+      </aside>
+
+      <!-- Mobile tabs + workspace -->
+      <div style="display:flex; flex-direction:column; min-height:0; min-width:0;">
+        <div class="mobile-tabs" id="mobile-tabs">
+          <button data-pane="preview" class="active">PDF</button>
+          <button data-pane="output">Parsed</button>
+        </div>
+
+        <div class="workspace" id="workspace">
+          <!-- PDF preview pane -->
+          <section class="pane active-mobile" data-pane="preview" id="pane-preview">
+            <div class="pane-head">
+              <span class="pane-title">PDF Preview</span>
+              <div class="spacer"></div>
+              <div class="zoom" id="zoom-controls" hidden>
+                <button id="zoom-out" title="Zoom out" aria-label="Zoom out">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <span class="level" id="zoom-level">100%</span>
+                <button id="zoom-in" title="Zoom in" aria-label="Zoom in">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="empty" id="empty-state">
+              <div class="drop-zone" id="drop-zone">
+                <input type="file" id="pdf-input" accept=".pdf,application/pdf" />
+                <div class="drop-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="drop-title">Drop a PDF here</div>
+                <div class="drop-sub">or <strong>click to browse</strong></div>
+                <div class="drop-hint">Everything stays on your device</div>
+              </div>
+            </div>
+
+            <div class="pdf-viewport" id="pdf-viewport" hidden>
+              <div class="pdf-pages" id="pdf-pages"></div>
+            </div>
+          </section>
+
+          <!-- Parsed output pane -->
+          <section class="pane" data-pane="output" id="pane-output">
+            <div class="pane-head">
+              <span class="pane-title">Parsed</span>
+              <div class="seg" id="format-seg" role="tablist">
+                <button type="button" data-fmt="markdown" class="active">Markdown</button>
+                <button type="button" data-fmt="text">Text</button>
+                <button type="button" data-fmt="json">JSON</button>
+              </div>
+              <div class="spacer"></div>
+              <div class="font-ctrl" id="font-ctrl">
+                <button id="font-dec" title="Decrease text size" aria-label="Decrease text size">A−</button>
+                <button id="font-inc" title="Increase text size" aria-label="Increase text size">A+</button>
+              </div>
+              <button class="btn" id="edit-btn" title="Edit parsed text" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                <span class="btn-label">Edit</span>
+              </button>
+              <button class="btn" id="revert-btn" title="Revert to parsed text" hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                <span class="btn-label">Revert</span>
+              </button>
+              <button class="btn" id="find-btn" title="Find in output (Ctrl/Cmd+F)" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span class="btn-label">Find</span>
+              </button>
+              <button class="btn" id="wrap-btn" title="Toggle line wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 21 6"/><path d="M3 12h15a3 3 0 0 1 0 6h-4"/><polyline points="16 16 14 18 16 20"/><line x1="3" y1="18" x2="10" y2="18"/></svg>
+                <span class="btn-label">Wrap</span>
+              </button>
+              <button class="btn" id="download-btn" title="Download output" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span class="btn-label">Save</span>
+              </button>
+              <button class="btn primary" id="copy-btn" title="Copy output" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span class="btn-label">Copy</span>
+              </button>
+            </div>
+
+            <div class="output-wrap">
+              <div class="find-bar" id="find-bar" hidden>
+                <svg class="find-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="find-input" placeholder="Find in text…" autocomplete="off" spellcheck="false" />
+                <span class="find-count" id="find-count">0/0</span>
+                <button class="find-nav" id="find-prev" title="Previous (Shift+Enter)" aria-label="Previous match"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>
+                <button class="find-nav" id="find-next" title="Next (Enter)" aria-label="Next match"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button class="find-nav" id="find-close" title="Close (Esc)" aria-label="Close find"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+              </div>
+              <pre id="output" class="empty-state">Open a PDF to see parsed output here.</pre>
+              <textarea id="editor" class="editor" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off" placeholder="Edit the parsed text…" hidden></textarea>
+              <div class="stats" id="stats" hidden></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="toast-text">Copied</span>
+  </div>
+
+  <!-- PDF.js for preview (v3.x has stable UMD build that exposes window.pdfjsLib) -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script>
+    (function () {
+      function setWorker() {
+        if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+          window.__pdfjsReady = true;
+          window.dispatchEvent(new Event('pdfjs-ready'));
+        }
+      }
+      // Primary UMD path
+      if (window.pdfjsLib) { setWorker(); return; }
+      // Fallback: try ESM dynamic import (works in modern browsers if UMD failed for any reason)
+      import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.mjs')
+        .then(function (mod) {
+          window.pdfjsLib = window.pdfjsLib || mod;
+          setWorker();
+        })
+        .catch(function (err) {
+          console.error('pdf.js failed to load', err);
+          window.__pdfjsError = err;
+          window.dispatchEvent(new Event('pdfjs-error'));
+        });
+    })();
+  </script>
+
+  <script type="module">
+    // ---------- DOM refs ----------
+    const statusPill   = document.getElementById("status-pill");
+    const statusLabel  = document.getElementById("status-label");
+    const fileMeta     = document.getElementById("file-meta");
+    const fileNameEl   = document.getElementById("file-name");
+    const fileSubEl    = document.getElementById("file-sub");
+    const homeBtn      = document.getElementById("home-btn");
+    const newFileBtn   = document.getElementById("new-file-btn");
+    const newFileInput = document.getElementById("new-file-input");
+    const openFromSide = document.getElementById("open-from-sidebar");
+
+    const body         = document.getElementById("body");
+    const sidebar      = document.getElementById("sidebar");
+    const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+    const sidebarToggle = document.getElementById("sidebar-toggle");
+    const sidebarClose  = document.getElementById("sidebar-close");
+    const menuBtn      = document.getElementById("menu-btn");
+    const historyList  = document.getElementById("history-list");
+    const historyEmpty = document.getElementById("history-empty");
+    const historyCount = document.getElementById("history-count");
+    const clearHistoryBtn = document.getElementById("clear-history");
+
+    const emptyState   = document.getElementById("empty-state");
+    const dropZone     = document.getElementById("drop-zone");
+    const fileInput    = document.getElementById("pdf-input");
+    const pdfViewport  = document.getElementById("pdf-viewport");
+    const pdfPages     = document.getElementById("pdf-pages");
+    const zoomControls = document.getElementById("zoom-controls");
+    const zoomLevel    = document.getElementById("zoom-level");
+    const zoomIn       = document.getElementById("zoom-in");
+    const zoomOut      = document.getElementById("zoom-out");
+
+    const output       = document.getElementById("output");
+    const formatSeg    = document.getElementById("format-seg");
+    const wrapBtn      = document.getElementById("wrap-btn");
+    const copyBtn      = document.getElementById("copy-btn");
+    const downloadBtn  = document.getElementById("download-btn");
+    const statsEl      = document.getElementById("stats");
+
+    const mobileTabs   = document.getElementById("mobile-tabs");
+    const panePreview  = document.getElementById("pane-preview");
+    const paneOutput   = document.getElementById("pane-output");
+
+    const toast        = document.getElementById("toast");
+    const toastText    = document.getElementById("toast-text");
+
+    const themeBtn     = document.getElementById("theme-btn");
+    const findBtn      = document.getElementById("find-btn");
+    const findBar      = document.getElementById("find-bar");
+    const findInput    = document.getElementById("find-input");
+    const findCount    = document.getElementById("find-count");
+    const findPrev     = document.getElementById("find-prev");
+    const findNext     = document.getElementById("find-next");
+    const findClose    = document.getElementById("find-close");
+    const fontInc      = document.getElementById("font-inc");
+    const fontDec      = document.getElementById("font-dec");
+    const editBtn      = document.getElementById("edit-btn");
+    const revertBtn    = document.getElementById("revert-btn");
+    const editor       = document.getElementById("editor");
+
+    // ---------- State ----------
+    let currentBytes  = null;
+    let currentName   = "";
+    let currentId     = null;        // active history entry id
+    let currentFormat = "markdown";
+    let pdfDoc        = null;
+    let pdfZoom       = 1.0;
+    let renderToken   = 0;           // cancel old renders
+    const resultCache = {};
+    let LiteParse     = null;
+    let currentOutputText = "";
+    let findMatches   = [];
+    let findActive    = -1;
+    let outputFontSize = 13;
+    let editMode      = false;
+    const editedText  = {};
+    const parsedText  = {};
+
+    // ---------- Helpers ----------
+    function setStatus(msg, type) {
+      statusLabel.textContent = msg;
+      statusPill.className = "status-pill";
+      if (type) statusPill.classList.add("is-" + type);
+    }
+    function showToast(msg) {
+      toastText.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove("show"), 1500);
+    }
+    function formatBytes(n) {
+      if (n < 1024) return n + " B";
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+      return (n / (1024 * 1024)).toFixed(2) + " MB";
+    }
+    function timeAgo(ts) {
+      const s = Math.floor((Date.now() - ts) / 1000);
+      if (s < 60) return "just now";
+      if (s < 3600) return Math.floor(s / 60) + "m ago";
+      if (s < 86400) return Math.floor(s / 3600) + "h ago";
+      const d = Math.floor(s / 86400);
+      if (d < 30) return d + "d ago";
+      return new Date(ts).toLocaleDateString();
+    }
+    function setOutputEmpty(msg) {
+      output.classList.add("empty-state");
+      output.classList.remove("wrap");
+      output.hidden = false;
+      output.textContent = msg;
+      currentOutputText = "";
+      for (const k in editedText) delete editedText[k];
+      for (const k in parsedText) delete parsedText[k];
+      copyBtn.disabled = true;
+      downloadBtn.disabled = true;
+      statsEl.hidden = true;
+      editMode = false;
+      if (editor) { editor.hidden = true; editor.value = ""; }
+      if (editBtn) {
+        editBtn.disabled = true;
+        editBtn.classList.remove("active", "edited");
+        const l = editBtn.querySelector(".btn-label"); if (l) l.textContent = "Edit";
+      }
+      if (revertBtn) revertBtn.hidden = true;
+      if (findBtn) findBtn.disabled = true;
+      closeFind();
+    }
+    function setOutputContent(text) {
+      output.classList.remove("empty-state");
+      currentOutputText = text;
+      output.textContent = text;
+      if (editMode && editor) editor.value = text;
+      copyBtn.disabled = false;
+      downloadBtn.disabled = false;
+      if (editBtn) editBtn.disabled = false;
+      if (findBtn) findBtn.disabled = editMode;
+      if (findBar && !findBar.hidden && findInput.value) runFind();
+    }
+
+    // ---------- IndexedDB history store ----------
+    const DB_NAME = "liteparse";
+    const STORE   = "files";
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            const os = db.createObjectStore(STORE, { keyPath: "id", autoIncrement: true });
+            os.createIndex("addedAt", "addedAt");
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror   = () => reject(req.error);
+      });
+    }
+    async function dbTx(mode, fn) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, mode);
+        const store = tx.objectStore(STORE);
+        const out = fn(store);
+        tx.oncomplete = () => resolve(out);
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+      });
+    }
+    async function dbList() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const db = await openDB();
+          const tx = db.transaction(STORE, "readonly");
+          const store = tx.objectStore(STORE);
+          const req = store.getAll();
+          req.onsuccess = () => {
+            const items = req.result || [];
+            // Sort by addedAt desc
+            items.sort((a, b) => b.addedAt - a.addedAt);
+            // Strip bytes for listing
+            resolve(items.map(({ id, name, size, addedAt }) => ({ id, name, size, addedAt })));
+          };
+          req.onerror = () => reject(req.error);
+        } catch (e) { reject(e); }
+      });
+    }
+    async function dbAdd(rec) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const db = await openDB();
+          const tx = db.transaction(STORE, "readwrite");
+          const req = tx.objectStore(STORE).add(rec);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        } catch (e) { reject(e); }
+      });
+    }
+    async function dbGet(id) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const db = await openDB();
+          const tx = db.transaction(STORE, "readonly");
+          const req = tx.objectStore(STORE).get(id);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => reject(req.error);
+        } catch (e) { reject(e); }
+      });
+    }
+    async function dbDelete(id) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const db = await openDB();
+          const tx = db.transaction(STORE, "readwrite");
+          const req = tx.objectStore(STORE).delete(id);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
+        } catch (e) { reject(e); }
+      });
+    }
+    async function dbClear() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const db = await openDB();
+          const tx = db.transaction(STORE, "readwrite");
+          const req = tx.objectStore(STORE).clear();
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
+        } catch (e) { reject(e); }
+      });
+    }
+
+    // ---------- History UI ----------
+    async function refreshHistory() {
+      let items = [];
+      try { items = await dbList(); }
+      catch (e) { console.warn("history list failed", e); }
+      historyCount.textContent = items.length;
+      historyList.innerHTML = "";
+      if (items.length === 0) {
+        historyList.appendChild(historyEmpty);
+        return;
+      }
+      for (const item of items) {
+        const el = document.createElement("div");
+        el.className = "history-item";
+        if (item.id === currentId) el.classList.add("active");
+        el.tabIndex = 0;
+        el.innerHTML = `
+          <div class="file-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="info">
+            <div class="h-name"></div>
+            <div class="h-sub"></div>
+          </div>
+          <button class="delete" title="Remove from history" aria-label="Remove from history">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+        `;
+        el.querySelector(".h-name").textContent = item.name;
+        el.querySelector(".h-sub").textContent  = `${formatBytes(item.size)} · ${timeAgo(item.addedAt)}`;
+        el.addEventListener("click", (e) => {
+          if (e.target.closest(".delete")) return;
+          openFromHistory(item.id);
+        });
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openFromHistory(item.id);
+          }
+        });
+        el.querySelector(".delete").addEventListener("click", async (e) => {
+          e.stopPropagation();
+          await dbDelete(item.id);
+          showToast("Removed from history");
+          if (item.id === currentId) goHome();
+          refreshHistory();
+        });
+        historyList.appendChild(el);
+      }
+    }
+
+    async function openFromHistory(id) {
+      const rec = await dbGet(id);
+      if (!rec) { showToast("File not found"); refreshHistory(); return; }
+      currentId = id;
+      await loadBytes(new Uint8Array(rec.bytes), rec.name);
+      closeSidebarMobile();
+      refreshHistory();
+    }
+
+    clearHistoryBtn.addEventListener("click", async () => {
+      if (!confirm("Clear all history? This cannot be undone.")) return;
+      await dbClear();
+      showToast("History cleared");
+      refreshHistory();
+      // If current file came from history, stay loaded; user explicitly cleared.
+    });
+
+    // ---------- Sidebar (mobile) ----------
+    function openSidebarMobile() {
+      sidebar.classList.add("open");
+      sidebarBackdrop.classList.add("show");
+    }
+    function closeSidebarMobile() {
+      sidebar.classList.remove("open");
+      sidebarBackdrop.classList.remove("show");
+    }
+    menuBtn.addEventListener("click", openSidebarMobile);
+    sidebarClose.addEventListener("click", closeSidebarMobile);
+    sidebarBackdrop.addEventListener("click", closeSidebarMobile);
+
+    // Desktop sidebar toggle
+    sidebarToggle.addEventListener("click", () => {
+      const hidden = body.classList.toggle("no-sidebar");
+      sidebarToggle.classList.toggle("active", !hidden);
+      try { localStorage.setItem("liteparse.sidebar", hidden ? "0" : "1"); } catch {}
+    });
+    // Restore sidebar pref
+    try {
+      const pref = localStorage.getItem("liteparse.sidebar");
+      if (pref === "0") body.classList.add("no-sidebar");
+      sidebarToggle.classList.toggle("active", !body.classList.contains("no-sidebar"));
+    } catch {}
+
+    // ---------- Home button ----------
+    function goHome() {
+      currentBytes = null;
+      currentName  = "";
+      currentId    = null;
+      pdfDoc       = null;
+      pdfZoom      = 1.0;
+      zoomLevel.textContent = "100%";
+      for (const k in resultCache) delete resultCache[k];
+      renderToken++;
+      // Top bar
+      fileMeta.classList.add("hidden");
+      // Preview pane: show drop zone, hide viewport
+      emptyState.style.display = "";
+      pdfViewport.hidden = true;
+      zoomControls.hidden = true;
+      pdfPages.innerHTML = "";
+      // Output reset
+      setOutputEmpty("Open a PDF to see parsed output here.");
+      // Layout
+      body.classList.add("home");
+      // Reset mobile tab to preview
+      mobileTabs.querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.pane === "preview"));
+      panePreview.classList.add("active-mobile");
+      paneOutput.classList.remove("active-mobile");
+      setStatus(LiteParse ? "Ready" : "Loading parser…", LiteParse ? "success" : "loading");
+      refreshHistory();
+    }
+    homeBtn.addEventListener("click", goHome);
+
+    // ---------- Load WASM parser ----------
+    setStatus("Loading parser…", "loading");
+    (async () => {
+      try {
+        const mod = await import(
+          "https://cdn.jsdelivr.net/npm/@llamaindex/liteparse-wasm@2.1/pkg/liteparse_wasm.js"
+        );
+        await mod.default(
+          "https://cdn.jsdelivr.net/npm/@llamaindex/liteparse-wasm@2.1/pkg/liteparse_wasm_bg.wasm"
+        );
+        LiteParse = mod.LiteParse;
+        setStatus("Ready", "success");
+      } catch (err) {
+        setStatus("Failed to load parser", "error");
+        console.error(err);
+      }
+    })();
+
+    // ---------- Drop zone events ----------
+    ["dragenter", "dragover"].forEach(ev => {
+      dropZone.addEventListener(ev, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.add("dragover");
+      });
+    });
+    ["dragleave", "dragend", "drop"].forEach(ev => {
+      dropZone.addEventListener(ev, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.remove("dragover");
+      });
+    });
+    dropZone.addEventListener("drop", (e) => {
+      const file = e.dataTransfer.files[0];
+      if (file && (file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+        handleFile(file);
+      } else {
+        setStatus("Please drop a PDF file", "error");
+      }
+    });
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) { handleFile(file); fileInput.value = ""; }
+    });
+
+    // Global drag to replace when a file is loaded
+    ["dragover", "drop"].forEach(ev => {
+      window.addEventListener(ev, (e) => {
+        if (e.target.closest(".drop-zone")) return;
+        e.preventDefault();
+      });
+    });
+    window.addEventListener("drop", (e) => {
+      if (e.target.closest(".drop-zone")) return;
+      const file = e.dataTransfer && e.dataTransfer.files[0];
+      if (file && /\.pdf$/i.test(file.name)) handleFile(file);
+    });
+
+    newFileBtn.addEventListener("click", () => newFileInput.click());
+    newFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) handleFile(file);
+      newFileInput.value = "";
+    });
+    openFromSide.addEventListener("click", () => newFileInput.click());
+
+    // ---------- Handle a fresh file (adds to history) ----------
+    async function handleFile(file) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      // Save to history (skip duplicates by name+size)
+      try {
+        const existing = await dbList();
+        const dup = existing.find(x => x.name === file.name && x.size === bytes.length);
+        if (dup) {
+          // Update timestamp by deleting & re-adding
+          await dbDelete(dup.id);
+        }
+        const id = await dbAdd({
+          name: file.name,
+          size: bytes.length,
+          addedAt: Date.now(),
+          bytes: bytes.buffer,
+        });
+        currentId = id;
+      } catch (e) {
+        console.warn("history save failed", e);
+      }
+      await loadBytes(bytes, file.name);
+      refreshHistory();
+    }
+
+    // Load bytes (from new file or from history) into the workspace
+    async function loadBytes(bytes, name) {
+      currentBytes = bytes;
+      currentName  = name;
+      for (const k in resultCache) delete resultCache[k];
+
+      // Top bar meta
+      fileNameEl.textContent = name;
+      fileSubEl.textContent  = formatBytes(bytes.length);
+      fileMeta.classList.remove("hidden");
+
+      // Layout: leave home
+      body.classList.remove("home");
+
+      // Preview pane
+      emptyState.style.display = "none";
+      pdfViewport.hidden = false;
+      zoomControls.hidden = false;
+
+      // Output reset
+      setOutputEmpty("Parsing…");
+
+      // Render preview + parse in parallel
+      await Promise.all([renderPdfPreview(), renderParsed()]);
+    }
+
+    // ---------- PDF preview ----------
+    function waitForPdfjs(timeoutMs = 8000) {
+      return new Promise((resolve, reject) => {
+        if (window.pdfjsLib && window.pdfjsLib.getDocument) return resolve(window.pdfjsLib);
+        if (window.__pdfjsError) return reject(window.__pdfjsError);
+        let done = false;
+        const onReady = () => { if (done) return; done = true; cleanup(); resolve(window.pdfjsLib); };
+        const onErr   = () => { if (done) return; done = true; cleanup(); reject(window.__pdfjsError || new Error("pdf.js failed")); };
+        const cleanup = () => {
+          window.removeEventListener("pdfjs-ready", onReady);
+          window.removeEventListener("pdfjs-error", onErr);
+          clearTimeout(t);
+        };
+        window.addEventListener("pdfjs-ready", onReady);
+        window.addEventListener("pdfjs-error", onErr);
+        const t = setTimeout(() => {
+          if (window.pdfjsLib && window.pdfjsLib.getDocument) onReady();
+          else onErr();
+        }, timeoutMs);
+      });
+    }
+
+    async function renderPdfPreview() {
+      const token = ++renderToken;
+      pdfPages.innerHTML = '<div class="pdf-loading"><div class="spinner"></div>Loading preview…</div>';
+      let lib;
+      try {
+        lib = await waitForPdfjs();
+      } catch (err) {
+        console.error("pdf.js unavailable", err);
+        pdfPages.innerHTML =
+          '<div class="pdf-loading">Couldn\'t load PDF preview.<br/>' +
+          '<span style="font-size:0.7rem;opacity:0.7">Check your network connection and try again.</span></div>';
+        return;
+      }
+      if (token !== renderToken) return;
+      try {
+        const copy = currentBytes.slice();
+        const loadingTask = lib.getDocument({ data: copy });
+        const doc = await loadingTask.promise;
+        if (token !== renderToken) return;
+        pdfDoc = doc;
+        await drawAllPages(token);
+      } catch (err) {
+        console.error(err);
+        pdfPages.innerHTML =
+          '<div class="pdf-loading">Could not render preview.<br/>' +
+          '<span style="font-size:0.7rem;opacity:0.7">' + (err && err.message ? err.message : err) + '</span></div>';
+      }
+    }
+
+    async function drawAllPages(token) {
+      if (!pdfDoc) return;
+      if (token === undefined) token = renderToken;
+      pdfPages.innerHTML = "";
+      const viewportWidth = Math.max(200, pdfViewport.clientWidth - 32);
+      for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+        if (token !== renderToken) return;
+        const page = await pdfDoc.getPage(pageNum);
+        const baseViewport = page.getViewport({ scale: 1 });
+        const fitScale = viewportWidth / baseViewport.width;
+        const scale = Math.max(0.3, fitScale * pdfZoom);
+        const viewport = page.getViewport({ scale });
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const canvas = document.createElement("canvas");
+        canvas.width  = Math.floor(viewport.width  * dpr);
+        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.style.width  = viewport.width  + "px";
+        canvas.style.height = viewport.height + "px";
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+
+        const wrap = document.createElement("div");
+        wrap.className = "pdf-page";
+        wrap.appendChild(canvas);
+        const label = document.createElement("span");
+        label.className = "page-label";
+        label.textContent = `${pageNum} / ${pdfDoc.numPages}`;
+        wrap.appendChild(label);
+        pdfPages.appendChild(wrap);
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+      }
+    }
+
+    zoomIn.addEventListener("click", () => {
+      pdfZoom = Math.min(3, +(pdfZoom + 0.1).toFixed(2));
+      zoomLevel.textContent = Math.round(pdfZoom * 100) + "%";
+      drawAllPages();
+    });
+    zoomOut.addEventListener("click", () => {
+      pdfZoom = Math.max(0.5, +(pdfZoom - 0.1).toFixed(2));
+      zoomLevel.textContent = Math.round(pdfZoom * 100) + "%";
+      drawAllPages();
+    });
+
+    let resizeT;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeT);
+      resizeT = setTimeout(() => { if (pdfDoc) drawAllPages(); }, 200);
+    });
+
+    // ---------- Parsing ----------
+    async function parseAs(format) {
+      if (resultCache[format]) return resultCache[format];
+      const t0 = performance.now();
+      const parser = new LiteParse({
+        ocrEnabled: false,
+        outputFormat: format,
+        quiet: true,
+      });
+      const result = await parser.parse(currentBytes);
+      const elapsed = (performance.now() - t0) / 1000;
+      resultCache[format] = { result, elapsed };
+      return resultCache[format];
+    }
+    async function renderParsed() {
+      if (!currentBytes) return;
+      if (!LiteParse) { setOutputEmpty("Parser is still loading…"); return; }
+      setStatus(`Parsing as ${currentFormat}…`, "loading");
+      try {
+        const { result, elapsed } = await parseAs(currentFormat);
+        const parsed = currentFormat === "json"
+          ? JSON.stringify(result, null, 2)
+          : result.text;
+        parsedText[currentFormat] = parsed;
+        const display = (editedText[currentFormat] != null) ? editedText[currentFormat] : parsed;
+        setOutputContent(display);
+        updateEditedIndicator();
+        setStatus(`Parsed ${result.pages.length} page(s) in ${elapsed.toFixed(2)}s`, "success");
+        statsEl.hidden = false;
+        const wordCount = (result.text.trim().match(/\S+/g) || []).length;
+        statsEl.innerHTML = [
+          ["Pages", result.pages.length],
+          ["Words", wordCount.toLocaleString()],
+          ["Chars", result.text.length.toLocaleString()],
+          ["Time", elapsed.toFixed(2) + " s"],
+          ["Size", formatBytes(currentBytes.length)],
+        ].map(([label, value]) =>
+          `<div class="stat"><span class="label">${label}</span><span class="value">${value}</span></div>`
+        ).join("");
+      } catch (err) {
+        console.error(err);
+        setOutputEmpty("Parse error: " + err.toString());
+        setStatus("Parse error", "error");
+      }
+    }
+
+    formatSeg.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-fmt]");
+      if (!btn) return;
+      formatSeg.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentFormat = btn.dataset.fmt;
+      if (currentBytes) renderParsed();
+    });
+
+    wrapBtn.addEventListener("click", () => {
+      const on = output.classList.toggle("wrap");
+      editor.classList.toggle("wrap", on);
+      editor.wrap = on ? "soft" : "off";
+      wrapBtn.style.background = on ? "var(--panel)" : "";
+      wrapBtn.style.borderColor = on ? "var(--line-strong)" : "";
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(currentOutputText || output.textContent);
+        showToast("Copied to clipboard");
+      } catch { showToast("Copy failed"); }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const ext  = currentFormat === "json" ? "json" : currentFormat === "markdown" ? "md" : "txt";
+      const mime = currentFormat === "json" ? "application/json" : "text/plain";
+      const base = (currentName || "output").replace(/\.pdf$/i, "");
+      const blob = new Blob([currentOutputText || output.textContent], { type: mime + ";charset=utf-8" });
+      const url  = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `${base}.${ext}`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      showToast(`Saved ${a.download}`);
+    });
+
+    // Mobile tabs
+    mobileTabs.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-pane]");
+      if (!btn) return;
+      mobileTabs.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const target = btn.dataset.pane;
+      [panePreview, paneOutput].forEach(p => p.classList.remove("active-mobile"));
+      (target === "preview" ? panePreview : paneOutput).classList.add("active-mobile");
+    });
+
+    // Keyboard shortcuts
+    window.addEventListener("keydown", (e) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === "o") {
+        e.preventDefault();
+        newFileInput.click();
+      } else if (mod && e.key.toLowerCase() === "f" && currentOutputText && !editMode) {
+        e.preventDefault();
+        openFind();
+      } else if (e.key === "Escape") {
+        if (findBar && !findBar.hidden) closeFind();
+        else closeSidebarMobile();
+      }
+    });
+
+    // ---------- Theme (dark / light) ----------
+    function applyTheme(theme) {
+      const dark = theme === "dark";
+      document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      const moon = themeBtn.querySelector(".icon-moon");
+      const sun  = themeBtn.querySelector(".icon-sun");
+      if (moon && sun) { moon.style.display = dark ? "none" : ""; sun.style.display = dark ? "" : "none"; }
+      themeBtn.title = dark ? "Switch to light mode" : "Switch to dark mode";
+    }
+    (function initTheme() {
+      let theme = null;
+      try { theme = localStorage.getItem("liteparse.theme"); } catch {}
+      if (!theme) theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+      applyTheme(theme);
+    })();
+    themeBtn.addEventListener("click", () => {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(next);
+      try { localStorage.setItem("liteparse.theme", next); } catch {}
+      if (pdfDoc) drawAllPages();
+    });
+
+    // ---------- Output font size ----------
+    function applyFontSize() { output.style.fontSize = outputFontSize + "px"; if (editor) editor.style.fontSize = outputFontSize + "px"; }
+    try {
+      const fs = parseInt(localStorage.getItem("liteparse.fontSize"), 10);
+      if (fs >= 10 && fs <= 22) outputFontSize = fs;
+    } catch {}
+    applyFontSize();
+    fontInc.addEventListener("click", () => {
+      outputFontSize = Math.min(22, outputFontSize + 1);
+      applyFontSize();
+      try { localStorage.setItem("liteparse.fontSize", outputFontSize); } catch {}
+    });
+    fontDec.addEventListener("click", () => {
+      outputFontSize = Math.max(10, outputFontSize - 1);
+      applyFontSize();
+      try { localStorage.setItem("liteparse.fontSize", outputFontSize); } catch {}
+    });
+
+    // ---------- Find in output ----------
+    function escapeHtml(s) {
+      return s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    }
+    function escapeReg(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+    function openFind() {
+      if (!currentOutputText) return;
+      findBar.hidden = false;
+      findBtn.classList.add("active");
+      findInput.focus();
+      findInput.select();
+      if (findInput.value) runFind();
+    }
+    function closeFind() {
+      if (!findBar) return;
+      findBar.hidden = true;
+      if (findBtn) findBtn.classList.remove("active");
+      findMatches = [];
+      findActive = -1;
+      if (currentOutputText && !output.classList.contains("empty-state")) {
+        output.textContent = currentOutputText;
+      }
+    }
+    function runFind() {
+      const q = findInput.value;
+      if (!currentOutputText) { findCount.textContent = "0/0"; return; }
+      if (!q) {
+        output.textContent = currentOutputText;
+        findMatches = []; findActive = -1;
+        findCount.textContent = "0/0";
+        return;
+      }
+      let i = 0;
+      const html = escapeHtml(currentOutputText).replace(
+        new RegExp(escapeReg(escapeHtml(q)), "gi"),
+        m => `<mark class="mark" data-i="${i++}">${m}</mark>`
+      );
+      output.innerHTML = html;
+      findMatches = Array.from(output.querySelectorAll("mark.mark"));
+      if (findMatches.length === 0) { findActive = -1; findCount.textContent = "0/0"; return; }
+      findActive = 0;
+      markActive();
+    }
+    function markActive() {
+      findMatches.forEach((m, idx) => m.classList.toggle("active", idx === findActive));
+      findCount.textContent = (findActive + 1) + "/" + findMatches.length;
+      const el = findMatches[findActive];
+      if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+    function findStep(dir) {
+      if (findMatches.length === 0) return;
+      findActive = (findActive + dir + findMatches.length) % findMatches.length;
+      markActive();
+    }
+    findBtn.addEventListener("click", () => { if (findBar.hidden) openFind(); else closeFind(); });
+    findInput.addEventListener("input", runFind);
+    findInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); findStep(e.shiftKey ? -1 : 1); }
+      else if (e.key === "Escape") { e.preventDefault(); closeFind(); }
+    });
+    findNext.addEventListener("click", () => findStep(1));
+    findPrev.addEventListener("click", () => findStep(-1));
+    findClose.addEventListener("click", closeFind);
+
+    // ---------- Edit parsed text (desktop + mobile) ----------
+    function setEditMode(on) {
+      if (on && !currentOutputText && output.classList.contains("empty-state")) return;
+      editMode = on;
+      if (on) {
+        closeFind();
+        editor.value = currentOutputText;
+        const wrapped = output.classList.contains("wrap");
+        editor.classList.toggle("wrap", wrapped);
+        editor.wrap = wrapped ? "soft" : "off";
+        editor.style.fontSize = outputFontSize + "px";
+        output.hidden = true;
+        editor.hidden = false;
+        editBtn.classList.add("active");
+        const l = editBtn.querySelector(".btn-label"); if (l) l.textContent = "Done";
+        findBtn.disabled = true;
+        const ob = mobileTabs.querySelector('button[data-pane="output"]');
+        if (ob && getComputedStyle(mobileTabs).display !== "none") ob.click();
+        editor.focus();
+      } else {
+        output.hidden = false;
+        editor.hidden = true;
+        editBtn.classList.remove("active");
+        const l = editBtn.querySelector(".btn-label"); if (l) l.textContent = "Edit";
+        findBtn.disabled = !currentOutputText;
+        output.textContent = currentOutputText;
+      }
+    }
+    function updateEditedIndicator() {
+      const edited = editedText[currentFormat] != null;
+      if (revertBtn) revertBtn.hidden = !edited;
+      if (editBtn) editBtn.classList.toggle("edited", edited);
+    }
+    editBtn.addEventListener("click", () => setEditMode(!editMode));
+    editor.addEventListener("input", () => {
+      currentOutputText = editor.value;
+      editedText[currentFormat] = editor.value;
+      copyBtn.disabled = false;
+      downloadBtn.disabled = false;
+      updateEditedIndicator();
+    });
+    revertBtn.addEventListener("click", () => {
+      delete editedText[currentFormat];
+      const t = (parsedText[currentFormat] != null) ? parsedText[currentFormat] : "";
+      currentOutputText = t;
+      if (editMode) editor.value = t;
+      else output.textContent = t;
+      updateEditedIndicator();
+      showToast("Reverted to parsed text");
+    });
+
+    // Initial history load
+    refreshHistory();
+  </script>
+</body>
+</html>
